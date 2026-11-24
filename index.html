@@ -2139,7 +2139,7 @@
 
         const pptx = new window.PptxGenJS();
         pptx.layout = "LAYOUT_16x9";
-        pptx.author = docData.author_nama || "EduCinta Studio";
+        pptx.author = docData.author_nama || "Digital Modul Ajar";
         pptx.title = docData.topik_materi;
 
         slides.forEach((s, idx) => {
@@ -2180,7 +2180,7 @@
               x: 0.7, y: 1.55, w: 8.6, h: 3.6, valign: "top"
             });
             slide.addText(
-              `${state.madrasah.nama_madrasah || "EduCinta Studio"} — ${docData.topik_materi}`,
+              `${state.madrasah.nama_madrasah || "Digital Modul Ajar"} — ${docData.topik_materi}`,
               { x: 0.6, y: 5.2, w: 8.8, h: 0.3, fontSize: 9.5, color: "94A3B8" }
             );
           }
@@ -2211,7 +2211,7 @@
                 Platform Perangkat Pembelajaran Madrasah (RA – MA)
               </span>
               <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
-                EduCinta Studio
+                Digital Modul Ajar
               </h1>
               <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
                 Silakan pilih pendekatan kurikulum perangkat pembelajaran yang akan Anda susun sebelum masuk ke ruang kerja pendidik.
@@ -2301,7 +2301,7 @@
               <div class="w-12 h-12 rounded-2xl ${isKBC ? 'kbc-gradient' : 'brand-gradient'} text-white flex items-center justify-center mx-auto mb-3">
                 <i data-lucide="book-open-check" class="w-6 h-6"></i>
               </div>
-              <h1 class="text-xl font-extrabold text-slate-800">EduCinta Studio</h1>
+              <h1 class="text-xl font-extrabold text-slate-800">Digital Modul Ajar</h1>
               <p class="text-xs text-slate-400 mt-1">
                 ${tab === "DAFTAR_GURU"
                   ? "Setiap pengguna akun Guru wajib mendaftar terlebih dahulu"
@@ -2980,7 +2980,7 @@
                       </ul>
 
                       <div class="text-[11px] pt-3 border-t ${state.activeSlideIdx === 0 ? 'border-white/20 text-white/75' : 'border-slate-100 text-slate-400'} flex justify-between">
-                        <span>${escapeHtml(state.madrasah.nama_madrasah || "EduCinta Studio")}</span>
+                        <span>${escapeHtml(state.madrasah.nama_madrasah || "Digital Modul Ajar")}</span>
                         <span>${escapeHtml(docData.mata_pelajaran)} — ${escapeHtml(docData.jenjang)}</span>
                       </div>
                     </div>
@@ -3955,7 +3955,7 @@
                     <i data-lucide="book-open-check" class="w-5 h-5"></i>
                   </div>
                   <div>
-                    <div class="text-sm font-extrabold text-slate-800 leading-tight">EduCinta Studio</div>
+                    <div class="text-sm font-extrabold text-slate-800 leading-tight">Digital Modul Ajar</div>
                     <div class="text-[11px] font-semibold text-slate-400">RA • MI • MTs • MA</div>
                   </div>
                 </div>
