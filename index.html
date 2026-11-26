@@ -812,7 +812,7 @@
     // PERSISTENSI SESI AKTIF (AGAR TIDAK KELUAR SAAT REFRESH)
     // =========================================================================
     const SESSION_KEY = 'klikajar_active_session_v2';
-    const PREVIEW_USERS_KEY = 'klikajar_preview_users_v1';
+    const PREVIEW_USERS_KEY = 'klikajar_preview_users_v2';
 
     function syncPreviewUsersStorage() {
       if (!IS_PREVIEW) return;
@@ -870,9 +870,9 @@
         }
         if (IS_PREVIEW) {
           const savedUsers = localStorage.getItem(PREVIEW_USERS_KEY);
-          if (savedUsers) {
+          if (savedUsers !== null) {
             const parsedUsers = JSON.parse(savedUsers);
-            if (Array.isArray(parsedUsers) && parsedUsers.length > 0) {
+            if (Array.isArray(parsedUsers)) {
               state.usersList = parsedUsers;
             }
           }
@@ -968,6 +968,13 @@
         fbAuth = authMod.getAuth(app);
         fbDb = fsMod.getFirestore(app);
         fbMod = { ...authMod, ...fsMod };
+
+        fbMod.onAuthStateChanged(fbAuth, async (user) => {
+          if (user && state.currentUser && state.currentUser.role === 'admin') {
+            await loadFirestoreDataForRole();
+            renderApp();
+          }
+        });
 
         await loadPublicAdminPaymentConfig();
         if (state.currentUser) {
@@ -1629,7 +1636,6 @@
       }
 
       const newGuru = {
-        id: 'guru-' + Date.now(),
         namaLengkap,
         nip,
         noWhatsapp,
@@ -1645,13 +1651,14 @@
       };
 
       if (IS_PREVIEW) {
-        state.usersList.unshift(newGuru);
+        state.usersList.unshift({ id: 'guru-' + Date.now(), ...newGuru });
+        syncPreviewUsersStorage();
       } else if (fbDb && fbMod) {
         try {
           const docRef = await fbMod.addDoc(fbMod.collection(fbDb, 'users'), newGuru);
-          newGuru.id = docRef.id;
+          state.usersList.unshift({ id: docRef.id, ...newGuru });
         } catch (err) {
-          showToast('Gagal mengirim pendaftaran ke database.', 'error');
+          showToast('Gagal mengirim pendaftaran ke database: ' + (err.message || ''), 'error');
           return;
         }
       }
@@ -1823,6 +1830,10 @@
       }
 
       if (!IS_PREVIEW && fbDb && fbMod) {
+        if (!fbAuth || !fbAuth.currentUser) {
+          showToast('Sesi Firebase Auth Admin berakhir. Silakan keluar dan masuk kembali sebagai Admin.', 'error');
+          return;
+        }
         try {
           await fbMod.updateDoc(fbMod.doc(fbDb, 'users', userId), {
             status: 'active',
@@ -1842,6 +1853,10 @@
 
     window.deleteGuruAccount = async (userId) => {
       if (!IS_PREVIEW && fbDb && fbMod) {
+        if (!fbAuth || !fbAuth.currentUser) {
+          showToast('Sesi Firebase Auth Admin berakhir. Silakan keluar dan masuk kembali sebagai Admin agar penghapusan tersimpan permanen di Firestore.', 'error');
+          return;
+        }
         try {
           await fbMod.deleteDoc(fbMod.doc(fbDb, 'users', userId));
         } catch (err) {
@@ -1851,7 +1866,7 @@
       }
       state.usersList = state.usersList.filter(u => u.id !== userId);
       syncPreviewUsersStorage();
-      showToast('Akun guru dihapus.');
+      showToast('Akun guru berhasil dihapus secara permanen.');
       renderApp();
     };
 
