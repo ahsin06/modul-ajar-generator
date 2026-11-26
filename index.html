@@ -270,64 +270,17 @@
     let unsubGuru = null;
 
     // =========================================================================
-    // DATA REFERENSI PEDAGOGIS (RA-MA, DEEP LEARNING, & PANCA CINTA)
+    // KONSTANTA PEDAGOGIS, KURIKULUM (RA–MA), & FUNGSI UTILITAS
     // =========================================================================
-    const JENIS_PERANGKAT_OPTIONS = [
-      {
-        value: "Modul Ajar (RPP Plus)",
-        deskripsi: "Rencana pembelajaran terperinci yang memuat tujuan pembelajaran, langkah kegiatan, media, dan asesmen."
-      },
-      {
-        value: "Alur Tujuan Pembelajaran (ATP)",
-        deskripsi: "Rangkaian tujuan pembelajaran yang disusun sistematis dan logis sepanjang fase pembelajaran."
-      },
-      {
-        value: "Modul Projek / Kegiatan Kokurikuler",
-        deskripsi: "Rancangan aktivitas pembelajaran berbasis projek/kokurikuler untuk penguatan profil lulusan."
-      },
-      {
-        value: "Bahan Ajar",
-        deskripsi: "Materi atau referensi belajar (seperti buku teks, modul bacaan, handout, atau lembar kerja) untuk mendukung pemahaman murid."
-      },
-      {
-        value: "Buku Teks Pelajaran",
-        deskripsi: "Buku utama atau pendamping sesuai mata pelajaran dan fase."
-      },
-      {
-        value: "Media Audio-Visual & Digital",
-        deskripsi: "Video pembelajaran, presentasi interaktif, simulasi, atau media edukatif lain (seperti komik edukatif)."
-      },
-      {
-        value: "Lembar Kerja Peserta Didik (LKPD)",
-        deskripsi: "Panduan aktivitas, latihan, atau tugas terstruktur bagi murid."
-      },
-      {
-        value: "Perencanaan Waktu",
-        deskripsi: "Kalender pendidikan, rincian minggu/hari efektif, Program Tahunan (Prota), Program Semester (Promes), dan jadwal mengajar."
-      },
-      {
-        value: "Instrumen Asesmen dan Evaluasi",
-        deskripsi: "Rubrik penilaian, soal formatif/sumatif, instrumen refleksi, serta rekap nilai atau jurnal catatan perkembangan murid."
-      },
-      {
-        value: "Program Semester (Prosem)",
-        deskripsi: "Distribusi alokasi waktu dan pemetaan materi pembelajaran dalam satu semester."
-      },
-      {
-        value: "Program Tahunan (Prota)",
-        deskripsi: "Perencanaan alokasi waktu pembelajaran dan capaian materi selama satu tahun pelajaran."
-      }
-    ];
-
     const JENJANG_CONFIG = {
       RA: {
         label: "RA (Raudhatul Athfal)",
         colorClass: "pastel-rose",
         iconColor: "text-rose-500",
         barColor: "#F43F5E",
-        faseOptions: ["Fase Fondasi — Kelompok A (Usia 4-5 Th)", "Fase Fondasi — Kelompok B (Usia 5-6 Th)"],
-        dokumenOptions: JENIS_PERANGKAT_OPTIONS.map((item) => item.value),
-        mapelPresets: ["Nilai Agama & Budi Pekerti", "Jati Diri & Kasih Sayang", "Dasar Literasi, Matematika & STEAM", "Pembiasaan Akhlak & Ibadah"]
+        faseOptions: ["Fase Fondasi — Kelompok A (4–5 Th)", "Fase Fondasi — Kelompok B (5–6 Th)"],
+        dokumenOptions: ["Modul Ajar (RPP Plus)", "Lembar Kerja Peserta Didik (LKPD)", "Alur Tujuan Pembelajaran (ATP)"],
+        mapelPresets: ["Nilai Agama dan Budi Pekerti", "Jati Diri", "Dasar Literasi, Matematika, Sains, Teknologi, Rekayasa, dan Seni"]
       },
       MI: {
         label: "MI (Madrasah Ibtidaiyah)",
@@ -335,8 +288,8 @@
         iconColor: "text-sky-500",
         barColor: "#0EA5E9",
         faseOptions: ["Fase A — Kelas 1", "Fase A — Kelas 2", "Fase B — Kelas 3", "Fase B — Kelas 4", "Fase C — Kelas 5", "Fase C — Kelas 6"],
-        dokumenOptions: JENIS_PERANGKAT_OPTIONS.map((item) => item.value),
-        mapelPresets: ["Akidah Akhlak", "Al-Qur'an Hadis", "Fikih", "Sejarah Kebudayaan Islam (SKI)", "Bahasa Arab", "Pendidikan Pancasila", "Bahasa Indonesia", "Matematika", "IPAS"]
+        dokumenOptions: ["Modul Ajar (RPP Plus)", "Alur Tujuan Pembelajaran (ATP)", "Lembar Kerja Peserta Didik (LKPD)", "Modul Projek / Kegiatan Kokurikuler"],
+        mapelPresets: ["Al-Qur'an Hadis", "Akidah Akhlak", "Fikih", "Sejarah Kebudayaan Islam (SKI)", "Bahasa Arab", "Pendidikan Pancasila", "Bahasa Indonesia", "Matematika", "IPAS", "Seni Budaya", "PJOK"]
       },
       MTs: {
         label: "MTs (Madrasah Tsanawiyah)",
@@ -344,52 +297,85 @@
         iconColor: "text-amber-500",
         barColor: "#F59E0B",
         faseOptions: ["Fase D — Kelas 7", "Fase D — Kelas 8", "Fase D — Kelas 9"],
-        dokumenOptions: JENIS_PERANGKAT_OPTIONS.map((item) => item.value),
-        mapelPresets: ["Akidah Akhlak", "Al-Qur'an Hadis", "Fikih", "Sejarah Kebudayaan Islam (SKI)", "Bahasa Arab", "Informatika", "IPA", "IPS", "Matematika", "Bahasa Inggris"]
+        dokumenOptions: ["Modul Ajar (RPP Plus)", "Alur Tujuan Pembelajaran (ATP)", "Bahan Ajar", "Lembar Kerja Peserta Didik (LKPD)", "Instrumen Asesmen dan Evaluasi"],
+        mapelPresets: ["Al-Qur'an Hadis", "Akidah Akhlak", "Fikih", "Sejarah Kebudayaan Islam (SKI)", "Bahasa Arab", "Pendidikan Pancasila", "Bahasa Indonesia", "Matematika", "IPA", "IPS", "Bahasa Inggris", "Informatika"]
       },
       MA: {
         label: "MA (Madrasah Aliyah)",
         colorClass: "pastel-lavender",
-        iconColor: "text-purple-500",
+        iconColor: "text-violet-500",
         barColor: "#8B5CF6",
         faseOptions: ["Fase E — Kelas 10", "Fase F — Kelas 11", "Fase F — Kelas 12"],
-        dokumenOptions: JENIS_PERANGKAT_OPTIONS.map((item) => item.value),
-        mapelPresets: ["Akidah Akhlak", "Al-Qur'an Hadis", "Fikih / Ushul Fikih", "Sejarah Kebudayaan Islam (SKI)", "Bahasa Arab", "Ilmu Tafsir / Ilmu Hadis", "Biologi", "Ekonomi", "Sosiologi", "Matematika"]
+        dokumenOptions: ["Modul Ajar (RPP Plus)", "Alur Tujuan Pembelajaran (ATP)", "Bahan Ajar", "Modul Projek / Kegiatan Kokurikuler", "Instrumen Asesmen dan Evaluasi"],
+        mapelPresets: ["Al-Qur'an Hadis", "Akidah Akhlak", "Fikih", "Sejarah Kebudayaan Islam (SKI)", "Bahasa Arab", "Pendidikan Pancasila", "Bahasa Indonesia", "Matematika", "Fisika", "Kimia", "Biologi", "Ekonomi", "Sosiologi", "Geografi", "Sejarah", "Bahasa Inggris"]
       }
     };
 
-    const PILAR_PANCA_CINTA = [
-      {
-        id: "hubbullah",
-        judul: "1. Hubbullah wa Hubburrasul (Cinta Allah & Rasul-Nya)",
-        indikator: "Menumbuhkan kesadaran spiritual, ketakwaan, rasa syukur, dan keteladanan akhlak Rasulullah SAW dalam setiap aktivitas belajar.",
-        aktivitas: "Mengawali pembelajaran dengan doa penuh penghayatan dan mengaitkan konsep ilmu dengan kebesaran Allah SWT."
-      },
-      {
-        id: "hubbul_ilmi",
-        judul: "2. Hubbul 'Ilmi (Cinta Ilmu Pengetahuan)",
-        indikator: "Membangun rasa ingin tahu, nalar kritis, kegemaran membaca, dan kejujuran akademik sebagai bentuk ibadah.",
-        aktivitas: "Eksplorasi pertanyaan pemantik, diskusi mendalam, dan refleksi hikmah di balik setiap materi."
-      },
-      {
-        id: "hubbunnafs",
-        judul: "3. Hubbunnafs wa Hubbunnas (Cinta Diri & Sesama)",
-        indikator: "Mengembangkan empati, toleransi, saling menghargai, anti-perundungan, dan kolaborasi penuh kasih sayang.",
-        aktivitas: "Kerja kelompok inklusif, budaya saling menyapa, dan apresiasi positif antarteman."
-      },
-      {
-        id: "hubbul_biah",
-        judul: "4. Hubbul Bi'ah (Cinta Lingkungan & Semesta)",
-        indikator: "Menanamkan kesadaran menjaga kelestarian alam, kebersihan madrasah, dan rahmatan lil 'alamin.",
-        aktivitas: "Aksi peduli kebersihan kelas, hemat energi/kertas, dan pengamatan ekosistem sekitar."
-      },
-      {
-        id: "hubbul_wathan",
-        judul: "5. Hubbul Wathan (Cinta Tanah Air & Kebangsaan)",
-        indikator: "Menumbuhkan semangat persatuan, moderasi beragama, dan kontribusi nyata bagi kemajuan bangsa Indonesia.",
-        aktivitas: "Mengaitkan materi dengan kearifan lokal Nusantara dan sikap cinta damai."
-      }
+    const JENIS_PERANGKAT_OPTIONS = [
+      { value: "Modul Ajar (RPP Plus)", deskripsi: "Rencana pembelajaran terperinci yang memuat tujuan pembelajaran, langkah kegiatan, media, dan asesmen." },
+      { value: "Alur Tujuan Pembelajaran (ATP)", deskripsi: "Rangkaian tujuan pembelajaran yang disusun sistematis dan logis sepanjang fase pembelajaran." },
+      { value: "Modul Projek / Kegiatan Kokurikuler", deskripsi: "Rancangan aktivitas pembelajaran berbasis projek/kokurikuler untuk penguatan profil lulusan." },
+      { value: "Bahan Ajar", deskripsi: "Materi atau referensi belajar (seperti buku teks, modul bacaan, handout, atau lembar kerja) untuk mendukung pemahaman murid." },
+      { value: "Buku Teks Pelajaran", deskripsi: "Buku utama atau pendamping sesuai mata pelajaran dan fase." },
+      { value: "Media Audio-Visual & Digital", deskripsi: "Video pembelajaran, presentasi interaktif, simulasi, atau media edukatif lain (seperti komik edukatif)." },
+      { value: "Lembar Kerja Peserta Didik (LKPD)", deskripsi: "Panduan aktivitas, latihan, atau tugas terstruktur bagi murid." },
+      { value: "Perencanaan Waktu", deskripsi: "Kalender pendidikan, rincian minggu/hari efektif, Program Tahunan (Prota), Program Semester (Promes), dan jadwal mengajar." },
+      { value: "Instrumen Asesmen dan Evaluasi", deskripsi: "Rubrik penilaian, soal formatif/sumatif, instrumen refleksi, serta rekap nilai atau jurnal catatan perkembangan murid." },
+      { value: "Program semester (prota)", deskripsi: "Distribusi alokasi waktu dan kompetensi pembelajaran dalam satu semester." },
+      { value: "Program tahunan (prosem)", deskripsi: "Perencanaan alokasi waktu pembelajaran secara menyeluruh selama satu tahun pelajaran." }
     ];
+
+    const MUATAN_GURU_KELAS_OPTIONS = [
+      "Nilai Agama dan Budi Pekerti",
+      "Pendidikan Pancasila",
+      "Bahasa Indonesia",
+      "Matematika",
+      "IPAS",
+      "Seni Budaya",
+      "PJOK"
+    ];
+
+    const MODEL_PEMBELAJARAN_OPTIONS = [
+      "Problem-Based Learning (PBL)",
+      "Project-Based Learning (PjBL)",
+      "Discovery Learning",
+      "Inquiry Learning",
+      "Cooperative Learning (STAD / Jigsaw)",
+      "Contextual Teaching and Learning (CTL)"
+    ];
+
+    const MODEL_SYNTAX_MAP = {
+      "Problem-Based Learning (PBL)": {
+        memahami: "1. Orientasi Masalah & Niat (Mindful): Guru membuka kelas dengan salam hangat, doa bersama, dan menyajikan studi kasus kontekstual.\n2. Mengorganisasi Belajar: Peserta didik mengidentifikasi pokok masalah dan merumuskan pertanyaan kunci.",
+        mengaplikasi: "1. Penyelidikan Kelompok (Meaningful): Peserta didik berdiskusi mencari solusi berdasarkan sumber belajar.\n2. Menyajikan Karya (Joyful): Kelompok mempresentasikan hasil temuan dan simulasi penerapan.",
+        merefleksi: "1. Evaluasi & Muhasabah Hati: Peserta didik merefleksikan proses pemecahan masalah dan hikmahnya.\n2. Penguatan & Doa: Guru memberikan apresiasi positif dan doa penutup."
+      },
+      "Project-Based Learning (PjBL)": {
+        memahami: "1. Pertanyaan Mendasar (Mindful): Guru memantik rasa ingin tahu melalui fenomena nyata yang relevan.\n2. Mendesain Perencanaan Projek: Peserta didik menyusun rencana produk, pembagian peran, dan jadwal.",
+        mengaplikasi: "1. Menyusun & Menguji Karya (Meaningful & Joyful): Peserta didik berkolaborasi membuat produk projek dengan bimbingan guru.\n2. Menguji Hasil & Pameran Mini: Kelompok mempresentasikan karya projek di depan kelas.",
+        merefleksi: "1. Evaluasi Pengalaman Belajar: Peserta didik mengungkapkan perasaan, tantangan, dan manfaat projek.\n2. Tindak Lanjut & Apresiasi: Guru meneguhkan karakter kolaboratif dan kasih sayang."
+      },
+      "Discovery Learning": {
+        memahami: "1. Pemberian Rangsangan (Stimulation): Guru menayangkan ilustrasi/kisah inspiratif untuk memicu rasa ingin tahu.\n2. Identifikasi Masalah: Peserta didik merumuskan dugaan sementara terkait konsep materi.",
+        mengaplikasi: "1. Pengumpulan & Pengolahan Data: Peserta didik mengeksplorasi bahan bacaan dan mendiskusikan temuannya.\n2. Pembuktian (Verification): Peserta didik membandingkan hasil temuan dengan konsep utama.",
+        merefleksi: "1. Menarik Kesimpulan (Generalization): Peserta didik menyimpulkan inti pelajaran dengan bahasa sendiri.\n2. Refleksi Nilai: Mengaitkan temuan ilmu dengan pengamalan akhlak sehari-hari."
+      },
+      "Inquiry Learning": {
+        memahami: "1. Orientasi & Merumuskan Masalah: Guru mengajak peserta didik mengamati fenomena dan menyusun pertanyaan penyelidikan.\n2. Merumuskan Hipotesis: Peserta didik mengajukan jawaban sementara secara logis.",
+        mengaplikasi: "1. Mengumpulkan Data & Menguji Hipotesis: Peserta didik melakukan observasi, wawancara singkat, atau kajian literatur.\n2. Diskusi Temuan: Menyusun argumen berdasarkan bukti yang ditemukan.",
+        merefleksi: "1. Merumuskan Kesimpulan: Peserta didik menyepakati kesimpulan akhir bersama guru.\n2. Muhasabah & Komitmen: Menuliskan rencana aksi kebaikan di rumah dan madrasah."
+      },
+      "Cooperative Learning (STAD / Jigsaw)": {
+        memahami: "1. Penyampaian Tujuan & Motivasi: Guru menjelaskan tujuan belajar dan membentuk kelompok heterogen penuh kekeluargaan.\n2. Penyajian Informasi Inti: Guru memaparkan kerangka dasar materi pembelajaran.",
+        mengaplikasi: "1. Belajar dalam Tim Ahli & Kelompok Asal: Peserta didik saling mengajarkan sub-materi dengan penuh kesabaran.\n2. Kuis & Tantangan Kelompok: Setiap anggota berkontribusi menunjukkan pemahamannya.",
+        merefleksi: "1. Penghargaan Kelompok: Guru memberikan apresiasi atas kekompakan dan saling tolong-menolong.\n2. Refleksi Kebersamaan: Peserta didik mensyukuri nikmat belajar bersama."
+      },
+      "Contextual Teaching and Learning (CTL)": {
+        memahami: "1. Konstruktivisme & Bertanya (Mindful): Guru menggali pengalaman nyata murid yang berkaitan dengan topik.\n2. Menemukan (Inquiry): Peserta didik mengamati contoh konkret di lingkungan sekitar madrasah.",
+        mengaplikasi: "1. Masyarakat Belajar & Pemodelan: Peserta didik mempraktikkan langsung keterampilan atau sikap yang dipelajari.\n2. Kolaborasi Kontekstual: Menyelesaikan tugas nyata secara berpasangan atau berkelompok.",
+        merefleksi: "1. Refleksi Bermakna: Peserta didik mencatat perubahan pemahaman dan sikap yang dirasakan.\n2. Penilaian Autentik: Evaluasi menyeluruh pada proses dan hasil karya."
+      }
+    };
 
     const PRINSIP_DEEP_LEARNING = [
       { id: "Mindful", label: "Mindful (Berkesadaran)" },
@@ -408,323 +394,58 @@
       "Komunikasi"
     ];
 
-    const MODEL_PEMBELAJARAN_OPTIONS = [
-      "Problem-Based Learning (PBL)",
-      "Project-Based Learning (PjBL)",
-      "Discovery Learning",
-      "Inquiry Learning",
-      "Cooperative Learning",
-      "Flipped Classroom",
-      "Differentiated Learning"
-    ];
-
-    const MODEL_SYNTAX_MAP = {
-      "Problem-Based Learning (PBL)": {
-        memahami: "1. Orientasi Masalah & Niat (Mindful): Guru membuka pembelajaran dengan salam hangat, doa, dan menyajikan studi kasus nyata yang relevan dengan materi.\n2. Mengorganisasi Belajar: Peserta didik mengidentifikasi rumusan masalah dan tujuan pembelajaran secara kolaboratif.",
-        mengaplikasi: "1. Penyelidikan Kelompok (Meaningful): Peserta didik berdiskusi mengumpulkan data/dalil/konsep untuk memecahkan masalah yang diberikan.\n2. Mengembangkan & Menyajikan Hasil (Joyful): Setiap kelompok mempresentasikan solusi dan saling memberi umpan balik penuh empati.",
-        merefleksi: "1. Analisis & Evaluasi Pemecahan Masalah: Guru dan peserta didik mengevaluasi proses pemecahan masalah.\n2. Muhasabah & Penguatan Nilai: Peserta didik menuliskan hikmah pembelajaran dan komitmen penerapan dalam keseharian."
+    const PILAR_PANCA_CINTA = [
+      {
+        id: "hubbullah",
+        judul: "1. Hubbullah & Hubburrasul (Cinta Allah & Rasul-Nya)",
+        indikator: "Menumbuhkan kesadaran beribadah dengan ikhlas dan meneladani akhlak kasih sayang Rasulullah SAW.",
+        aktivitas: "Membiasakan doa khusyuk sebelum belajar dan meneladani sifat jujur serta amanah dalam setiap tugas."
       },
-      "Project-Based Learning (PjBL)": {
-        memahami: "1. Pertanyaan Mendasar (Mindful): Guru memantik rasa ingin tahu peserta didik melalui fenomena nyata dan menyepakati tema proyek.\n2. Perencanaan Desain Proyek: Peserta didik menyusun langkah kerja, pembagian peran, dan jadwal penyelesaian proyek.",
-        mengaplikasi: "1. Pelaksanaan & Monitoring Proyek (Meaningful): Peserta didik membuat produk/karya nyata secara kreatif dengan bimbingan guru.\n2. Uji Hasil & Gelar Karya (Joyful): Peserta didik memamerkan atau mempresentasikan produk proyek di hadapan teman sekelas.",
-        merefleksi: "1. Evaluasi Pengalaman Belajar: Peserta didik merefleksikan tantangan, kerja sama tim, dan manfaat karya bagi lingkungan.\n2. Apresiasi & Doa Penutup: Penguatan nilai karakter dan doa bersama."
+      {
+        id: "hubbul_ilmi",
+        judul: "2. Hubbul 'Ilmi (Cinta Ilmu Pengetahuan)",
+        indikator: "Menumbuhkan rasa ingin tahu, gemar membaca, bernalar kritis, dan memandang ilmu sebagai cahaya kehidupan.",
+        aktivitas: "Gerakan literasi 10 menit dan diskusi eksploratif penuh antusiasme tanpa takut salah."
       },
-      "Discovery Learning": {
-        memahami: "1. Pemberian Rangsangan / Stimulation (Mindful): Guru menyajikan gambar, kisah, atau fenomena untuk memusatkan perhatian peserta didik.\n2. Identifikasi Masalah: Peserta didik merumuskan dugaan sementara (hipotesis) terkait konsep yang dipelajari.",
-        mengaplikasi: "1. Pengumpulan & Pengolahan Data (Meaningful): Peserta didik mengeksplorasi sumber belajar dan mengolah temuan konsep secara aktif.\n2. Pembuktian / Verification (Joyful): Peserta didik mencocokkan hasil temuan dengan konsep/dalil yang benar melalui diskusi interaktif.",
-        merefleksi: "1. Menarik Kesimpulan (Generalization): Peserta didik menyimpulkan inti materi dengan bahasa sendiri.\n2. Refleksi Makna & Sikap: Mengaitkan temuan konsep dengan perilaku kasih sayang sehari-hari."
+      {
+        id: "hubbunnafs",
+        judul: "3. Hubbunnafs & Hubbunnas (Cinta Diri & Sesama)",
+        indikator: "Menjaga kesehatan fisik/mental diri serta membangun empati, toleransi, dan anti-perundungan antarteman.",
+        aktivitas: "Sapa salam hangat, apresiasi karya teman, dan saling membantu dalam kerja kelompok."
       },
-      "Inquiry Learning": {
-        memahami: "1. Orientasi & Merumuskan Masalah (Mindful): Guru mengajak peserta didik mengamati fenomena dan menyusun pertanyaan investigasi.\n2. Merumuskan Hipotesis: Peserta didik mengajukan jawaban awal berdasarkan pengetahuan sebelumnya.",
-        mengaplikasi: "1. Mengumpulkan Informasi & Menguji Hipotesis (Meaningful): Peserta didik melakukan telaah literatur, wawancara singkat, atau pengamatan.\n2. Berbagi Temuan (Joyful): Peserta didik memaparkan bukti dan argumen secara santun dalam forum kelas.",
-        merefleksi: "1. Merumuskan Kesimpulan Akhir: Menyepakati pemahaman konsep yang utuh dan akurat.\n2. Refleksi Diri: Peserta didik menilai perkembangan cara berpikir kritis dan sikap menghargai pendapat."
+      {
+        id: "hubbul_bi_ah",
+        judul: "4. Hubbul Bi'ah (Cinta Lingkungan Alam)",
+        indikator: "Merawat kebersihan kelas, hemat energi/air, dan menjaga kelestarian alam sebagai amanah khalifah di bumi.",
+        aktivitas: "Aksi bersih ruang belajar sebelum dan sesudah kegiatan serta peduli tanaman madrasah."
       },
-      "Cooperative Learning": {
-        memahami: "1. Menyampaikan Tujuan & Motivasi (Mindful): Guru membangun suasana kelas yang hangat dan menjelaskan tujuan kerja sama.\n2. Penyajian Informasi Inti: Guru memberikan pengantar konsep dasar secara jelas dan ringkas.",
-        mengaplikasi: "1. Belajar dalam Tim Heterogen (Meaningful): Peserta didik saling membantu memahami materi dan menyelesaikan tantangan lembar kerja.\n2. Kuis / Turnamen Edukatif (Joyful): Kelompok menunjukkan penguasaan materi melalui permainan edukatif yang menyenangkan.",
-        merefleksi: "1. Penghargaan Kelompok: Apresiasi atas kekompakan dan sikap saling peduli dalam tim.\n2. Refleksi Hati: Peserta didik mengungkapkan hal baik yang dipelajari dari teman kelompoknya."
-      },
-      "Flipped Classroom": {
-        memahami: "1. Aktivasi Pengetahuan Pra-Kelas (Mindful): Guru mengulas bahan bacaan/ringkasan yang telah dipelajari peserta didik sebelum pertemuan.\n2. Klarifikasi Konsep: Peserta didik mengajukan pertanyaan atas bagian materi yang belum dipahami.",
-        mengaplikasi: "1. Pendalaman & Praktik Aktif (Meaningful): Waktu di kelas difokuskan pada diskusi studi kasus, latihan terapan, dan pendampingan personal.\n2. Simulasi & Kolaborasi (Joyful): Peserta didik menerapkan konsep secara berpasangan atau berkelompok.",
-        merefleksi: "1. Umpan Balik & Penguatan: Guru memberikan konfirmasi atas hasil latihan peserta didik.\n2. Rencana Tindak Lanjut: Peserta didik menetapkan target pembiasaan positif setelah pembelajaran."
-      },
-      "Differentiated Learning": {
-        memahami: "1. Pemetaan Kesiapan & Niat Belajar (Mindful): Guru menyapa peserta didik sesuai profil belajar (visual, auditori, kinestetik) dan menyampaikan tujuan inti.\n2. Eksplorasi Konten Berdiferensiasi: Peserta didik mengakses materi melalui teks bergambar, kisah lisan, atau kartu konsep.",
-        mengaplikasi: "1. Proses Belajar Sesuai Minat (Meaningful): Peserta didik mengerjakan aktivitas pendalaman sesuai tingkat kesiapan masing-masing.\n2. Produk Karya Beragam (Joyful): Peserta didik mengekspresikan pemahaman dalam bentuk poster, rangkuman, atau presentasi lisan.",
-        merefleksi: "1. Berbagi Pengalaman Belajar: Peserta didik saling mengapresiasi keragaman karya teman.\n2. Refleksi Kesadaran Diri: Mengenali kekuatan diri dan rasa syukur atas karunia akal dan hati."
+      {
+        id: "hubbul_wathan",
+        judul: "5. Hubbul Wathan (Cinta Tanah Air & Bangsa)",
+        indikator: "Menumbuhkan semangat persatuan, gotong royong, dan moderasi beragama dalam bingkai NKRI.",
+        aktivitas: "Mengaitkan materi pembelajaran dengan kearifan lokal dan kepedulian sosial di masyarakat."
       }
-    };
+    ];
 
     const CP_REFERENSI_BANK = {
       RA: [
-        {
-          elemen: "Nilai Agama dan Budi Pekerti (Fase Fondasi)",
-          cp: "Anak mengenal dan menyayangi ciptaan Tuhan Yang Maha Esa, membiasakan perilaku baik dan santun kepada orang tua, guru, serta teman, dan mempraktikkan ibadah harian sederhana dengan penuh kegembiraan."
-        },
-        {
-          elemen: "Jati Diri & Kasih Sayang Sesama (Fase Fondasi)",
-          cp: "Anak mengenali emosi diri, membangun hubungan sosial yang sehat dan penuh kasih sayang, serta bangga terhadap identitas diri dan lingkungan madrasah."
-        }
+        { elemen: "Nilai Agama dan Budi Pekerti", cp: "Anak mengenal dan menyayangi ciptaan Tuhan Yang Maha Esa, mempraktikkan ibadah sederhana, serta menunjukkan perilaku santun dan kasih sayang kepada sesama." },
+        { elemen: "Jati Diri & Sosial Emosional", cp: "Anak mengenali emosi diri, membangun hubungan sosial yang hangat dengan teman sebaya, serta bangga terhadap identitas dirinya." }
       ],
       MI: [
-        {
-          elemen: "Akidah & Akhlak Mulia (Fase A–C)",
-          cp: "Peserta didik mampu memahami sifat-sifat mulia Allah SWT dan keteladanan Rasulullah SAW, serta membiasakan akhlak terpuji (jujur, amanah, hormat kepada orang tua/guru, dan menyayangi sesama) dalam kehidupan sehari-hari."
-        },
-        {
-          elemen: "Literasi, Numerasi & Kepedulian Lingkungan (Fase A–C)",
-          cp: "Peserta didik mampu menyimak, memahami, dan menyampaikan gagasan secara santun serta menerapkan konsep dasar sains dan matematika untuk menjaga kelestarian lingkungan sekitar."
-        }
+        { elemen: "Akidah Akhlak (Fase B)", cp: "Peserta didik mampu memahami sifat-sifat mulia, meneladani kisah keteladanan Nabi dan Rasul, serta membiasakan akhlak terpuji dalam kehidupan sehari-hari." },
+        { elemen: "IPAS & Numerasi Kontekstual (Fase B)", cp: "Peserta didik mampu mengamati fenomena alam dan sosial di sekitar, mengajukan pertanyaan, serta menyajikan hasil pengamatan secara logis dan kreatif." }
       ],
       MTs: [
-        {
-          elemen: "Pendalaman Akidah, Ibadah & Moderasi Beragama (Fase D)",
-          cp: "Peserta didik mampu menganalisis nilai-nilai keimanan, ketentuan ibadah, dan sejarah peradaban Islam serta mengaktualisasikan sikap toleransi, empati, dan tanggung jawab sosial di lingkungan madrasah dan masyarakat."
-        },
-        {
-          elemen: "Penalaran Kritis & Pemecahan Masalah Kontekstual (Fase D)",
-          cp: "Peserta didik mampu mengidentifikasi permasalahan di lingkungan sekitar, mengolah informasi secara kritis dan kreatif, serta menyajikan solusi berbasis nilai-nilai etika dan kasih sayang."
-        }
+        { elemen: "Fikih Ibadah & Muamalah (Fase D)", cp: "Peserta didik mampu menganalisis ketentuan hukum Islam dalam ibadah dan muamalah serta mengaktualisasikannya dengan penuh kesadaran dan tanggung jawab sosial." },
+        { elemen: "Bahasa Indonesia / Literasi Kritis (Fase D)", cp: "Peserta didik mampu mengevaluasi informasi dari berbagai teks, menyampaikan gagasan secara santun, dan menyusun karya tulis reflektif." }
       ],
       MA: [
-        {
-          elemen: "Integrasi Ilmu, Iman & Kepemimpinan Rahmatan lil 'Alamin (Fase E–F)",
-          cp: "Peserta didik mampu mengevaluasi persoalan kontemporer berdasarkan prinsip keilmuan dan nilai-nilai Islam yang moderat, serta merancang aksi nyata yang bermanfaat bagi umat, bangsa, dan kelestarian alam."
-        },
-        {
-          elemen: "Riset Sederhana & Komunikasi Akademik (Fase E–F)",
-          cp: "Peserta didik mampu merancang dan melaksanakan investigasi ilmiah secara kolaboratif, menyajikan argumen berbasis data secara etis, dan merefleksikan dampaknya bagi kemaslahatan bersama."
-        }
+        { elemen: "Al-Qur'an Hadis & Moderasi (Fase E/F)", cp: "Peserta didik mampu menganalisis ayat-ayat Al-Qur'an dan hadis tentang ilmu pengetahuan, kelestarian alam, serta toleransi dalam kehidupan bermasyarakat." },
+        { elemen: "Sains & Riset Terapan (Fase E/F)", cp: "Peserta didik mampu merancang penyelidikan ilmiah berbasis pemecahan masalah nyata di masyarakat dengan menjunjung tinggi etika keilmuan." }
       ]
     };
 
-    // =========================================================================
-    // STATE APLIKASI UTAMA (STRICT DUAL-MODE: IS_PREVIEW vs FIRESTORE)
-    // =========================================================================
-    const INITIAL_PREVIEW_PERANGKAT = IS_PREVIEW ? [
-      {
-        id: "doc-demo-1",
-        jalur_kurikulum: "KBC",
-        model_penyusunan: "STANDAR",
-        model_pembelajaran: "Problem-Based Learning (PBL)",
-        jenis_guru: "Guru Mapel",
-        peran_guru: ["Guru Mata Pelajaran"],
-        muatan_terpadu: [],
-        nip_penyusun: "198604152010012014",
-        ttd_guru_url: "",
-        author_username: "guru.madrasah",
-        author_nama: "Ustadzah Siti Aminah, S.Pd.I",
-        is_archived: false,
-        jenjang: "MI",
-        fase_kelas: "Fase B — Kelas 4",
-        mata_pelajaran: "Akidah Akhlak",
-        jenis_dokumen: "Modul Ajar",
-        topik_materi: "Meneladani Sifat Amanah dan Kasih Sayang Rasulullah SAW",
-        alokasi_waktu: "2 × 35 Menit (1 Pertemuan)",
-        semester: "Ganjil",
-        capaian_pembelajaran: "Peserta didik mampu memahami makna sifat amanah serta membiasakan perilaku jujur dan penuh kasih sayang dalam kehidupan sehari-hari.",
-        tujuan_pembelajaran: [
-          "Melalui telaah kisah teladan (Memahami), peserta didik mampu menjelaskan pengertian dan hikmah sifat amanah Rasulullah SAW dengan benar.",
-          "Melalui diskusi studi kasus (Mengaplikasi), peserta didik mampu mengidentifikasi minimal 3 contoh perilaku amanah dan kasih sayang di madrasah serta di rumah.",
-          "Melalui kegiatan refleksi hati (Merefleksi), peserta didik menunjukkan komitmen membiasakan sikap jujur dan dapat dipercaya dengan penuh kesadaran."
-        ],
-        pemahaman_bermakna: "Sifat amanah merupakan fondasi utama kepercayaan sosial dan wujud nyata kecintaan kepada Allah SWT serta keteladanan terhadap Rasulullah SAW (Al-Amin).",
-        pertanyaan_pemantik: [
-          "Mengapa Rasulullah SAW mendapat gelar Al-Amin bahkan sebelum beliau diangkat menjadi nabi?",
-          "Bagaimana perasaanmu ketika seseorang mempercayakan sesuatu kepadamu dan kamu berhasil menjaganya dengan baik?",
-          "Apa akibatnya jika dalam sebuah kelas atau keluarga tidak ada sikap saling percaya dan amanah?"
-        ],
-        sarana_prasarana: "Buku Teks Akidah Akhlak Kelas 4 Kemenag RI, Kartu Studi Kasus Amanah, Slide Presentasi Interaktif, Lembar Kerja Peserta Didik (LKPD), Papan Refleksi Hati.",
-        diferensiasi: {
-          konten: "Menyediakan kisah bergambar bagi peserta didik visual, narasi lisan bagi auditori, dan kartu peran bagi kinestetik.",
-          proses: "Pendampingan bertahap dalam kelompok kecil heterogen saat menganalisis studi kasus.",
-          produk: "Peserta didik dapat menyajikan komitmen amanah melalui tulisan refleksi, poster mini, atau simulasi bermain peran."
-        },
-        deep_learning: {
-          prinsip: ["Mindful", "Meaningful", "Joyful"],
-          dimensi_lulusan: ["Keimanan & Ketakwaan terhadap Tuhan YME", "Penalaran Kritis", "Kolaborasi"],
-          langkah_memahami: MODEL_SYNTAX_MAP["Problem-Based Learning (PBL)"].memahami,
-          langkah_mengaplikasi: MODEL_SYNTAX_MAP["Problem-Based Learning (PBL)"].mengaplikasi,
-          langkah_merefleksi: MODEL_SYNTAX_MAP["Problem-Based Learning (PBL)"].merefleksi
-        },
-        panca_cinta: {
-          pilar_ids: ["hubbullah", "hubbunnafs"],
-          pilar_judul: "1. Hubbullah wa Hubburrasul; 3. Hubbunnafs wa Hubbunnas",
-          fokus_nilai: "Menumbuhkan cinta kepada Rasulullah SAW melalui sifat Al-Amin serta kasih sayang dan kejujuran kepada sesama teman.",
-          aktivitas_cinta: "Gerakan 'Satu Hari Penuh Amanah & Sapa Salam' kepada teman sebangku dan orang tua di rumah."
-        },
-        materi_ajar: {
-          ringkasan_konsep: "Amanah berarti dapat dipercaya, jujur, dan bertanggung jawab penuh atas titipan maupun tugas yang diberikan. Rasulullah SAW bergelar Al-Amin karena keluhuran akhlaknya.",
-          poin_utama: [
-            "Makna Amanah: Menjaga kepercayaan Allah SWT, orang tua, guru, dan sesama manusia dengan penuh tanggung jawab.",
-            "Keteladanan Al-Amin: Kisah penjagaan titipan penduduk Makkah dan peletakan Hajar Aswad oleh Rasulullah SAW.",
-            "Bentuk Amanah Pelajar: Jujur saat belajar, menjaga barang pinjaman, dan melaksanakan tugas piket dengan ikhlas.",
-            "Buah Perilaku Amanah: Dicintai Allah dan Rasul-Nya, dipercaya teman, serta menumbuhkan ketenteraman hati."
-          ],
-          uraian_mendalam: "1. Pengertian & Landasan Nilai: Amanah berasal dari akar kata yang bermakna tenang dan dapat dipercaya. Dalam Islam, amanah mencakup tiga dimensi utama: amanah kepada Allah SWT (menjalankan ibadah), amanah kepada sesama manusia (menjaga titipan dan janji), serta amanah terhadap diri sendiri (memanfaatkan waktu dan akal untuk kebaikan).\n2. Keteladanan Rasulullah SAW: Sebelum masa kenabian, masyarakat Makkah menjuluki Nabi Muhammad SAW sebagai Al-Amin karena tidak pernah berdusta dan selalu menjaga titipan dengan sempurna.\n3. Implementasi Nyata di Madrasah: Peserta didik menerapkan sifat amanah dengan berkata jujur, tidak menyontek, merawat fasilitas kelas, dan menyampaikan pesan guru kepada orang tua secara utuh.",
-          glosarium: [
-            { istilah: "Al-Amin", arti: "Gelar kemuliaan Rasulullah SAW yang berarti orang yang sangat dapat dipercaya." },
-            { istilah: "Amanah", arti: "Segala sesuatu yang dipercayakan kepada seseorang untuk dijaga dan ditunaikan dengan penuh tanggung jawab." },
-            { istilah: "Muhasabah", arti: "Introspeksi atau evaluasi diri untuk memperbaiki niat dan perilaku menjadi lebih baik." }
-          ],
-          contoh_kontekstual: "Ketika menemukan barang teman yang tertinggal di kelas, peserta didik segera mengembalikannya dengan jujur tanpa mengurangi sedikit pun."
-        },
-        bahan_ajar: [
-          "Buku Teks Utama Akidah Akhlak Kelas 4 Kemenag RI",
-          "Handout Ringkasan Materi & Kisah Teladan Al-Amin",
-          "Slide Presentasi Pembelajaran (PPT 16:9)",
-          "Lembar Kerja Peserta Didik (LKPD) & Rubrik Asesmen"
-        ],
-        asesmen: {
-          diagnostik: "Tanya jawab awal mengenai pengalaman peserta didik saat diberi titipan atau pesan oleh orang tua.",
-          formatif: "Observasi sikap amanah saat diskusi kelompok dan tanya jawab pemaknaan kisah teladan.",
-          sumatif: "Penilaian unjuk kerja simulasi perilaku amanah dan lembar refleksi tertulis.",
-          rubrik_ringkas: "Sangat Baik (4): Mampu menjelaskan konsep, memberi ≥3 contoh nyata, dan menunjukkan sikap amanah secara konsisten | Baik (3): Mampu menjelaskan konsep dan memberi 2 contoh | Cukup (2): Memerlukan bimbingan dalam mengaitkan konsep dengan praktik.",
-          lkpd: "Lembar Refleksi Hati: 'Ceritakan pengalamanmu menjaga amanah dan perasaanmu setelah melakukannya.'",
-          pengayaan_remedial: "Pengayaan: Menulis kisah inspiratif tokoh amanah di lingkungan sekitar. Remedial: Pendampingan membaca kartu kisah teladan Al-Amin secara berpasangan."
-        }
-      }
-    ] : [];
-
-    const MUATAN_GURU_KELAS_OPTIONS = [
-      "Nilai Agama & Budi Pekerti",
-      "Pendidikan Pancasila",
-      "Bahasa Indonesia",
-      "Matematika",
-      "IPAS (Sains & Sosial)",
-      "Seni Budaya & Prakarya",
-      "PJOK",
-      "Pembiasaan Akhlak & Literasi"
-    ];
-
-    const state = {
-      selectedTrack: null,
-      loginTab: "GURU", // "GURU" | "DAFTAR_GURU" | "ADMIN"
-      authLoading: false,
-      restoringSession: false,
-      loading: false,
-      user: null,
-      userTtdUrl: "",
-      userNip: "",
-      activeMenu: "dashboard",
-      geminiApiKey: "",
-      paperSize: "A4",
-      paperOrientation: "portrait",
-      previewTab: "DOKUMEN",
-      activeSlideIdx: 0,
-      generatedDoc: null,
-      confirmDeleteDocId: null,
-      arsipSearch: "",
-      arsipFilterJenjang: "ALL",
-      arsipFilterTrack: "ALL",
-      arsipFilterJenisGuru: "ALL", // "ALL" | "Guru Mapel" | "Guru Kelas"
-      arsipFilterStatus: "ACTIVE", // "ACTIVE" | "ARCHIVED" | "ALL"
-      referensiJenjang: "MI",
-      firestoreTab: "perangkat_ajar",
-      firestoreLastSync: "",
-      firestoreInspectJson: null,
-      // State Manajemen Akun Guru (Admin)
-      guruFilterStatus: "ALL", // "ALL" | "PENDING" | "APPROVED"
-      guruSearch: "",
-      visiblePasswordIds: {},
-      editingGuru: null,
-      resetPasswordGuruId: null,
-      regBuktiPembayaranUrl: "",
-      adminProfile: {
-        nama_admin: IS_PREVIEW ? "Ahmad Fauzi, M.Pd" : "",
-        jabatan_admin: IS_PREVIEW ? "Administrator KlikAjar" : "",
-        email_admin: IS_PREVIEW ? "admin@madrasah.sch.id" : "",
-        whatsapp_admin: IS_PREVIEW ? "081234567890" : "",
-        bank_nama: IS_PREVIEW ? "BSI (Bank Syariah Indonesia)" : "",
-        bank_rekening: IS_PREVIEW ? "7123456789" : "",
-        bank_atas_nama: IS_PREVIEW ? "Ahmad Fauzi" : "",
-        biaya_aktivasi: IS_PREVIEW ? "Rp 50.000 / Tahun" : "",
-        catatan_pembayaran: IS_PREVIEW
-          ? "Silakan transfer biaya aktivasi akun ke rekening di atas, unggah bukti transfer pada formulir pendaftaran, lalu konfirmasi ke WhatsApp Admin."
-          : ""
-      },
-      madrasah: {
-        nama_madrasah: IS_PREVIEW ? "MADRASAH TERPADU AL-HIKMAH" : "",
-        nsm: IS_PREVIEW ? "111235780001" : "",
-        npsn: IS_PREVIEW ? "20584912" : "",
-        alamat: IS_PREVIEW ? "Jl. Pendidikan Madrasah No. 99, Kota Santri" : "",
-        nama_kepala: IS_PREVIEW ? "Dr. H. Ahmad Fauzi, M.Pd.I" : "",
-        nip_kepala: IS_PREVIEW ? "197805122005011003" : "",
-        tahun_pelajaran: "2026/2027",
-        logo_kemenag_url: "",
-        logo_url: "",
-        ttd_kepala_url: "",
-        ttd_penyusun_url: ""
-      },
-      guruList: IS_PREVIEW ? [
-        {
-          id: "guru-demo-1",
-          username: "guru.madrasah",
-          password: "123",
-          nama_lengkap: "Ustadzah Siti Aminah, S.Pd.I",
-          nip: "198604152010012014",
-          jenjang: "MI",
-          jenis_guru: "Guru Mapel",
-          mapel_utama: "Akidah Akhlak",
-          status_akun: "APPROVED",
-          status_aktif: true
-        },
-        {
-          id: "guru-demo-pending",
-          username: "ahmad.fauzan",
-          password: "123",
-          nama_lengkap: "Ahmad Fauzan, S.Pd",
-          nip: "199208102022031005",
-          jenjang: "MI",
-          jenis_guru: "Guru Kelas",
-          mapel_utama: "Guru Kelas 4 (Tematik)",
-          status_akun: "PENDING",
-          status_aktif: false
-        }
-      ] : [],
-      perangkatList: INITIAL_PREVIEW_PERANGKAT,
-      genForm: {
-        jenjang: "MI",
-        fase_kelas: "Fase B — Kelas 4",
-        jenis_dokumen: "Modul Ajar (RPP Plus)",
-        mata_pelajaran: "Akidah Akhlak",
-        tema_kelas: "Indahnya Kebersamaan & Kasih Sayang di Lingkungan Madrasah",
-        muatan_terpadu: ["Pendidikan Pancasila", "Bahasa Indonesia", "Matematika"],
-        model_pembelajaran: "Problem-Based Learning (PBL)",
-        semester: "Ganjil",
-        alokasi_waktu: "2 × 35 Menit (1 Pertemuan)",
-        topik_materi: "",
-        jenis_guru: "Guru Mapel", // "Guru Mapel" | "Guru Kelas"
-        peran_guru: ["Guru Mata Pelajaran"],
-        nip_penyusun: "",
-        model_penyusunan: "STANDAR",
-        capaian_pembelajaran: "",
-        materi_tambahan: "",
-        prinsip_dl: ["Mindful", "Meaningful", "Joyful"],
-        dimensi_lulusan: ["Keimanan & Ketakwaan terhadap Tuhan YME", "Penalaran Kritis", "Kolaborasi"],
-        pilar_cinta: ["hubbullah", "hubbunnafs"],
-        fokus_nilai_cinta: ""
-      }
-    };
-
-    // Helper Isolasi Data Per Akun Guru:
-    // - Guru hanya mengakses perangkat ajar miliknya sendiri (author_username === state.user.username)
-    // - Admin dapat melihat seluruh perangkat ajar lintas guru
-    function getAccessiblePerangkatList() {
-      if (!state.user) return [];
-      if (state.user.role === "ADMIN") {
-        return state.perangkatList;
-      }
-      const uname = (state.user.username || "").toLowerCase();
-      return state.perangkatList.filter(
-        (d) => (d.author_username || "").toLowerCase() === uname
-      );
-    }
-
-    // =========================================================================
-    // UTILITAS HELPER (ESCAPE HTML, TOAST NOTIFICATION, & KOMPRESI GAMBAR)
-    // =========================================================================
     function escapeHtml(str) {
       if (str === null || str === undefined) return "";
       return String(str)
@@ -735,7 +456,7 @@
         .replace(/'/g, "&#039;");
     }
 
-    function formatWaLink(rawPhone, messageText = "") {
+    function formatWaLink(rawPhone, messageText) {
       let digits = String(rawPhone || "").replace(/\D/g, "");
       if (!digits) return "";
       if (digits.startsWith("0")) {
@@ -743,120 +464,320 @@
       } else if (!digits.startsWith("62")) {
         digits = "62" + digits;
       }
-      const queryMsg = messageText ? `?text=${encodeURIComponent(messageText)}` : "";
-      return `https://wa.me/${digits}${queryMsg}`;
+      return `https://wa.me/${digits}?text=${encodeURIComponent(messageText || "")}`;
     }
 
     function showToast(message, type = "info") {
       const container = document.getElementById("toast-container");
       if (!container) return;
-
-      const badgeColors = {
-        success: "border-l-4 border-emerald-500 text-slate-800",
-        error: "border-l-4 border-rose-500 text-slate-800",
-        info: "border-l-4 border-[#5B5CE6] text-slate-800"
-      };
-      const iconNames = {
-        success: "check-circle-2",
-        error: "alert-circle",
-        info: "info"
-      };
-      const iconColors = {
-        success: "text-emerald-500",
-        error: "text-rose-500",
-        info: "text-[#5B5CE6]"
-      };
-
-      const toast = document.createElement("div");
-      toast.className = `neu-surface pointer-events-auto rounded-2xl px-4 py-3 text-xs font-bold shadow-lg flex items-center gap-2.5 transition-all duration-300 ${badgeColors[type] || badgeColors.info}`;
-      toast.innerHTML = `
-        <i data-lucide="${iconNames[type] || "info"}" class="w-4 h-4 shrink-0 ${iconColors[type] || "text-[#5B5CE6]"}"></i>
-        <span class="leading-snug">${escapeHtml(message)}</span>
-      `;
-      container.appendChild(toast);
-      if (window.lucide) {
-        window.lucide.createIcons();
-      }
-
+      const el = document.createElement("div");
+      const badgeColor =
+        type === "success"
+          ? "border-emerald-500 text-emerald-800 bg-white"
+          : type === "error"
+          ? "border-rose-500 text-rose-800 bg-white"
+          : "border-[#5B5CE6] text-slate-800 bg-white";
+      el.className = `pointer-events-auto rounded-2xl border-l-4 ${badgeColor} px-4 py-3 shadow-lg text-xs font-bold flex items-center justify-between gap-3 transition-all`;
+      el.innerHTML = `<span>${escapeHtml(message)}</span>`;
+      container.appendChild(el);
       setTimeout(() => {
-        toast.style.opacity = "0";
-        toast.style.transform = "translateY(-6px)";
-        setTimeout(() => {
-          if (toast.parentNode) toast.parentNode.removeChild(toast);
-        }, 300);
-      }, 3500);
+        el.style.opacity = "0";
+        el.style.transform = "translateY(-6px)";
+        setTimeout(() => el.remove(), 250);
+      }, 3600);
     }
 
-    function processImageUpload(file, maxWidth, maxHeight, callback) {
+    function processImageUpload(file, maxW, maxH, callback) {
       if (!file) return;
-      if (!file.type.startsWith("image/")) {
-        showToast("File yang dipilih harus berupa gambar (PNG/JPG/WEBP).", "error");
-        return;
-      }
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = (ev) => {
         const img = new Image();
         img.onload = () => {
+          const canvas = document.createElement("canvas");
           let w = img.width;
           let h = img.height;
-          if (w > maxWidth || h > maxHeight) {
-            const ratio = Math.min(maxWidth / w, maxHeight / h);
+          if (w > maxW || h > maxH) {
+            const ratio = Math.min(maxW / w, maxH / h);
             w = Math.round(w * ratio);
             h = Math.round(h * ratio);
           }
-          const canvas = document.createElement("canvas");
           canvas.width = w;
           canvas.height = h;
           const ctx = canvas.getContext("2d");
-          ctx.clearRect(0, 0, w, h);
           ctx.drawImage(img, 0, 0, w, h);
-          const dataUrl = canvas.toDataURL("image/png");
-          if (typeof callback === "function") callback(dataUrl);
+          const dataUrl = canvas.toDataURL("image/png", 0.88);
+          callback(dataUrl);
         };
-        img.onerror = () => {
-          showToast("Gagal memproses gambar yang diunggah.", "error");
-        };
-        img.src = e.target.result;
-      };
-      reader.onerror = () => {
-        showToast("Gagal membaca file gambar.", "error");
+        img.src = ev.target.result;
       };
       reader.readAsDataURL(file);
     }
 
+    const state = {
+      selectedTrack: null,
+      loginTab: "GURU",
+      user: null,
+      userNip: "",
+      userTtdUrl: "",
+      regBuktiPembayaranUrl: "",
+      authLoading: false,
+      restoringSession: false,
+      loading: false,
+      activeMenu: "dashboard",
+      previewTab: "DOKUMEN",
+      activeSlideIdx: 0,
+      paperSize: "A4",
+      paperOrientation: "portrait",
+      geminiApiKey: "",
+      generatedDoc: null,
+      confirmDeleteDocId: null,
+      arsipSearch: "",
+      arsipFilterStatus: "ACTIVE",
+      arsipFilterJenjang: "ALL",
+      arsipFilterTrack: "ALL",
+      arsipFilterJenisGuru: "ALL",
+      referensiJenjang: "MI",
+      firestoreTab: "perangkat_ajar",
+      firestoreInspectJson: null,
+      firestoreLastSync: "",
+      guruFilterStatus: "ALL",
+      guruSearch: "",
+      visiblePasswordIds: {},
+      resetPasswordGuruId: null,
+      editingGuru: null,
+      madrasah: {
+        nama_madrasah: "MADRASAH TERPADU AL-HIKMAH",
+        nsm: "111235780001",
+        npsn: "20584912",
+        alamat: "Jl. Pendidikan Madrasah No. 99, Kota Santri",
+        nama_kepala: "Dr. H. Ahmad Fauzi, M.Pd.I",
+        nip_kepala: "197805122005011003",
+        tahun_pelajaran: "2026/2027",
+        logo_kemenag_url: "",
+        logo_url: "",
+        ttd_kepala_url: "",
+        ttd_penyusun_url: ""
+      },
+      adminProfile: {
+        nama_admin: "Administrator KlikAjar",
+        jabatan_admin: "Admin & Koordinator Kurikulum",
+        email_admin: "admin@madrasah.sch.id",
+        whatsapp_admin: "081234567890",
+        bank_nama: "Bank Syariah Indonesia (BSI)",
+        bank_rekening: "7123456789",
+        bank_atas_nama: "KlikAjar Official",
+        biaya_aktivasi: "Rp 50.000 / Akun Guru",
+        catatan_pembayaran: "Silakan transfer ke rekening di atas, unggah bukti transfer pada form pendaftaran, lalu klik Konfirmasi WA agar akun segera di-Approve."
+      },
+      guruList: IS_PREVIEW ? [
+        {
+          id: "guru-demo-1",
+          username: "guru.madrasah",
+          password: "123",
+          nama_lengkap: "Ustadzah Siti Aminah, S.Pd.I",
+          jenjang: "MI",
+          jenis_guru: "Guru Mapel",
+          nip: "198904152019032008",
+          mapel_utama: "Akidah Akhlak",
+          status_akun: "APPROVED",
+          status_aktif: true
+        }
+      ] : [],
+      perangkatList: IS_PREVIEW ? [
+        {
+          id: "doc-demo-1",
+          jalur_kurikulum: "KBC",
+          model_penyusunan: "STANDAR",
+          model_pembelajaran: "Problem-Based Learning (PBL)",
+          jenis_guru: "Guru Mapel",
+          peran_guru: ["Guru Mata Pelajaran"],
+          nip_penyusun: "198904152019032008",
+          ttd_guru_url: "",
+          author_username: "guru.madrasah",
+          author_nama: "Ustadzah Siti Aminah, S.Pd.I",
+          is_archived: false,
+          jenjang: "MI",
+          fase_kelas: "Fase B — Kelas 4",
+          mata_pelajaran: "Akidah Akhlak",
+          jenis_dokumen: "Modul Ajar (RPP Plus)",
+          topik_materi: "Meneladani Sifat Amanah dan Kasih Sayang Rasulullah SAW",
+          alokasi_waktu: "2 × 35 Menit (1 Pertemuan)",
+          semester: "Ganjil",
+          capaian_pembelajaran: "Peserta didik mampu memahami makna sifat amanah serta membiasakan perilaku jujur dan penuh kasih sayang dalam kehidupan sehari-hari.",
+          tujuan_pembelajaran: [
+            "Melalui literasi kisah teladan (Memahami), peserta didik mampu menjelaskan makna sifat amanah dengan tepat.",
+            "Melalui diskusi studi kasus PBL (Mengaplikasi), peserta didik mampu mempraktikkan sikap amanah di lingkungan madrasah.",
+            "Melalui kegiatan muhasabah diri (Merefleksi), peserta didik menunjukkan komitmen kejujuran dan kasih sayang."
+          ],
+          pemahaman_bermakna: "Menjaga amanah adalah wujud nyata keimanan dan kasih sayang kepada Allah SWT, Rasul-Nya, dan sesama manusia.",
+          pertanyaan_pemantik: [
+            "Mengapa Rasulullah SAW diberi gelar Al-Amin oleh penduduk Makkah?",
+            "Bagaimana perasaanmu ketika seseorang mempercayakan sesuatu kepadamu?"
+          ],
+          sarana_prasarana: "Buku Teks Akidah Akhlak Kelas 4 Kemenag RI, LKPD, Slide Presentasi Interaktif, Kartu Studi Kasus.",
+          diferensiasi: {
+            konten: "Menyediakan kisah bergambar dan ringkasan poin utama sesuai kesiapan membaca murid.",
+            proses: "Pendampingan diskusi kelompok kecil berbasis studi kasus sehari-hari.",
+            produk: "Menyajikan hasil diskusi melalui cerita singkat, poster komitmen amanah, atau simulasi peran."
+          },
+          deep_learning: {
+            prinsip: ["Mindful", "Meaningful", "Joyful"],
+            dimensi_lulusan: ["Keimanan & Ketakwaan terhadap Tuhan YME", "Penalaran Kritis", "Kolaborasi"],
+            langkah_memahami: "1. Orientasi Masalah & Niat (Mindful): Guru membuka kelas dengan salam hangat, doa bersama, dan kisah keteladanan Al-Amin.\n2. Mengorganisasi Belajar: Peserta didik mengidentifikasi makna sifat amanah dalam keseharian.",
+            langkah_mengaplikasi: "1. Penyelidikan Kelompok (Meaningful): Peserta didik berdiskusi memecahkan studi kasus menjaga amanah.\n2. Menyajikan Karya (Joyful): Kelompok mempresentasikan hasil diskusi dan simulasi perilaku amanah.",
+            langkah_merefleksi: "1. Evaluasi & Muhasabah Hati: Peserta didik merefleksikan pengalaman menjaga amanah.\n2. Penguatan & Doa: Guru memberikan apresiasi penuh kasih sayang dan doa penutup."
+          },
+          panca_cinta: {
+            pilar_ids: ["hubbullah", "hubbunnafs"],
+            pilar_judul: "1. Hubbullah & Hubburrasul; 3. Hubbunnafs & Hubbunnas",
+            fokus_nilai: "Menumbuhkan cinta kepada Rasulullah SAW melalui sifat Al-Amin serta kasih sayang dan kejujuran kepada sesama teman.",
+            aktivitas_cinta: "Gerakan 'Satu Hari Penuh Amanah & Sapa Salam' kepada teman sebangku dan orang tua di rumah."
+          },
+          materi_ajar: {
+            ringkasan_konsep: "Amanah berarti dapat dipercaya, jujur, dan bertanggung jawab penuh atas titipan maupun tugas yang diberikan.",
+            poin_utama: [
+              "Makna Amanah: Menjaga kepercayaan Allah SWT, orang tua, guru, dan sesama manusia.",
+              "Keteladanan Al-Amin: Kejujuran Rasulullah SAW sejak muda hingga dipercaya meletakkan Hajar Aswad.",
+              "Bentuk Amanah Pelajar: Jujur saat ulangan, menjaga barang pinjaman, dan melaksanakan tugas piket.",
+              "Buah Perilaku Amanah: Dicintai Allah dan Rasul-Nya serta menumbuhkan ketenteraman hati."
+            ],
+            uraian_mendalam: "1. Landasan Konsep:\nAmanah merupakan salah satu sifat wajib bagi Rasul yang menjadi fondasi akhlak mulia seorang muslim.\n2. Penerapan Nyata:\nSetiap amanah sekecil apa pun akan dimintai pertanggungjawaban di hadapan Allah SWT.",
+            glosarium: [
+              { istilah: "Amanah", arti: "Dapat dipercaya dan bertanggung jawab atas tugas atau titipan." },
+              { istilah: "Al-Amin", arti: "Gelar kemuliaan Rasulullah SAW yang berarti orang yang sangat terpercaya." }
+            ],
+            contoh_kontekstual: "Mengembalikan barang teman yang tertinggal di kelas dengan segera dan jujur."
+          },
+          bahan_ajar: [
+            "Buku Teks Utama Akidah Akhlak Kelas 4 Kemenag RI",
+            "Handout Kisah Teladan Al-Amin & LKPD Refleksi Hati"
+          ],
+          asesmen: {
+            diagnostik: "Tanya jawab pemantik mengenai pengalaman menjaga titipan di rumah dan sekolah.",
+            formatif: "Observasi sikap amanah dan kolaborasi saat diskusi kelompok.",
+            sumatif: "Penilaian simulasi perilaku amanah dan lembar refleksi tertulis.",
+            rubrik_ringkas: "Sangat Baik (4): Memahami makna amanah & mampu memberi contoh nyata | Baik (3): Memahami konsep inti dengan benar.",
+            lkpd: "Lembar Refleksi Hati: 'Ceritakan pengalamanmu menjaga amanah dan perasaanmu setelah melakukannya.'",
+            pengayaan_remedial: "Pengayaan: Membuat poster ajakan bersikap amanah. Remedial: Bimbingan kartu konsep."
+          }
+        }
+      ] : [],
+      genForm: {
+        jenjang: "MI",
+        fase_kelas: "Fase B — Kelas 4",
+        jenis_dokumen: "Modul Ajar (RPP Plus)",
+        jenis_guru: "Guru Mapel",
+        peran_guru: ["Guru Mata Pelajaran"],
+        muatan_terpadu: ["Pendidikan Pancasila", "Bahasa Indonesia", "Matematika"],
+        mata_pelajaran: "Akidah Akhlak",
+        model_pembelajaran: "Problem-Based Learning (PBL)",
+        semester: "Ganjil",
+        alokasi_waktu: "2 × 35 Menit (1 Pertemuan)",
+        topik_materi: "",
+        model_penyusunan: "STANDAR",
+        nip_penyusun: "",
+        capaian_pembelajaran: "",
+        materi_tambahan: "",
+        prinsip_dl: ["Mindful", "Meaningful", "Joyful"],
+        dimensi_lulusan: ["Keimanan & Ketakwaan terhadap Tuhan YME", "Penalaran Kritis", "Kolaborasi"],
+        pilar_cinta: ["hubbullah", "hubbunnafs"],
+        fokus_nilai_cinta: ""
+      }
+    };
+
+    function getAccessiblePerangkatList() {
+      if (!state.user) return [];
+      if (state.user.role === "ADMIN") return state.perangkatList;
+      const uname = (state.user.username || "").toLowerCase();
+      return state.perangkatList.filter((d) => (d.author_username || "").toLowerCase() === uname);
+    }
+
     // =========================================================================
-    // PERSISTENSI SESI SAAT REFRESH (URL HASH + FIREBASE AUTH & FIRESTORE)
+    // PERSISTENSI SESI SAAT REFRESH (WINDOW.NAME + URL HASH + FIREBASE AUTH)
     // =========================================================================
-    function parseHashParams() {
+    const SESSION_NS = "KLIKAJAR_SESSION_V1:";
+
+    function readPersistedSession() {
+      // 1. Cek window.name (bertahan saat F5 / Ctrl+R / Reload di browser & iframe)
+      try {
+        if (typeof window.name === "string" && window.name.startsWith(SESSION_NS)) {
+          const parsed = JSON.parse(window.name.slice(SESSION_NS.length));
+          if (parsed && typeof parsed === "object") {
+            return {
+              track: parsed.track || null,
+              role: parsed.role || null,
+              user: parsed.user || null,
+              nama: parsed.nama || "",
+              nip: parsed.nip || "",
+              jenjang: parsed.jenjang || "MI",
+              jenis_guru: parsed.jenis_guru || "Guru Mapel",
+              menu: parsed.menu || "dashboard"
+            };
+          }
+        }
+      } catch (e) {}
+
+      // 2. Fallback ke URL Hash
       const raw = (window.location.hash || "").replace(/^#/, "");
       const params = new URLSearchParams(raw);
       return {
         track: params.get("track"),
         role: params.get("role"),
         user: params.get("user"),
-        menu: params.get("menu")
+        nama: "",
+        nip: "",
+        jenjang: "MI",
+        jenis_guru: "Guru Mapel",
+        menu: params.get("menu") || "dashboard"
       };
     }
 
     function syncSessionToHash() {
+      const payload = {
+        track: state.selectedTrack || null,
+        role: state.user?.role || null,
+        user: state.user?.username || null,
+        nama: state.user?.nama || "",
+        nip: state.user?.nip || "",
+        jenjang: state.user?.jenjang || "MI",
+        jenis_guru: state.user?.jenis_guru || "Guru Mapel",
+        menu: state.activeMenu || "dashboard"
+      };
+
+      // Simpan ke window.name agar selalu bertahan saat halaman di-refresh
+      try {
+        window.name = SESSION_NS + JSON.stringify(payload);
+      } catch (e) {}
+
+      // Sinkronkan juga ke URL Hash
       try {
         const params = new URLSearchParams();
-        if (state.selectedTrack) params.set("track", state.selectedTrack);
-        if (state.user) {
-          params.set("role", state.user.role);
-          params.set("user", state.user.username);
-          if (state.activeMenu) params.set("menu", state.activeMenu);
+        if (payload.track) params.set("track", payload.track);
+        if (payload.role && payload.user) {
+          params.set("role", payload.role);
+          params.set("user", payload.user);
+          if (payload.menu) params.set("menu", payload.menu);
         }
         const serialized = params.toString();
         if (serialized) {
-          window.location.hash = serialized;
+          window.history.replaceState(null, "", "#" + serialized);
         }
       } catch (e) {
-        // Abaikan jika lingkungan iframe membatasi perubahan hash
+        try {
+          if (payload.track) {
+            window.location.hash = `track=${encodeURIComponent(payload.track)}${payload.role ? `&role=${encodeURIComponent(payload.role)}&user=${encodeURIComponent(payload.user || "")}&menu=${encodeURIComponent(payload.menu || "dashboard")}` : ""}`;
+          }
+        } catch (_) {}
       }
     }
 
     function clearSessionHash() {
+      try {
+        if (typeof window.name === "string" && window.name.startsWith(SESSION_NS)) {
+          window.name = "";
+        }
+      } catch (e) {}
+
       try {
         if (window.location.hash) {
           history.replaceState(null, "", window.location.pathname + window.location.search);
@@ -869,7 +790,7 @@
     }
 
     async function restoreSessionOnLoad() {
-      const saved = parseHashParams();
+      const saved = readPersistedSession();
       if (saved.track === "KURMER" || saved.track === "KBC") {
         state.selectedTrack = saved.track;
       }
@@ -877,16 +798,17 @@
         state.activeMenu = saved.menu;
       }
 
-      // Mode Preview: Pulihkan sesi dari state in-memory tanpa keluar saat refresh
+      // Mode Preview: Pulihkan sesi langsung dari window.name / URL hash tanpa keluar saat refresh
       if (IS_PREVIEW) {
         if (saved.role === "ADMIN" && saved.user) {
           state.user = {
             role: "ADMIN",
             username: saved.user,
-            nama: "Administrator Madrasah",
+            nama: saved.nama || state.adminProfile?.nama_admin || "Administrator Madrasah",
             jenjang: "MA"
           };
           if (!state.selectedTrack) state.selectedTrack = "KURMER";
+          syncSessionToHash();
         } else if (saved.role === "GURU" && saved.user) {
           const found = state.guruList.find(
             (g) => g.username.toLowerCase() === saved.user.toLowerCase() && g.status_aktif !== false && g.status_akun !== "PENDING"
@@ -906,6 +828,24 @@
             state.genForm.jenis_guru = state.user.jenis_guru;
             state.genForm.peran_guru = [state.user.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mata Pelajaran"];
             if (!state.selectedTrack) state.selectedTrack = "KURMER";
+            syncSessionToHash();
+          } else if (saved.nama) {
+            // Tetap pulihkan sesi guru yang baru dibuat selama preview sebelum list reset
+            state.user = {
+              role: "GURU",
+              username: saved.user,
+              nama: saved.nama,
+              nip: saved.nip || "",
+              jenjang: saved.jenjang || "MI",
+              jenis_guru: saved.jenis_guru || "Guru Mapel"
+            };
+            state.userNip = saved.nip || "";
+            state.genForm.nip_penyusun = saved.nip || "";
+            state.genForm.jenjang = state.user.jenjang;
+            state.genForm.jenis_guru = state.user.jenis_guru;
+            state.genForm.peran_guru = [state.user.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mata Pelajaran"];
+            if (!state.selectedTrack) state.selectedTrack = "KURMER";
+            syncSessionToHash();
           } else {
             clearSessionHash();
           }
@@ -914,16 +854,14 @@
         return;
       }
 
-      // Mode Produksi: Pulihkan sesi Guru langsung dari verifikasi Firestore
-      // (Sesi Admin dipulihkan otomatis oleh listener onAuthStateChanged di initFirebaseAndListeners)
-      if (!IS_PREVIEW) {
-        loadPublicMadrasahAndAdminInfo();
-      }
+      // Mode Produksi: Muat info madrasah & inisialisasi Firebase listener
+      loadPublicMadrasahAndAdminInfo();
+      initFirebaseAndListeners();
+
       if (saved.role === "GURU" && saved.user) {
         state.restoringSession = true;
         renderApp();
         try {
-          if (!db) initFirebaseAndListeners();
           const q = query(collection(db, "guru_users"), where("username", "==", saved.user.toLowerCase()));
           const snap = await getDocs(q);
           if (!snap.empty) {
@@ -945,6 +883,7 @@
               state.genForm.jenis_guru = state.user.jenis_guru;
               state.genForm.peran_guru = [state.user.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mata Pelajaran"];
               if (!state.selectedTrack) state.selectedTrack = "KURMER";
+              syncSessionToHash();
             } else {
               clearSessionHash();
             }
@@ -1030,7 +969,7 @@
 
         onAuthStateChanged(auth, (firebaseUser) => {
           if (firebaseUser) {
-            const saved = parseHashParams();
+            const saved = readPersistedSession();
             state.user = {
               role: "ADMIN",
               uid: firebaseUser.uid,
