@@ -916,62 +916,75 @@
 
       // Mode Produksi: Pulihkan sesi Guru langsung dari verifikasi Firestore
       // (Sesi Admin dipulihkan otomatis oleh listener onAuthStateChanged di initFirebaseAndListeners)
+      if (!IS_PREVIEW) {
+        loadPublicMadrasahAndAdminInfo();
+      }
       if (saved.role === "GURU" && saved.user) {
         state.restoringSession = true;
         renderApp();
         try {
           if (!db) initFirebaseAndListeners();
-          const q = query(collection(db, "guru_users"), where("username", "==", saved.user));
+          const q = query(collection(db, "guru_users"), where("username", "==", saved.user.toLowerCase()));
           const snap = await getDocs(q);
-          let matched = null;
-          snap.forEach((docSnap) => {
-            const data = docSnap.data();
-            if (data.status_aktif !== false && data.status_akun !== "PENDING") {
-              matched = { id: docSnap.id, ...data };
+          if (!snap.empty) {
+            const gDoc = snap.docs[0];
+            const gData = gDoc.data();
+            if (gData.status_aktif !== false && gData.status_akun !== "PENDING") {
+              state.user = {
+                role: "GURU",
+                id: gDoc.id,
+                username: gData.username,
+                nama: gData.nama_lengkap,
+                nip: gData.nip || "",
+                jenjang: gData.jenjang || "MI",
+                jenis_guru: gData.jenis_guru || "Guru Mapel"
+              };
+              state.userNip = gData.nip || "";
+              state.genForm.nip_penyusun = gData.nip || "";
+              state.genForm.jenjang = state.user.jenjang;
+              state.genForm.jenis_guru = state.user.jenis_guru;
+              state.genForm.peran_guru = [state.user.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mata Pelajaran"];
+              if (!state.selectedTrack) state.selectedTrack = "KURMER";
+            } else {
+              clearSessionHash();
             }
-          });
-
-          if (matched) {
-            state.user = {
-              role: "GURU",
-              username: matched.username,
-              nama: matched.nama_lengkap,
-              nip: matched.nip || "",
-              jenjang: matched.jenjang || "MI",
-              jenis_guru: matched.jenis_guru || "Guru Mapel"
-            };
-            state.userNip = matched.nip || "";
-            state.genForm.nip_penyusun = matched.nip || "";
-            state.genForm.jenjang = state.user.jenjang;
-            state.genForm.jenis_guru = state.user.jenis_guru;
-            state.genForm.peran_guru = [state.user.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mata Pelajaran"];
-            if (!state.selectedTrack) state.selectedTrack = "KURMER";
-            startFirestoreRealtimeSync();
           } else {
             clearSessionHash();
           }
         } catch (err) {
-          console.warn("Gagal memulihkan sesi Guru:", err.message);
+          console.warn("Gagal memulihkan sesi guru:", err.message);
         } finally {
           state.restoringSession = false;
           renderApp();
         }
-      } else if (saved.role === "ADMIN") {
-        // Tunggu sebentar hingga Firebase Auth selesai memeriksa sesi tersimpan
-        state.restoringSession = true;
-        renderApp();
-        setTimeout(() => {
-          if (state.restoringSession) {
-            state.restoringSession = false;
-            renderApp();
-          }
-        }, 2500);
       }
     }
 
     // =========================================================================
     // INISIALISASI FIREBASE & SINKRONISASI REAL-TIME (SAAT IS_PREVIEW === false)
     // =========================================================================
+    async function loadPublicMadrasahAndAdminInfo() {
+      if (IS_PREVIEW) return;
+      try {
+        if (!db) {
+          app = initializeApp(firebaseConfig);
+          auth = getAuth(app);
+          db = getFirestore(app);
+        }
+        const snap = await getDoc(doc(db, "pengaturan_madrasah", "profil_utama"));
+        if (snap.exists()) {
+          const data = snap.data();
+          state.madrasah = { ...state.madrasah, ...data };
+          if (data.admin_profile) {
+            state.adminProfile = { ...state.adminProfile, ...data.admin_profile };
+          }
+          renderApp();
+        }
+      } catch (err) {
+        console.warn("Gagal memuat info publik madrasah & admin:", err.message);
+      }
+    }
+
     function initFirebaseAndListeners() {
       if (IS_PREVIEW) return;
       try {
@@ -979,145 +992,105 @@
           app = initializeApp(firebaseConfig);
           auth = getAuth(app);
           db = getFirestore(app);
+        }
 
-          // Pertahankan sesi login Admin Firebase Auth saat halaman di-refresh
-          onAuthStateChanged(auth, (firebaseUser) => {
-            if (firebaseUser) {
-              const saved = parseHashParams();
-              if (!state.selectedTrack) {
-                state.selectedTrack = (saved.track === "KURMER" || saved.track === "KBC") ? saved.track : "KURMER";
+        if (!unsubMadrasah) {
+          unsubMadrasah = onSnapshot(doc(db, "pengaturan_madrasah", "profil_utama"), (snap) => {
+            if (snap.exists()) {
+              const data = snap.data();
+              state.madrasah = { ...state.madrasah, ...data };
+              if (data.admin_profile) {
+                state.adminProfile = { ...state.adminProfile, ...data.admin_profile };
               }
-              if (saved.menu) {
-                state.activeMenu = saved.menu;
-              }
-              state.user = {
-                role: "ADMIN",
-                username: firebaseUser.email || "admin@madrasah.sch.id",
-                nama: firebaseUser.displayName || "Admin Madrasah",
-                jenjang: "MA"
-              };
-              state.restoringSession = false;
-              syncSessionToHash();
-              startFirestoreRealtimeSync();
-              renderApp();
-            } else if (state.user?.role === "ADMIN" || state.restoringSession) {
-              state.restoringSession = false;
+              state.firestoreLastSync = new Date().toLocaleTimeString("id-ID");
               renderApp();
             }
           });
         }
-        startFirestoreRealtimeSync();
-      } catch (err) {
-        state.restoringSession = false;
-        showToast("Konfigurasi Firebase belum valid: " + err.message, "error");
-      }
-    }
 
-    function startFirestoreRealtimeSync() {
-      if (IS_PREVIEW || !db) return;
-
-      if (unsubMadrasah) unsubMadrasah();
-      unsubMadrasah = onSnapshot(
-        doc(db, "pengaturan_madrasah", "profil_utama"),
-        (snap) => {
-          state.firestoreLastSync = new Date().toLocaleTimeString("id-ID");
-          if (snap.exists()) {
-            const data = snap.data();
-            state.madrasah = { ...state.madrasah, ...data };
-            if (data.admin_profile) {
-              state.adminProfile = { ...state.adminProfile, ...data.admin_profile };
-            }
+        if (!unsubPerangkat) {
+          unsubPerangkat = onSnapshot(collection(db, "perangkat_ajar"), (snap) => {
+            const items = [];
+            snap.forEach((d) => items.push({ id: d.id, ...d.data() }));
+            state.perangkatList = items;
+            state.firestoreLastSync = new Date().toLocaleTimeString("id-ID");
             renderApp();
-          }
-        },
-        (err) => console.warn("Firestore madrasah listener:", err.message)
-      );
+          });
+        }
 
-      if (unsubPerangkat) unsubPerangkat();
-      const perangkatQuery = state.user?.role === "GURU" && state.user?.username
-        ? query(collection(db, "perangkat_ajar"), where("author_username", "==", state.user.username))
-        : collection(db, "perangkat_ajar");
-
-      unsubPerangkat = onSnapshot(
-        perangkatQuery,
-        (snap) => {
-          const list = [];
-          snap.forEach((d) => list.push({ id: d.id, ...d.data() }));
-          state.perangkatList = list;
-          state.firestoreLastSync = new Date().toLocaleTimeString("id-ID");
-          renderApp();
-        },
-        (err) => console.warn("Firestore perangkat listener:", err.message)
-      );
-
-      if (unsubGuru) unsubGuru();
-      if (state.user?.role === "ADMIN") {
-        unsubGuru = onSnapshot(
-          collection(db, "guru_users"),
-          (snap) => {
+        if (!unsubGuru) {
+          unsubGuru = onSnapshot(collection(db, "guru_users"), (snap) => {
             const list = [];
             snap.forEach((d) => list.push({ id: d.id, ...d.data() }));
             state.guruList = list;
             state.firestoreLastSync = new Date().toLocaleTimeString("id-ID");
             renderApp();
-          },
-          (err) => console.warn("Firestore guru listener:", err.message)
-        );
-      } else {
-        state.guruList = [];
+          });
+        }
+
+        onAuthStateChanged(auth, (firebaseUser) => {
+          if (firebaseUser) {
+            const saved = parseHashParams();
+            state.user = {
+              role: "ADMIN",
+              uid: firebaseUser.uid,
+              username: firebaseUser.email || "admin@madrasah.sch.id",
+              nama: state.adminProfile?.nama_admin || "Administrator Madrasah",
+              jenjang: "MA"
+            };
+            if (!state.selectedTrack) {
+              state.selectedTrack = saved.track === "KBC" ? "KBC" : "KURMER";
+            }
+            if (saved.menu) {
+              state.activeMenu = saved.menu;
+            }
+            syncSessionToHash();
+            renderApp();
+          }
+        });
+      } catch (err) {
+        console.error("Firebase Init Error:", err);
       }
     }
 
     async function manualSyncFirestore() {
-      if (state.user?.role !== "ADMIN") {
-        showToast("Akses Firestore hanya tersedia untuk akun Admin.", "error");
-        return;
-      }
       if (IS_PREVIEW) {
         state.firestoreLastSync = new Date().toLocaleTimeString("id-ID");
-        showToast("Mode Preview aktif: Menampilkan data state memori lokal.", "info");
+        showToast("Mode Preview aktif (data lokal in-memory).", "info");
         renderApp();
         return;
       }
       try {
         if (!db) initFirebaseAndListeners();
-        const [madrasahSnap, guruSnap, perangkatSnap] = await Promise.all([
-          getDoc(doc(db, "pengaturan_madrasah", "profil_utama")),
+        const [pSnap, gSnap, mSnap] = await Promise.all([
+          getDocs(collection(db, "perangkat_ajar")),
           getDocs(collection(db, "guru_users")),
-          getDocs(collection(db, "perangkat_ajar"))
+          getDoc(doc(db, "pengaturan_madrasah", "profil_utama"))
         ]);
-
-        if (madrasahSnap.exists()) {
-          const mData = madrasahSnap.data();
+        state.perangkatList = pSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        state.guruList = gSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        if (mSnap.exists()) {
+          const mData = mSnap.data();
           state.madrasah = { ...state.madrasah, ...mData };
           if (mData.admin_profile) {
             state.adminProfile = { ...state.adminProfile, ...mData.admin_profile };
           }
         }
-
-        const gList = [];
-        guruSnap.forEach((d) => gList.push({ id: d.id, ...d.data() }));
-        state.guruList = gList;
-
-        const pList = [];
-        perangkatSnap.forEach((d) => pList.push({ id: d.id, ...d.data() }));
-        state.perangkatList = pList;
-
         state.firestoreLastSync = new Date().toLocaleTimeString("id-ID");
-        showToast("Data Firestore berhasil disinkronkan!", "success");
+        showToast("Data Firestore berhasil dimuat ulang!", "success");
         renderApp();
       } catch (err) {
-        showToast("Gagal menyinkronkan Firestore: " + err.message, "error");
+        showToast("Gagal sinkronisasi Firestore: " + err.message, "error");
       }
     }
 
     // =========================================================================
-    // AUTENTIKASI HYBRID (LOGIN GURU, LOGIN ADMIN, & LOGOUT)
+    // AUTENTIKASI HYBRID (GURU LOGIN, PENDAFTARAN GURU, & ADMIN LOGIN)
     // =========================================================================
     async function handleGuruLogin(usernameInput, passwordInput) {
-      const username = (usernameInput || "").trim().toLowerCase();
-      const password = (passwordInput || "").trim();
-      if (!username || !password) {
+      const uname = (usernameInput || "").trim().toLowerCase();
+      const pass = (passwordInput || "").trim();
+      if (!uname || !pass) {
         showToast("Masukkan username dan kata sandi.", "error");
         return;
       }
@@ -1128,33 +1101,30 @@
       try {
         let matchedGuru = null;
         if (IS_PREVIEW) {
-          matchedGuru = state.guruList.find(
-            (g) => (g.username || "").toLowerCase() === username && g.password === password
-          );
+          matchedGuru = state.guruList.find((g) => (g.username || "").toLowerCase() === uname);
         } else {
           if (!db) initFirebaseAndListeners();
-          const q = query(collection(db, "guru_users"), where("username", "==", username));
+          const q = query(collection(db, "guru_users"), where("username", "==", uname));
           const snap = await getDocs(q);
-          snap.forEach((docSnap) => {
-            const data = docSnap.data();
-            if (data.password === password) {
-              matchedGuru = { id: docSnap.id, ...data };
-            }
-          });
+          if (!snap.empty) {
+            const d = snap.docs[0];
+            matchedGuru = { id: d.id, ...d.data() };
+          }
         }
 
         if (!matchedGuru) {
-          throw new Error("Username atau kata sandi tidak cocok.");
+          throw new Error("Akun guru tidak ditemukan. Silakan daftar terlebih dahulu.");
         }
-        if (matchedGuru.status_akun === "PENDING") {
-          throw new Error("Akun Anda masih berstatus PENDING. Silakan tunggu persetujuan (Approve) dari Admin.");
+        if (matchedGuru.password !== pass) {
+          throw new Error("Kata sandi yang Anda masukkan salah.");
         }
-        if (matchedGuru.status_aktif === false) {
-          throw new Error("Akun Anda sedang dinonaktifkan oleh Admin.");
+        if (matchedGuru.status_akun === "PENDING" || matchedGuru.status_aktif === false) {
+          throw new Error("Akun Anda berstatus PENDING / belum di-Approve Admin. Silakan hubungi WhatsApp Admin.");
         }
 
         state.user = {
           role: "GURU",
+          id: matchedGuru.id,
           username: matchedGuru.username,
           nama: matchedGuru.nama_lengkap,
           nip: matchedGuru.nip || "",
@@ -1168,7 +1138,6 @@
         state.genForm.peran_guru = [state.user.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mata Pelajaran"];
         state.activeMenu = "dashboard";
         syncSessionToHash();
-        if (!IS_PREVIEW) startFirestoreRealtimeSync();
         showToast(`Selamat datang, ${state.user.nama}!`, "success");
       } catch (err) {
         showToast(err.message || "Gagal masuk sebagai Guru.", "error");
@@ -1180,8 +1149,8 @@
 
     async function handleAdminLogin(emailInput, passwordInput) {
       const email = (emailInput || "").trim();
-      const password = (passwordInput || "").trim();
-      if (!email || !password) {
+      const pass = (passwordInput || "").trim();
+      if (!email || !pass) {
         showToast("Masukkan email dan password Admin.", "error");
         return;
       }
@@ -1191,35 +1160,35 @@
 
       try {
         if (IS_PREVIEW) {
-          if (email === "admin@madrasah.sch.id" && password === "admin123") {
+          if (email === "admin@madrasah.sch.id" && pass === "admin123") {
             state.user = {
               role: "ADMIN",
               username: email,
-              nama: state.adminProfile.nama_admin || "Administrator Madrasah",
+              nama: state.adminProfile?.nama_admin || "Administrator Madrasah",
               jenjang: "MA"
             };
             state.activeMenu = "dashboard";
             syncSessionToHash();
-            showToast("Login Admin berhasil (Mode Preview)!", "success");
+            showToast("Berhasil masuk sebagai Administrator (Mode Preview).", "success");
           } else {
-            throw new Error("Email atau password Admin demo tidak sesuai.");
+            throw new Error("Email atau password demo Admin salah (admin@madrasah.sch.id / admin123).");
           }
         } else {
           if (!auth) initFirebaseAndListeners();
-          const cred = await signInWithEmailAndPassword(auth, email, password);
+          const cred = await signInWithEmailAndPassword(auth, email, pass);
           state.user = {
             role: "ADMIN",
+            uid: cred.user.uid,
             username: cred.user.email || email,
-            nama: state.adminProfile.nama_admin || cred.user.displayName || "Admin Madrasah",
+            nama: state.adminProfile?.nama_admin || "Administrator Madrasah",
             jenjang: "MA"
           };
           state.activeMenu = "dashboard";
           syncSessionToHash();
-          startFirestoreRealtimeSync();
-          showToast("Login Admin berhasil!", "success");
+          showToast("Berhasil masuk sebagai Administrator Madrasah!", "success");
         }
       } catch (err) {
-        showToast("Login Admin gagal: " + (err.message || "Periksa email & sandi."), "error");
+        showToast("Login Admin gagal: " + (err.message || "Periksa kembali kredensial Anda."), "error");
       } finally {
         state.authLoading = false;
         renderApp();
@@ -1240,90 +1209,164 @@
       renderApp();
     }
 
+    async function handleGuruRegister(formData) {
+      const nama = (formData.nama_lengkap || "").trim();
+      const username = (formData.username || "").trim().toLowerCase();
+      const password = (formData.password || "").trim();
+      const jenjang = formData.jenjang || "MI";
+      const jenis_guru = formData.jenis_guru || "Guru Mapel";
+      const nip = (formData.nip || "").trim();
+      const mapel_utama = (formData.mapel_utama || "").trim();
+
+      if (!nama || username.length < 4 || password.length < 4) {
+        showToast("Nama lengkap wajib diisi, serta username & sandi minimal 4 karakter.", "error");
+        return;
+      }
+
+      state.authLoading = true;
+      renderApp();
+
+      try {
+        if (IS_PREVIEW) {
+          if (state.guruList.some((g) => (g.username || "").toLowerCase() === username)) {
+            throw new Error("Username sudah terdaftar. Silakan gunakan username lain.");
+          }
+          state.guruList.unshift({
+            id: "guru-" + Date.now(),
+            nama_lengkap: nama,
+            username,
+            password,
+            jenjang,
+            jenis_guru,
+            nip,
+            mapel_utama,
+            bukti_pembayaran_url: state.regBuktiPembayaranUrl || "",
+            status_akun: "PENDING",
+            status_aktif: false
+          });
+        } else {
+          if (!db) initFirebaseAndListeners();
+          const qCheck = query(collection(db, "guru_users"), where("username", "==", username));
+          const snapCheck = await getDocs(qCheck);
+          if (!snapCheck.empty) {
+            throw new Error("Username sudah digunakan oleh akun lain.");
+          }
+          await addDoc(collection(db, "guru_users"), {
+            nama_lengkap: nama,
+            username,
+            password,
+            jenjang,
+            jenis_guru,
+            nip,
+            mapel_utama,
+            bukti_pembayaran_url: state.regBuktiPembayaranUrl || "",
+            status_akun: "PENDING",
+            status_aktif: false,
+            created_at: serverTimestamp()
+          });
+        }
+        state.regBuktiPembayaranUrl = "";
+        state.loginTab = "GURU";
+        showToast("Pendaftaran berhasil! Silakan konfirmasi ke WhatsApp Admin agar akun segera di-Approve.", "success");
+      } catch (err) {
+        showToast("Pendaftaran gagal: " + (err.message || "Terjadi kesalahan."), "error");
+      } finally {
+        state.authLoading = false;
+        renderApp();
+      }
+    }
+
     // =========================================================================
     // GENERATOR ENGINE PERANGKAT PEMBELAJARAN & DECK SLIDE PPT (8 SLIDE)
     // =========================================================================
-    function buildSlideDeckFromDoc(docData) {
-      const poinMateri = docData.materi_ajar?.poin_utama || [];
-      const tpList = docData.tujuan_pembelajaran || [];
+    function buildSlideDeckFromDoc(docItem) {
+      const poinMateri = docItem.materi_ajar?.poin_utama || [];
+      const tpList = docItem.tujuan_pembelajaran || [];
       return [
         {
           nomor: 1,
           tipe: "COVER",
-          judul: docData.topik_materi,
-          subjudul: `${docData.mata_pelajaran} • ${docData.fase_kelas} (${docData.jenjang})`,
+          judul: docItem.topik_materi || "Materi Pembelajaran",
+          subjudul: `${docItem.mata_pelajaran} • ${docItem.fase_kelas} (${docItem.jenjang})`,
           poin: [
-            `Pendekatan: ${docData.jalur_kurikulum === "KBC" ? "Kurikulum Berbasis Cinta (Panca Cinta)" : "Kurikulum Merdeka (Deep Learning)"}`,
-            `Model Pembelajaran: ${docData.model_pembelajaran}`,
-            `Penyusun: ${docData.author_nama} | Alokasi: ${docData.alokasi_waktu}`
+            `Pendekatan: ${docItem.jalur_kurikulum === "KBC" ? "Kurikulum Berbasis Cinta (Panca Cinta)" : "Kurikulum Merdeka (Deep Learning)"}`,
+            `Model Pembelajaran: ${docItem.model_pembelajaran || "Problem-Based Learning (PBL)"}`,
+            `Penyusun: ${docItem.author_nama || "Guru Madrasah"} | Alokasi: ${docItem.alokasi_waktu || "2 × 35 Menit"}`
           ]
         },
         {
           nomor: 2,
-          tipe: "PEMANTIK",
-          judul: "Tujuan & Pertanyaan Pemantik",
-          subjudul: "Apersepsi & Orientasi Belajar",
+          tipe: "TUJUAN",
+          judul: "Tujuan Pembelajaran & Pemahaman Bermakna",
+          subjudul: "Arah Capaian Kompetensi Peserta Didik",
           poin: [
-            ...(tpList.slice(0, 2)),
-            ...(docData.pertanyaan_pemantik || []).slice(0, 2)
+            ...(tpList.length > 0 ? tpList.slice(0, 3) : ["Memahami konsep dasar materi secara mendalam dan bermakna."]),
+            `Pemahaman Bermakna: ${docItem.pemahaman_bermakna || "Mengaitkan ilmu dengan amal saleh sehari-hari."}`
           ]
         },
         {
           nomor: 3,
-          tipe: "KONSEP",
-          judul: "Pemahaman Bermakna & Konsep Inti",
+          tipe: "PEMANTIK",
+          judul: "Pertanyaan Pemantik & Aktivasi Niat",
           subjudul: "Tahap Memahami (Mindful Learning)",
-          poin: [
-            docData.pemahaman_bermakna || "",
-            docData.materi_ajar?.ringkasan_konsep || ""
-          ].filter(Boolean)
+          poin: (docItem.pertanyaan_pemantik && docItem.pertanyaan_pemantik.length > 0)
+            ? docItem.pertanyaan_pemantik
+            : [
+                `Apa yang sudah kalian ketahui tentang ${docItem.topik_materi}?`,
+                "Mengapa materi ini penting diamalkan dalam kehidupan sehari-hari?",
+                "Bagaimana cara kita menunjukkan sikap penuh kasih sayang saat belajar hari ini?"
+              ]
         },
         {
           nomor: 4,
-          tipe: "MATERI_1",
-          judul: "Pokok-Pokok Materi Pembelajaran (Bagian 1)",
-          subjudul: "Eksplorasi Konsep & Dalil / Landasan",
-          poin: poinMateri.slice(0, 3).length ? poinMateri.slice(0, 3) : ["Pengenalan konsep dasar materi pembelajaran."]
+          tipe: "MATERI_INTI",
+          judul: "Konsep Utama Materi Pembelajaran",
+          subjudul: "Inti Pengetahuan & Landasan Nilai",
+          poin: [
+            docItem.materi_ajar?.ringkasan_konsep || `Pemahaman menyeluruh mengenai ${docItem.topik_materi}.`,
+            ...(poinMateri.slice(0, 3))
+          ]
         },
         {
           nomor: 5,
-          tipe: "MATERI_2",
+          tipe: "MATERI_LANJUT",
           judul: "Pendalaman & Contoh Kontekstual",
-          subjudul: "Tahap Mengaplikasi (Meaningful Learning)",
+          subjudul: "Penerapan dalam Kehidupan Sehari-hari",
           poin: [
-            ...(poinMateri.slice(3, 5)),
-            docData.materi_ajar?.contoh_kontekstual ? `Contoh Nyata: ${docData.materi_ajar.contoh_kontekstual}` : ""
-          ].filter(Boolean)
+            ...(poinMateri.length > 3 ? poinMateri.slice(3) : poinMateri.slice(0, 2)),
+            `Contoh Nyata: ${docItem.materi_ajar?.contoh_kontekstual || "Menerapkan nilai kebaikan di madrasah dan keluarga."}`
+          ]
         },
         {
           nomor: 6,
           tipe: "AKTIVITAS",
-          judul: `Aktivitas Belajar (${docData.model_pembelajaran})`,
-          subjudul: "Kolaborasi & Diskusi Kelompok",
+          judul: `Aktivitas Belajar (${docItem.model_pembelajaran || "Kolaboratif"})`,
+          subjudul: "Tahap Mengaplikasi (Meaningful & Joyful)",
           poin: [
-            docData.deep_learning?.langkah_mengaplikasi || "Diskusi studi kasus dan pemecahan masalah secara kolaboratif.",
-            docData.asesmen?.lkpd || "Pengerjaan Lembar Kerja Peserta Didik (LKPD)."
+            "Diskusi kelompok eksplorasi kasus kontekstual di lingkungan sekitar.",
+            "Menyusun karya/kesimpulan kreatif sesuai minat dan gaya belajar.",
+            "Presentasi hasil karya dan saling memberikan apresiasi positif."
           ]
         },
         {
           nomor: 7,
           tipe: "PANCA_CINTA",
-          judul: "Internalisasi Nilai Karakter & Panca Cinta",
-          subjudul: docData.panca_cinta?.pilar_judul || "Penguatan Karakter Madrasah",
+          judul: "Integrasi Nilai Karakter & Panca Cinta",
+          subjudul: docItem.panca_cinta?.pilar_judul || "Penguatan Akhlak Mulia & Kasih Sayang",
           poin: [
-            docData.panca_cinta?.fokus_nilai || "",
-            docData.panca_cinta?.aktivitas_cinta || ""
-          ].filter(Boolean)
+            docItem.panca_cinta?.fokus_nilai || "Menumbuhkan cinta kepada Allah SWT, Rasul-Nya, ilmu, sesama, dan lingkungan.",
+            `Aksi Nyata: ${docItem.panca_cinta?.aktivitas_cinta || "Pembiasaan perilaku santun, jujur, dan peduli antarteman."}`
+          ]
         },
         {
           nomor: 8,
           tipe: "REFLEKSI",
-          judul: "Refleksi Hati, Kesimpulan & Penutup",
-          subjudul: "Tahap Merefleksi (Joyful & Mindful)",
+          judul: "Refleksi Diri & Asesmen Pembelajaran",
+          subjudul: "Tahap Merefleksi & Muhasabah Hati",
           poin: [
-            "Apa hal paling bermakna yang kamu pelajari hari ini?",
-            "Bagaimana komitmenmu menerapkan ilmu ini dalam kehidupan sehari-hari?",
-            "Terima kasih & Doa Penutup Majelis."
+            `Tugas Refleksi: ${docItem.asesmen?.lkpd || "Tuliskan hikmah terbaik yang kamu dapatkan hari ini."}`,
+            "Komitmen Pribadi: Satu kebaikan nyata yang akan langsung dipraktikkan hari ini.",
+            "Doa Penutup Majelis & Salam Kasih Sayang."
           ]
         }
       ];
@@ -1342,241 +1385,304 @@
 
       try {
         const isGuruKelas = f.jenis_guru === "Guru Kelas";
-        const muatanList = isGuruKelas ? (f.muatan_terpadu || []) : [];
-        const mapelOrTemaDisplay = isGuruKelas
-          ? `Tematik Terpadu (${muatanList.join(", ") || "Muatan Kelas"})`
-          : (f.mata_pelajaran || "Mata Pelajaran");
-
-        const peranGuruNormalized = isGuruKelas
-          ? ["Guru Kelas"]
-          : (f.peran_guru && f.peran_guru.length ? f.peran_guru : ["Guru Mata Pelajaran"]);
+        const mapelLabel = isGuruKelas
+          ? `Tematik Terpadu (${(f.muatan_terpadu || []).join(", ")})`
+          : (f.mata_pelajaran || "Mata Pelajaran Madrasah");
 
         const syntax = MODEL_SYNTAX_MAP[f.model_pembelajaran] || MODEL_SYNTAX_MAP["Problem-Based Learning (PBL)"];
-        const selectedPilars = PILAR_PANCA_CINTA.filter((p) => (f.pilar_cinta || []).includes(p.id));
-        const pilarTitles = selectedPilars.map((p) => p.judul).join("; ") || PILAR_PANCA_CINTA[0].judul;
+        const selectedPilarObjs = PILAR_PANCA_CINTA.filter((p) => (f.pilar_cinta || []).includes(p.id));
+        const pilarTitles = selectedPilarObjs.map((p) => p.judul).join("; ") || PILAR_PANCA_CINTA[0].judul;
+        const pilarFokus = (f.fokus_nilai_cinta || "").trim() ||
+          selectedPilarObjs.map((p) => p.indikator).join(" ");
+        const pilarAktivitas = selectedPilarObjs.map((p) => p.aktivitas).join(" ");
 
-        const customPoints = (f.materi_tambahan || "")
+        const customLines = (f.materi_tambahan || "")
           .split("\n")
-          .map((line) => line.trim())
+          .map((l) => l.trim())
           .filter(Boolean);
 
-        const poinUtama = customPoints.length > 0
-          ? customPoints
+        const poinUtama = customLines.length > 0
+          ? customLines
           : [
-              `Pengertian dan ruang lingkup konsep dasar "${topik}" sesuai tingkat perkembangan peserta didik ${f.jenjang}.`,
-              `Landasan nilai, dalil, atau prinsip ilmiah yang mendasari "${topik}".`,
-              `Penerapan perilaku dan keterampilan "${topik}" di lingkungan madrasah, keluarga, dan masyarakat.`,
-              `Hikmah dan manfaat mempelajari "${topik}" bagi pembentukan akhlak mulia dan kecerdasan peserta didik.`
+              `Pengertian dan ruang lingkup ${topik} dalam perspektif ${mapelLabel}.`,
+              `Dalil, landasan konseptual, serta hikmah mempelajari ${topik}.`,
+              `Penerapan perilaku terpuji dan pemecahan masalah nyata terkait ${topik}.`,
+              `Dampak positif pengamalan ${topik} bagi diri sendiri, sesama, dan lingkungan madrasah.`
             ];
 
-        const cpText = (f.capaian_pembelajaran || "").trim() ||
-          `Peserta didik mampu memahami, menganalisis, dan mengaktualisasikan nilai-nilai serta konsep utama pada topik "${topik}" dalam muatan ${mapelOrTemaDisplay} (${f.fase_kelas}) dengan penuh kesadaran, nalar kritis, dan kasih sayang.`;
-
-        const tujuanPembelajaran = [
-          `Melalui kegiatan pengamatan dan literasi (Memahami), peserta didik mampu menjelaskan konsep inti "${topik}" dengan bahasa sendiri secara tepat.`,
-          `Melalui aktivitas ${f.model_pembelajaran} (Mengaplikasi), peserta didik mampu menganalisis dan mempraktikkan penerapan "${topik}" secara kolaboratif.`,
-          `Melalui kegiatan refleksi terpandu (Merefleksi), peserta didik menunjukkan sikap positif, empati, dan tanggung jawab dalam kehidupan sehari-hari.`
-        ];
-
-        const pemahamanBermakna = `Memahami dan mengamalkan "${topik}" membantu peserta didik menjadi pribadi yang beriman, bernalar kritis, serta menebarkan kasih sayang kepada sesama dan lingkungan.`;
-
-        const pertanyaanPemantik = [
-          `Apa yang sudah kalian ketahui tentang "${topik}" dalam kehidupan sehari-hari?`,
-          `Mengapa kita perlu mempelajari dan mengamalkan nilai-nilai dari "${topik}"?`,
-          `Bagaimana cara kita menerapkan "${topik}" di kelas dan di rumah mulai hari ini?`
-        ];
-
-        const fokusNilaiCinta = (f.fokus_nilai_cinta || "").trim() ||
-          (selectedPilars.map((p) => p.indikator).join(" ") || PILAR_PANCA_CINTA[0].indikator);
-
-        const aktivitasCinta = selectedPilars[0]?.aktivitas || PILAR_PANCA_CINTA[0].aktivitas;
-
-        const ringkasanKonsep = `Materi "${topik}" pada ${mapelOrTemaDisplay} (${f.fase_kelas}) dirancang untuk membangun pemahaman konseptual yang utuh sekaligus menumbuhkan karakter mulia melalui pendekatan ${f.model_pembelajaran}.`;
-
-        const uraianMendalam = `1. Konsep Dasar: ${ringkasanKonsep}\n2. Elaborasi Materi: ${poinUtama.join(" ")}\n3. Kontekstualisasi Madrasah: Peserta didik diajak menghubungkan setiap konsep dengan pengalaman nyata di madrasah, rumah, dan lingkungan sekitar.`;
-
-        const glosarium = [
-          { istilah: topik, arti: `Tema atau pokok bahasan utama yang dipelajari pada ${mapelOrTemaDisplay}.` },
-          { istilah: f.model_pembelajaran, arti: "Model pembelajaran aktif yang memandu tahapan kegiatan inti peserta didik." },
-          { istilah: "Panca Cinta", arti: "Lima pilar nilai kasih sayang (Allah & Rasul, Ilmu, Diri & Sesama, Lingkungan, Tanah Air)." }
-        ];
-
-        const contohKontekstual = `Peserta didik mengamati situasi nyata di lingkungan madrasah yang berkaitan dengan "${topik}", mendiskusikan solusinya bersama kelompok, dan mempraktikkannya secara langsung.`;
+        const cpFinal = (f.capaian_pembelajaran || "").trim() ||
+          (CP_REFERENSI_BANK[f.jenjang]?.[0]?.cp ||
+            `Peserta didik mampu memahami, menganalisis, dan mengaktualisasikan nilai-nilai ${topik} secara kritis, kreatif, dan penuh kasih sayang dalam kehidupan sehari-hari.`);
 
         const newDoc = {
           id: "doc-" + Date.now(),
           jalur_kurikulum: state.selectedTrack || "KURMER",
           model_penyusunan: f.model_penyusunan || "STANDAR",
-          model_pembelajaran: f.model_pembelajaran,
+          model_pembelajaran: f.model_pembelajaran || "Problem-Based Learning (PBL)",
           jenis_guru: f.jenis_guru || "Guru Mapel",
-          peran_guru: peranGuruNormalized,
-          muatan_terpadu: muatanList,
-          nip_penyusun: (f.nip_penyusun || state.userNip || "").trim(),
+          peran_guru: f.peran_guru || [isGuruKelas ? "Guru Kelas" : "Guru Mata Pelajaran"],
+          muatan_terpadu: isGuruKelas ? (f.muatan_terpadu || []) : [],
+          nip_penyusun: f.nip_penyusun || state.userNip || "",
           ttd_guru_url: state.userTtdUrl || state.madrasah.ttd_penyusun_url || "",
-          author_username: state.user?.username || "guru",
-          author_nama: state.user?.nama || "Guru Madrasah",
+          author_username: state.user?.username || "guru.madrasah",
+          author_nama: state.user?.nama || "Guru Penyusun",
           is_archived: false,
           jenjang: f.jenjang,
           fase_kelas: f.fase_kelas,
-          mata_pelajaran: mapelOrTemaDisplay,
+          mata_pelajaran: mapelLabel,
           jenis_dokumen: f.jenis_dokumen,
           topik_materi: topik,
-          alokasi_waktu: f.alokasi_waktu,
-          semester: f.semester,
-          capaian_pembelajaran: cpText,
-          tujuan_pembelajaran: tujuanPembelajaran,
-          pemahaman_bermakna: pemahamanBermakna,
-          pertanyaan_pemantik: pertanyaanPemantik,
-          sarana_prasarana: `Buku Teks Utama ${mapelOrTemaDisplay} (${f.fase_kelas}) Kemenag RI, Slide Presentasi Interaktif (PPT 16:9), Lembar Kerja Peserta Didik (LKPD), Kartu Studi Kasus, Papan Refleksi.`,
+          alokasi_waktu: f.alokasi_waktu || "2 × 35 Menit (1 Pertemuan)",
+          semester: f.semester || "Ganjil",
+          capaian_pembelajaran: cpFinal,
+          tujuan_pembelajaran: [
+            `Melalui kegiatan eksplorasi dan literasi (Memahami), peserta didik mampu menjelaskan konsep pokok ${topik} secara runtut dan tepat.`,
+            `Melalui penerapan sintaks ${f.model_pembelajaran} (Mengaplikasi), peserta didik mampu menganalisis dan mempraktikkan contoh nyata ${topik} dalam kehidupan sehari-hari.`,
+            `Melalui kegiatan muhasabah dan refleksi hati (Merefleksi), peserta didik menunjukkan komitmen karakter mulia dan kasih sayang dengan penuh kesadaran.`
+          ],
+          pemahaman_bermakna: `Penguasaan materi ${topik} bukan sekadar pengetahuan teoritis, melainkan jalan untuk memperkuat keimanan, nalar kritis, dan kepedulian kasih sayang terhadap sesama.`,
+          pertanyaan_pemantik: [
+            `Mengapa kita perlu memahami dan mengamalkan ${topik} dalam kehidupan sehari-hari?`,
+            `Peristiwa nyata apa di sekitar kita yang berkaitan erat dengan ${topik}?`,
+            `Bagaimana sikap terbaik yang dapat kita tunjukkan sebagai wujud cinta kepada Allah SWT dan sesama melalui ${topik}?`
+          ],
+          sarana_prasarana: `Buku Teks ${mapelLabel} Kemenag RI, Lembar Kerja Peserta Didik (LKPD), Slide Presentasi Interaktif, Kartu Diskusi, dan Papan Refleksi Hati.`,
           diferensiasi: {
-            konten: "Menyajikan bahan bacaan ringkas, ilustrasi visual, dan penjelasan lisan sesuai profil belajar peserta didik.",
-            proses: `Pendampingan bertahap dalam kelompok kecil (${f.model_pembelajaran}) sesuai tingkat kesiapan belajar.`,
-            produk: "Peserta didik diberi kebebasan menyajikan hasil pemahaman dalam bentuk laporan tertulis, peta konsep, atau presentasi lisan."
+            konten: "Menyediakan ringkasan bacaan terstruktur, ilustrasi/bagan konsep visual, serta studi kasus kontekstual sesuai kesiapan belajar murid.",
+            proses: `Pendampingan berjenjang dalam kelompok heterogen menggunakan langkah ${f.model_pembelajaran}.`,
+            produk: "Peserta didik dapat menyajikan hasil pemahaman dalam bentuk laporan singkat, peta konsep, poster edukatif, atau presentasi lisan."
           },
           deep_learning: {
-            prinsip: [...(f.prinsip_dl || ["Mindful", "Meaningful", "Joyful"])],
-            dimensi_lulusan: [...(f.dimensi_lulusan || [])],
+            prinsip: f.prinsip_dl || ["Mindful", "Meaningful", "Joyful"],
+            dimensi_lulusan: f.dimensi_lulusan || ["Keimanan & Ketakwaan terhadap Tuhan YME", "Penalaran Kritis", "Kolaborasi"],
             langkah_memahami: syntax.memahami,
             langkah_mengaplikasi: syntax.mengaplikasi,
             langkah_merefleksi: syntax.merefleksi
           },
           panca_cinta: {
-            pilar_ids: [...(f.pilar_cinta || ["hubbullah"])],
+            pilar_ids: f.pilar_cinta || ["hubbullah", "hubbunnafs"],
             pilar_judul: pilarTitles,
-            fokus_nilai: fokusNilaiCinta,
-            aktivitas_cinta: aktivitasCinta
+            fokus_nilai: pilarFokus,
+            aktivitas_cinta: pilarAktivitas
           },
           materi_ajar: {
-            ringkasan_konsep: ringkasanKonsep,
-            uraian_mendalam: uraianMendalam,
+            ringkasan_konsep: `Materi "${topik}" membahas hakikat, nilai-nilai utama, serta langkah implementasi praktis dalam pembelajaran ${mapelLabel} pada ${f.fase_kelas}.`,
             poin_utama: poinUtama,
-            glosarium: glosarium,
-            contoh_kontekstual: contohKontekstual
+            uraian_mendalam: `1. Landasan Konsep & Pemahaman Dasar:\n${poinUtama[0]} Peserta didik diajak menelaah makna mendasar agar memiliki pemahaman yang kokoh dan tidak sekadar menghafal.\n2. Elaborasi & Analisis Kontekstual:\n${poinUtama[1] || ""} Melalui diskusi terarah, peserta didik menghubungkan konsep dengan realitas kehidupan di lingkungan madrasah dan keluarga.\n3. Aktualisasi Karakter & Kasih Sayang:\n${poinUtama[2] || ""} Setiap pemahaman diwujudkan dalam tindakan nyata yang mencerminkan akhlak karimah dan kepedulian sosial.`,
+            glosarium: [
+              { istilah: topik.split(" ").slice(0, 2).join(" "), arti: `Fokus kajian utama pembelajaran pada topik ${topik}.` },
+              { istilah: "Deep Learning", arti: "Pembelajaran mendalam yang berkesadaran (Mindful), bermakna (Meaningful), dan menggembirakan (Joyful)." },
+              { istilah: "Panca Cinta", arti: "Lima pilar cinta dalam Kurikulum Berbasis Cinta (Allah/Rasul, Ilmu, Diri/Sesama, Lingkungan, Tanah Air)." }
+            ],
+            contoh_kontekstual: `Dalam keseharian di madrasah, peserta didik mempraktikkan nilai-nilai ${topik} melalui sikap jujur, saling membantu teman yang kesulitan, dan menjaga ketertiban kelas.`
           },
           bahan_ajar: [
-            `Buku Teks Utama ${mapelOrTemaDisplay} (${f.fase_kelas}) Kemenag RI`,
-            `Handout / Modul Ringkasan Materi: ${topik}`,
-            `Slide Presentasi Pembelajaran Interaktif (PPT 16:9)`,
-            `Lembar Kerja Peserta Didik (LKPD) & Instrumen Rubrik Asesmen`
+            `Buku Teks Utama & Pendamping ${mapelLabel} (${f.jenjang})`,
+            `Handout Ringkasan Materi & Glosarium: ${topik}`,
+            `Deck Slide Presentasi Pembelajaran (8 Slide Interaktif)`,
+            `Lembar Kerja Peserta Didik (LKPD) & Instrumen Rubrik Penilaian`
           ],
           asesmen: {
-            diagnostik: `Tanya jawab awal dan pemetaan kesiapan belajar peserta didik terkait pengalaman mereka mengenai "${topik}".`,
-            formatif: `Observasi keaktifan diskusi, sikap kolaborasi, empati, dan ketepatan analisis konsep "${topik}".`,
-            sumatif: `Penilaian hasil karya / presentasi kelompok serta evaluasi pemahaman konsep tertulis di akhir pembelajaran.`,
-            rubrik_ringkas: `Sangat Baik (4): Menguasai konsep secara mendalam, mampu mengaitkan dengan nilai kasih sayang, dan aktif berkolaborasi | Baik (3): Menguasai konsep utama dan berpartisipasi aktif | Cukup (2): Memahami konsep dasar dengan bimbingan guru.`,
-            lkpd: `Tugas Eksplorasi & Refleksi Hati: "Identifikasi 2 penerapan nyata nilai '${topik}' di madrasah/rumah, diskusikan manfaatnya bersama kelompok, dan tuliskan komitmen pribadimu."`,
-            pengayaan_remedial: `Pengayaan: Menyusun proyek mini atau studi kasus lanjutan terkait "${topik}". Remedial: Pendampingan terstruktur menggunakan peta konsep dan latihan terbimbing.`
+            diagnostik: `Tanya jawab pemantik awal untuk memetakan pemahaman awal dan kesiapan belajar peserta didik tentang ${topik}.`,
+            formatif: `Observasi keaktifan diskusi, penalaran kritis, dan sikap kolaborasi selama penerapan ${f.model_pembelajaran}.`,
+            sumatif: "Penilaian produk karya, presentasi kelompok, dan tes pemahaman konsep akhir pembelajaran.",
+            rubrik_ringkas: "Sangat Baik (4): Menguasai konsep secara mendalam, mampu memberi contoh kontekstual & menunjukkan karakter terpuji | Baik (3): Menguasai konsep inti dengan benar | Cukup (2): Memerlukan bimbingan bertahap.",
+            lkpd: `Lembar Kerja & Refleksi Hati: "Analisislah satu permasalahan nyata terkait ${topik}, tuliskan solusinya, dan ungkapkan komitmen sikap positif yang akan kamu lakukan!"`,
+            pengayaan_remedial: `Pengayaan: Menyusun proyek mini atau tulisan inspiratif tentang ${topik}. Remedial: Pendampingan tutor sebaya menggunakan kartu ringkasan konsep.`
           }
         };
 
         newDoc.slides = buildSlideDeckFromDoc(newDoc);
         state.generatedDoc = newDoc;
         state.activeSlideIdx = 0;
-        state.previewTab = "DOKUMEN";
+        showToast("Perangkat pembelajaran & 8 Slide PPT berhasil disusun!", "success");
 
-        showToast("Perangkat pembelajaran lengkap & 8 slide PPT berhasil disusun!", "success");
+        setTimeout(() => {
+          const previewEl = document.getElementById("document-preview-section");
+          if (previewEl) previewEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
+      } catch (err) {
+        showToast("Gagal menyusun perangkat: " + err.message, "error");
       } finally {
         state.loading = false;
         renderApp();
-        setTimeout(() => {
-          const el = document.getElementById("document-preview-section");
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 100);
       }
     }
 
     // =========================================================================
-    // BUILDER DOKUMEN RESMI (KOP SURAT KEMENAG/MADRASAH, ISI & BLOK TTD)
+    // SIMPAN, ARSIPKAN & HAPUS DOKUMEN (TERISOLASI PER AKUN)
     // =========================================================================
-    function buildOfficialDocumentHTML(docData) {
+    async function saveDocumentToStore(docObj) {
+      if (!docObj) return;
+      try {
+        const payload = {
+          ...docObj,
+          author_username: state.user?.username || docObj.author_username || "guru.madrasah",
+          author_nama: state.user?.nama || docObj.author_nama || "Guru Madrasah",
+          is_archived: Boolean(docObj.is_archived)
+        };
+
+        if (IS_PREVIEW) {
+          const idx = state.perangkatList.findIndex((x) => x.id === payload.id);
+          if (idx !== -1) {
+            state.perangkatList[idx] = payload;
+          } else {
+            state.perangkatList.unshift(payload);
+          }
+          showToast("Berkas perangkat ajar berhasil disimpan ke akun Anda (Mode Preview)!", "success");
+          renderApp();
+        } else {
+          if (!db) initFirebaseAndListeners();
+          const { id, ...cleanData } = payload;
+          if (id && !id.startsWith("doc-")) {
+            await setDoc(doc(db, "perangkat_ajar", id), { ...cleanData, updated_at: serverTimestamp() }, { merge: true });
+          } else {
+            const added = await addDoc(collection(db, "perangkat_ajar"), { ...cleanData, created_at: serverTimestamp() });
+            state.generatedDoc.id = added.id;
+          }
+          showToast("Berkas perangkat ajar berhasil disimpan ke Cloud Firestore!", "success");
+        }
+      } catch (err) {
+        showToast("Gagal menyimpan berkas: " + err.message, "error");
+      }
+    }
+
+    async function toggleArchiveDocument(docId, nextArchiveState) {
+      try {
+        if (IS_PREVIEW) {
+          const target = state.perangkatList.find((x) => x.id === docId);
+          if (target) target.is_archived = nextArchiveState;
+          showToast(nextArchiveState ? "Berkas dipindahkan ke folder Arsip." : "Berkas dipulihkan ke daftar Aktif.", "success");
+          renderApp();
+        } else {
+          await updateDoc(doc(db, "perangkat_ajar", docId), { is_archived: nextArchiveState });
+          showToast(nextArchiveState ? "Berkas diarsipkan di Firestore." : "Berkas dipulihkan dari arsip.", "success");
+        }
+      } catch (err) {
+        showToast("Gagal mengubah status arsip: " + err.message, "error");
+      }
+    }
+
+    async function deleteDocumentFromStore(docId) {
+      try {
+        if (IS_PREVIEW) {
+          state.perangkatList = state.perangkatList.filter((x) => x.id !== docId);
+          state.confirmDeleteDocId = null;
+          if (state.generatedDoc?.id === docId) state.generatedDoc = null;
+          showToast("Berkas perangkat ajar dihapus.", "info");
+          renderApp();
+        } else {
+          await deleteDoc(doc(db, "perangkat_ajar", docId));
+          state.confirmDeleteDocId = null;
+          if (state.generatedDoc?.id === docId) state.generatedDoc = null;
+          showToast("Berkas dihapus dari Cloud Firestore.", "info");
+        }
+      } catch (err) {
+        showToast("Gagal menghapus berkas: " + err.message, "error");
+      }
+    }
+
+    // =========================================================================
+    // PEMBANGUN DOKUMEN RESMI (KOP SURAT KEMENAG/MADRASAH + TTD GANDA)
+    // =========================================================================
+    function buildOfficialDocumentHTML(d) {
       const m = state.madrasah || {};
-      const model = docData.model_penyusunan || "STANDAR";
-      const isGuruKelas = docData.jenis_guru === "Guru Kelas" || (docData.peran_guru || []).includes("Guru Kelas");
+      const model = d.model_penyusunan || "STANDAR";
+      const isGuruKelas = d.jenis_guru === "Guru Kelas" || (d.peran_guru || []).includes("Guru Kelas");
       const jabatanPenyusun = isGuruKelas
-        ? `Guru Kelas (${(docData.fase_kelas || "").split("—")[1]?.trim() || docData.fase_kelas})`
+        ? `Guru Kelas (${escapeHtml((d.fase_kelas || "").split("—")[1]?.trim() || d.fase_kelas)})`
         : `Guru Mata Pelajaran`;
-      const ttdPenyusunSrc = docData.ttd_guru_url || state.userTtdUrl || m.ttd_penyusun_url || "";
-      const nipPenyusun = docData.nip_penyusun || "";
+      const ttdPenyusunImg = d.ttd_guru_url || state.userTtdUrl || m.ttd_penyusun_url || "";
+      const nipPenyusunText = d.nip_penyusun || state.userNip || "-";
       const todayStr = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
 
-      const kopSuratHTML = `
-        <table style="width: 100%; border-collapse: collapse; border-bottom: 3px double #111827; margin-bottom: 14px; padding-bottom: 8px;">
+      const kopHTML = `
+        <table style="width:100%; border-collapse:collapse; border-bottom:3px double #111827; padding-bottom:8px; margin-bottom:14px;">
           <tr>
-            <td style="width: 72px; text-align: left; vertical-align: middle; border: none; padding: 2px;">
-              ${m.logo_kemenag_url ? `<img src="${m.logo_kemenag_url}" alt="Logo Kemenag" style="width: 64px; height: 64px; object-fit: contain;" />` : ``}
+            <td style="width:72px; text-align:left; vertical-align:middle;">
+              ${m.logo_kemenag_url
+                ? `<img src="${m.logo_kemenag_url}" alt="Logo Kemenag" style="width:62px; height:62px; object-fit:contain;" />`
+                : `<div style="width:58px; height:58px; border:1px dashed #9CA3AF; font-size:8pt; color:#6B7280; display:flex; align-items:center; justify-content:center; text-align:center;">Logo<br/>Kemenag</div>`}
             </td>
-            <td style="text-align: center; vertical-align: middle; border: none; padding: 2px 8px;">
-              <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase;">KEMENTERIAN AGAMA REPUBLIK INDONESIA</div>
-              <div style="font-size: 14pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px;">${escapeHtml(m.nama_madrasah || "MADRASAH TERPADU")}</div>
-              <div style="font-size: 9.5pt;">NSM: ${escapeHtml(m.nsm || "-")} &bull; NPSN: ${escapeHtml(m.npsn || "-")}</div>
-              <div style="font-size: 9.5pt;">${escapeHtml(m.alamat || "Alamat Satuan Pendidikan Madrasah")}</div>
+            <td style="text-align:center; vertical-align:middle; padding:0 8px;">
+              <div style="font-size:11pt; font-weight:bold; text-transform:uppercase; letter-spacing:0.4px;">KEMENTERIAN AGAMA REPUBLIK INDONESIA</div>
+              <div style="font-size:13.5pt; font-weight:bold; text-transform:uppercase; margin:2px 0;">${escapeHtml(m.nama_madrasah || "SATUAN PENDIDIKAN MADRASAH")}</div>
+              <div style="font-size:9.5pt;">NSM: ${escapeHtml(m.nsm || "-")} &bull; NPSN: ${escapeHtml(m.npsn || "-")}</div>
+              <div style="font-size:9.5pt;">${escapeHtml(m.alamat || "Alamat Satuan Pendidikan Madrasah")}</div>
             </td>
-            <td style="width: 72px; text-align: right; vertical-align: middle; border: none; padding: 2px;">
-              ${m.logo_url ? `<img src="${m.logo_url}" alt="Logo Madrasah" style="width: 64px; height: 64px; object-fit: contain;" />` : ``}
+            <td style="width:72px; text-align:right; vertical-align:middle;">
+              ${m.logo_url
+                ? `<img src="${m.logo_url}" alt="Logo Madrasah" style="width:62px; height:62px; object-fit:contain;" />`
+                : `<div style="width:58px; height:58px; border:1px dashed #9CA3AF; font-size:8pt; color:#6B7280; display:flex; align-items:center; justify-content:center; text-align:center; margin-left:auto;">Logo<br/>Madrasah</div>`}
             </td>
           </tr>
         </table>
 
-        <div style="text-align: center; margin-bottom: 12px;">
-          <div style="font-size: 12.5pt; font-weight: bold; text-transform: uppercase; text-decoration: underline;">
-            ${escapeHtml(docData.jenis_dokumen || "MODUL AJAR")}
+        <div style="text-align:center; margin-bottom:12px;">
+          <div style="font-size:12pt; font-weight:bold; text-transform:uppercase; text-decoration:underline;">
+            ${escapeHtml(d.jenis_dokumen || "MODUL AJAR (RPP PLUS)")}
           </div>
-          <div style="font-size: 10pt; font-weight: bold; margin-top: 2px;">
-            ${docData.jalur_kurikulum === "KBC" ? "PENDEKATAN KURIKULUM BERBASIS CINTA (PANCA CINTA)" : "PENDEKATAN KURIKULUM MERDEKA (DEEP LEARNING)"}
+          <div style="font-size:10pt; font-weight:bold; margin-top:2px;">
+            ${d.jalur_kurikulum === "KBC" ? "KURIKULUM BERBASIS CINTA (PANCA CINTA) & DEEP LEARNING" : "KURIKULUM MERDEKA — PENDEKATAN DEEP LEARNING"}
           </div>
-          <div style="font-size: 10pt;">Tahun Pelajaran ${escapeHtml(m.tahun_pelajaran || "2026/2027")}</div>
         </div>
       `;
 
-      const identitasTableHTML = `
-        <div class="doc-section-title">A. Identitas Perangkat Pembelajaran</div>
+      const identitasHTML = `
+        <div class="doc-section-title">A. IDENTITAS PERANGKAT PEMBELAJARAN</div>
         <table class="doc-table">
           <tr>
-            <th style="width: 24%;">Satuan Pendidikan</th>
-            <td style="width: 26%;">${escapeHtml(m.nama_madrasah || "-")}</td>
-            <th style="width: 24%;">Jenjang / Fase</th>
-            <td style="width: 26%;">${escapeHtml(docData.jenjang)} / ${escapeHtml(docData.fase_kelas)}</td>
+            <td style="width:24%; font-weight:bold;">Satuan Pendidikan</td>
+            <td style="width:26%;">${escapeHtml(m.nama_madrasah || "-")}</td>
+            <td style="width:24%; font-weight:bold;">Tahun Pelajaran</td>
+            <td style="width:26%;">${escapeHtml(m.tahun_pelajaran || "2026/2027")}</td>
           </tr>
           <tr>
-            <th>${isGuruKelas ? "Muatan Terpadu" : "Mata Pelajaran"}</th>
-            <td>${escapeHtml(docData.mata_pelajaran)}</td>
-            <th>Semester / Alokasi</th>
-            <td>${escapeHtml(docData.semester)} / ${escapeHtml(docData.alokasi_waktu)}</td>
+            <td style="font-weight:bold;">Jenjang / Fase & Kelas</td>
+            <td>${escapeHtml(d.jenjang)} / ${escapeHtml(d.fase_kelas)}</td>
+            <td style="font-weight:bold;">Semester</td>
+            <td>${escapeHtml(d.semester || "Ganjil")}</td>
           </tr>
           <tr>
-            <th>Model Pembelajaran</th>
-            <td>${escapeHtml(docData.model_pembelajaran || "-")}</td>
-            <th>Penyusun</th>
-            <td>${escapeHtml(docData.author_nama)}</td>
+            <td style="font-weight:bold;">${isGuruKelas ? "Muatan Terpadu" : "Mata Pelajaran"}</td>
+            <td>${escapeHtml(d.mata_pelajaran)}</td>
+            <td style="font-weight:bold;">Alokasi Waktu</td>
+            <td>${escapeHtml(d.alokasi_waktu || "2 × 35 Menit")}</td>
           </tr>
           <tr>
-            <th>Topik / Materi Pokok</th>
-            <td colspan="3"><strong>${escapeHtml(docData.topik_materi)}</strong></td>
+            <td style="font-weight:bold;">Topik / Materi Pokok</td>
+            <td colspan="3" style="font-weight:bold;">${escapeHtml(d.topik_materi)}</td>
+          </tr>
+          <tr>
+            <td style="font-weight:bold;">Model Pembelajaran</td>
+            <td>${escapeHtml(d.model_pembelajaran || "Problem-Based Learning (PBL)")}</td>
+            <td style="font-weight:bold;">Penyusun</td>
+            <td>${escapeHtml(d.author_nama || "-")} (${isGuruKelas ? "Guru Kelas" : "Guru Mapel"})</td>
           </tr>
         </table>
       `;
 
-      const ttdBlockHTML = `
+      const signatureHTML = `
         <div class="signature-block">
-          <table style="width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 10.5pt;">
+          <table style="width:100%; border-collapse:collapse; margin-top:18px; font-size:10.5pt;">
             <tr>
-              <td style="width: 50%; text-align: center; vertical-align: top; border: none; padding: 4px;">
+              <td style="width:50%; text-align:center; vertical-align:top; padding:4px 12px;">
                 <div>Mengetahui,</div>
-                <div>Kepala ${escapeHtml(docData.jenjang || "Madrasah")}</div>
-                <div style="height: 62px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
-                  ${m.ttd_kepala_url ? `<img src="${m.ttd_kepala_url}" alt="TTD Kepala" style="max-height: 58px; max-width: 160px; object-fit: contain;" />` : ``}
+                <div>Kepala ${escapeHtml(m.nama_madrasah || "Madrasah")}</div>
+                <div style="height:64px; display:flex; align-items:center; justify-content:center; margin:4px 0;">
+                  ${m.ttd_kepala_url ? `<img src="${m.ttd_kepala_url}" alt="TTD Kepala" style="max-height:60px; max-width:160px; object-fit:contain;" />` : ""}
                 </div>
-                <div style="font-weight: bold; text-decoration: underline;">${escapeHtml(m.nama_kepala || "........................................")}</div>
+                <div style="font-weight:bold; text-decoration:underline;">${escapeHtml(m.nama_kepala || "........................................")}</div>
                 <div>NIP. ${escapeHtml(m.nip_kepala || "-")}</div>
               </td>
-              <td style="width: 50%; text-align: center; vertical-align: top; border: none; padding: 4px;">
-                <div>${todayStr}</div>
-                <div>${escapeHtml(jabatanPenyusun)}</div>
-                <div style="height: 62px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
-                  ${ttdPenyusunSrc ? `<img src="${ttdPenyusunSrc}" alt="TTD Penyusun" style="max-height: 58px; max-width: 160px; object-fit: contain;" />` : ``}
+              <td style="width:50%; text-align:center; vertical-align:top; padding:4px 12px;">
+                <div>${escapeHtml((m.alamat || "Madrasah").split(",")[0])}, ${todayStr}</div>
+                <div>${jabatanPenyusun}</div>
+                <div style="height:64px; display:flex; align-items:center; justify-content:center; margin:4px 0;">
+                  ${ttdPenyusunImg ? `<img src="${ttdPenyusunImg}" alt="TTD Penyusun" style="max-height:60px; max-width:160px; object-fit:contain;" />` : ""}
                 </div>
-                <div style="font-weight: bold; text-decoration: underline;">${escapeHtml(docData.author_nama || "........................................")}</div>
-                <div>${nipPenyusun ? `NIP/NUPTK. ${escapeHtml(nipPenyusun)}` : "NIP. -"}</div>
+                <div style="font-weight:bold; text-decoration:underline;">${escapeHtml(d.author_nama || "........................................")}</div>
+                <div>NIP/NUPTK. ${escapeHtml(nipPenyusunText)}</div>
               </td>
             </tr>
           </table>
@@ -1585,364 +1691,281 @@
 
       if (model === "RINGKAS") {
         return `
-          ${kopSuratHTML}
-          ${identitasTableHTML}
-          <div class="doc-section-title">B. Capaian & Tujuan Pembelajaran</div>
+          ${kopHTML}
+          ${identitasHTML}
+          <div class="doc-section-title">B. CAPAIAN & TUJUAN PEMBELAJARAN</div>
           <table class="doc-table">
-            <tr><th style="width: 28%;">Capaian Pembelajaran</th><td>${escapeHtml(docData.capaian_pembelajaran)}</td></tr>
+            <tr><th style="width:28%;">Capaian Pembelajaran</th><td>${escapeHtml(d.capaian_pembelajaran)}</td></tr>
             <tr>
               <th>Tujuan Pembelajaran</th>
-              <td>
-                <ol style="margin: 0; padding-left: 18px;">
-                  ${(docData.tujuan_pembelajaran || []).map((tp) => `<li>${escapeHtml(tp)}</li>`).join("")}
-                </ol>
-              </td>
+              <td><ol style="margin:0; padding-left:18px;">${(d.tujuan_pembelajaran || []).map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ol></td>
             </tr>
-            <tr><th>Nilai Panca Cinta</th><td><strong>${escapeHtml(docData.panca_cinta?.pilar_judul || "")}</strong> — ${escapeHtml(docData.panca_cinta?.fokus_nilai || "")}</td></tr>
+            <tr><th>Pilar Panca Cinta</th><td><strong>${escapeHtml(d.panca_cinta?.pilar_judul || "-")}</strong> — ${escapeHtml(d.panca_cinta?.fokus_nilai || "")}</td></tr>
           </table>
 
-          <div class="doc-section-title">C. Ringkasan Langkah Pembelajaran (${escapeHtml(docData.model_pembelajaran || "")})</div>
+          <div class="doc-section-title">C. RINGKASAN MATERI & LANGKAH DEEP LEARNING</div>
           <table class="doc-table">
-            <tr><th style="width: 28%;">1. Memahami (Mindful)</th><td style="white-space: pre-line;">${escapeHtml(docData.deep_learning?.langkah_memahami || "")}</td></tr>
-            <tr><th>2. Mengaplikasi (Meaningful)</th><td style="white-space: pre-line;">${escapeHtml(docData.deep_learning?.langkah_mengaplikasi || "")}</td></tr>
-            <tr><th>3. Merefleksi (Joyful)</th><td style="white-space: pre-line;">${escapeHtml(docData.deep_learning?.langkah_merefleksi || "")}</td></tr>
+            <tr><th style="width:28%;">Ringkasan Materi</th><td>${escapeHtml(d.materi_ajar?.ringkasan_konsep || "")}</td></tr>
+            <tr><th>1. Memahami (Mindful)</th><td style="white-space:pre-line;">${escapeHtml(d.deep_learning?.langkah_memahami || "")}</td></tr>
+            <tr><th>2. Mengaplikasi (Meaningful)</th><td style="white-space:pre-line;">${escapeHtml(d.deep_learning?.langkah_mengaplikasi || "")}</td></tr>
+            <tr><th>3. Merefleksi (Joyful)</th><td style="white-space:pre-line;">${escapeHtml(d.deep_learning?.langkah_merefleksi || "")}</td></tr>
+            <tr><th>Asesmen & LKPD</th><td>${escapeHtml(d.asesmen?.formatif || "")} | ${escapeHtml(d.asesmen?.lkpd || "")}</td></tr>
           </table>
-
-          <div class="doc-section-title">D. Asesmen & Refleksi</div>
-          <table class="doc-table">
-            <tr><th style="width: 28%;">Asesmen Formatif & Sumatif</th><td>${escapeHtml(docData.asesmen?.formatif || "")} ${escapeHtml(docData.asesmen?.sumatif || "")}</td></tr>
-            <tr><th>LKPD / Refleksi Hati</th><td>${escapeHtml(docData.asesmen?.lkpd || "")}</td></tr>
-          </table>
-          ${ttdBlockHTML}
+          ${signatureHTML}
         `;
       }
 
       if (model === "MATRIKS") {
         return `
-          ${kopSuratHTML}
-          ${identitasTableHTML}
-          <div class="doc-section-title">B. Matriks Perencanaan Pembelajaran</div>
+          ${kopHTML}
+          ${identitasHTML}
+          <div class="doc-section-title">B. MATRIKS PERENCANAAN PEMBELAJARAN MENDALAM</div>
           <table class="doc-table">
             <thead>
               <tr>
-                <th style="width: 22%;">Komponen</th>
-                <th style="width: 44%;">Uraian Perencanaan</th>
-                <th style="width: 34%;">Integrasi Deep Learning & Panca Cinta</th>
+                <th style="width:22%;">Komponen</th>
+                <th style="width:48%;">Deskripsi & Aktivitas Pembelajaran</th>
+                <th style="width:30%;">Integrasi Nilai & Asesmen</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td><strong>Capaian & Tujuan</strong></td>
-                <td>
-                  <div><strong>CP:</strong> ${escapeHtml(docData.capaian_pembelajaran)}</div>
-                  <div style="margin-top: 4px;"><strong>TP:</strong></div>
-                  <ul style="margin: 0; padding-left: 16px;">
-                    ${(docData.tujuan_pembelajaran || []).map((tp) => `<li>${escapeHtml(tp)}</li>`).join("")}
-                  </ul>
-                </td>
-                <td>
-                  <div><strong>Prinsip:</strong> ${(docData.deep_learning?.prinsip || []).join(", ")}</div>
-                  <div style="margin-top: 4px;"><strong>Dimensi Lulusan:</strong> ${(docData.deep_learning?.dimensi_lulusan || []).join(", ")}</div>
-                  <div style="margin-top: 4px;"><strong>Pilar Cinta:</strong> ${escapeHtml(docData.panca_cinta?.pilar_judul || "")}</div>
-                </td>
+                <td>${escapeHtml(d.capaian_pembelajaran)}<br/><ul style="margin:4px 0 0; padding-left:16px;">${(d.tujuan_pembelajaran || []).map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ul></td>
+                <td><strong>Dimensi Lulusan:</strong><br/>${escapeHtml((d.deep_learning?.dimensi_lulusan || []).join(", "))}</td>
               </tr>
               <tr>
                 <td><strong>Materi & Bahan Ajar</strong></td>
-                <td>
-                  <div>${escapeHtml(docData.materi_ajar?.ringkasan_konsep || "")}</div>
-                  <ul style="margin: 4px 0 0 0; padding-left: 16px;">
-                    ${(docData.materi_ajar?.poin_utama || []).map((pt) => `<li>${escapeHtml(pt)}</li>`).join("")}
-                  </ul>
-                </td>
-                <td>
-                  <strong>Bahan Ajar:</strong>
-                  <ul style="margin: 0; padding-left: 16px;">
-                    ${(docData.bahan_ajar || []).map((ba) => `<li>${escapeHtml(ba)}</li>`).join("")}
-                  </ul>
-                </td>
+                <td><strong>${escapeHtml(d.materi_ajar?.ringkasan_konsep || "")}</strong><ul style="margin:4px 0 0; padding-left:16px;">${(d.materi_ajar?.poin_utama || []).map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul></td>
+                <td><strong>Bahan Ajar:</strong><br/>${escapeHtml((d.bahan_ajar || []).join("; "))}</td>
               </tr>
               <tr>
-                <td><strong>Sintaks Pembelajaran</strong></td>
-                <td style="white-space: pre-line;"><strong>Memahami:</strong>\n${escapeHtml(docData.deep_learning?.langkah_memahami || "")}\n\n<strong>Mengaplikasi:</strong>\n${escapeHtml(docData.deep_learning?.langkah_mengaplikasi || "")}\n\n<strong>Merefleksi:</strong>\n${escapeHtml(docData.deep_learning?.langkah_merefleksi || "")}</td>
-                <td>
-                  <div><strong>Aktivitas Kasih Sayang:</strong> ${escapeHtml(docData.panca_cinta?.aktivitas_cinta || "")}</div>
-                  <div style="margin-top: 6px;"><strong>Diferensiasi Produk:</strong> ${escapeHtml(docData.diferensiasi?.produk || "")}</div>
-                </td>
+                <td><strong>Tahap 1: Memahami</strong></td>
+                <td style="white-space:pre-line;">${escapeHtml(d.deep_learning?.langkah_memahami || "")}</td>
+                <td><strong>Diagnostik:</strong> ${escapeHtml(d.asesmen?.diagnostik || "")}</td>
               </tr>
               <tr>
-                <td><strong>Asesmen & LKPD</strong></td>
-                <td>
-                  <div><strong>Formatif:</strong> ${escapeHtml(docData.asesmen?.formatif || "")}</div>
-                  <div style="margin-top: 4px;"><strong>Sumatif:</strong> ${escapeHtml(docData.asesmen?.sumatif || "")}</div>
-                </td>
-                <td>${escapeHtml(docData.asesmen?.lkpd || "")}</td>
+                <td><strong>Tahap 2: Mengaplikasi</strong></td>
+                <td style="white-space:pre-line;">${escapeHtml(d.deep_learning?.langkah_mengaplikasi || "")}</td>
+                <td><strong>Formatif:</strong> ${escapeHtml(d.asesmen?.formatif || "")}</td>
+              </tr>
+              <tr>
+                <td><strong>Tahap 3: Merefleksi</strong></td>
+                <td style="white-space:pre-line;">${escapeHtml(d.deep_learning?.langkah_merefleksi || "")}</td>
+                <td><strong>Sumatif & Panca Cinta:</strong> ${escapeHtml(d.panca_cinta?.aktivitas_cinta || "")}</td>
               </tr>
             </tbody>
           </table>
-          ${ttdBlockHTML}
+          ${signatureHTML}
         `;
       }
 
-      // MODEL STANDAR / LENGKAP
+      // MODEL LENGKAP / STANDAR
       return `
-        ${kopSuratHTML}
-        ${identitasTableHTML}
+        ${kopHTML}
+        ${identitasHTML}
 
-        <div class="doc-section-title">B. Kompetensi Awal, Profil Lulusan & Panca Cinta</div>
+        <div class="doc-section-title">B. KOMPONEN INTI & PENDEKATAN PEDAGOGIS</div>
         <table class="doc-table">
-          <tr>
-            <th style="width: 28%;">Prinsip Deep Learning</th>
-            <td>${(docData.deep_learning?.prinsip || []).join(" • ")}</td>
-          </tr>
-          <tr>
-            <th>Dimensi Profil Lulusan</th>
-            <td>${(docData.deep_learning?.dimensi_lulusan || []).join(", ")}</td>
-          </tr>
-          <tr>
-            <th>Pilar Panca Cinta</th>
-            <td>
-              <div><strong>${escapeHtml(docData.panca_cinta?.pilar_judul || "")}</strong></div>
-              <div style="margin-top: 2px;">${escapeHtml(docData.panca_cinta?.fokus_nilai || "")}</div>
-            </td>
-          </tr>
-          <tr>
-            <th>Sarana & Prasarana</th>
-            <td>${escapeHtml(docData.sarana_prasarana || "-")}</td>
-          </tr>
-        </table>
-
-        <div class="doc-section-title">C. Komponen Inti Pembelajaran</div>
-        <table class="doc-table">
-          <tr>
-            <th style="width: 28%;">Capaian Pembelajaran (CP)</th>
-            <td>${escapeHtml(docData.capaian_pembelajaran)}</td>
-          </tr>
+          <tr><th style="width:28%;">Capaian Pembelajaran (CP)</th><td>${escapeHtml(d.capaian_pembelajaran)}</td></tr>
           <tr>
             <th>Tujuan Pembelajaran (TP)</th>
-            <td>
-              <ol style="margin: 0; padding-left: 18px;">
-                ${(docData.tujuan_pembelajaran || []).map((tp) => `<li>${escapeHtml(tp)}</li>`).join("")}
-              </ol>
-            </td>
+            <td><ol style="margin:0; padding-left:18px;">${(d.tujuan_pembelajaran || []).map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ol></td>
           </tr>
-          <tr>
-            <th>Pemahaman Bermakna</th>
-            <td>${escapeHtml(docData.pemahaman_bermakna || "-")}</td>
-          </tr>
+          <tr><th>Pemahaman Bermakna</th><td>${escapeHtml(d.pemahaman_bermakna || "")}</td></tr>
           <tr>
             <th>Pertanyaan Pemantik</th>
-            <td>
-              <ul style="margin: 0; padding-left: 18px;">
-                ${(docData.pertanyaan_pemantik || []).map((q) => `<li>${escapeHtml(q)}</li>`).join("")}
-              </ul>
-            </td>
+            <td><ul style="margin:0; padding-left:18px;">${(d.pertanyaan_pemantik || []).map((q) => `<li>${escapeHtml(q)}</li>`).join("")}</ul></td>
           </tr>
+          <tr><th>Prinsip Deep Learning</th><td>${escapeHtml((d.deep_learning?.prinsip || []).join(" • "))}</td></tr>
+          <tr><th>8 Dimensi Profil Lulusan</th><td>${escapeHtml((d.deep_learning?.dimensi_lulusan || []).join(", "))}</td></tr>
           <tr>
-            <th>Pembelajaran Berdiferensiasi</th>
-            <td>
-              <div><strong>Konten:</strong> ${escapeHtml(docData.diferensiasi?.konten || "-")}</div>
-              <div><strong>Proses:</strong> ${escapeHtml(docData.diferensiasi?.proses || "-")}</div>
-              <div><strong>Produk:</strong> ${escapeHtml(docData.diferensiasi?.produk || "-")}</div>
-            </td>
+            <th>Integrasi Panca Cinta</th>
+            <td><strong>${escapeHtml(d.panca_cinta?.pilar_judul || "")}</strong><br/>${escapeHtml(d.panca_cinta?.fokus_nilai || "")}<br/><em>Aksi Cinta: ${escapeHtml(d.panca_cinta?.aktivitas_cinta || "")}</em></td>
           </tr>
+          <tr><th>Sarana & Prasarana</th><td>${escapeHtml(d.sarana_prasarana || "")}</td></tr>
         </table>
 
-        <div class="doc-section-title">D. Langkah-Langkah Kegiatan Pembelajaran (${escapeHtml(docData.model_pembelajaran || "")})</div>
+        <div class="doc-section-title">C. STRATEGI PEMBELAJARAN BERDIFERENSIASI</div>
+        <table class="doc-table">
+          <tr><th style="width:28%;">Diferensiasi Konten</th><td>${escapeHtml(d.diferensiasi?.konten || "")}</td></tr>
+          <tr><th>Diferensiasi Proses</th><td>${escapeHtml(d.diferensiasi?.proses || "")}</td></tr>
+          <tr><th>Diferensiasi Produk</th><td>${escapeHtml(d.diferensiasi?.produk || "")}</td></tr>
+        </table>
+
+        <div class="doc-section-title">D. LANGKAH KEGIATAN PEMBELAJARAN (${escapeHtml(d.model_pembelajaran || "PBL")})</div>
         <table class="doc-table">
           <thead>
             <tr>
-              <th style="width: 26%;">Tahapan Pembelajaran</th>
-              <th>Deskripsi Aktivitas Guru & Peserta Didik</th>
+              <th style="width:26%;">Tahapan Deep Learning</th>
+              <th>Deskripsi Kegiatan Guru & Peserta Didik</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>1. Tahap Memahami</strong><br/><em>(Mindful / Berkesadaran)</em></td>
-              <td style="white-space: pre-line;">${escapeHtml(docData.deep_learning?.langkah_memahami || "")}</td>
+              <td><strong>1. Memahami</strong><br/><em>(Mindful / Berkesadaran)</em></td>
+              <td style="white-space:pre-line;">${escapeHtml(d.deep_learning?.langkah_memahami || "")}</td>
             </tr>
             <tr>
-              <td><strong>2. Tahap Mengaplikasi</strong><br/><em>(Meaningful / Bermakna)</em></td>
-              <td style="white-space: pre-line;">${escapeHtml(docData.deep_learning?.langkah_mengaplikasi || "")}</td>
+              <td><strong>2. Mengaplikasi</strong><br/><em>(Meaningful & Joyful)</em></td>
+              <td style="white-space:pre-line;">${escapeHtml(d.deep_learning?.langkah_mengaplikasi || "")}</td>
             </tr>
             <tr>
-              <td><strong>3. Tahap Merefleksi</strong><br/><em>(Joyful / Menggembirakan)</em></td>
-              <td style="white-space: pre-line;">${escapeHtml(docData.deep_learning?.langkah_merefleksi || "")}</td>
-            </tr>
-            <tr>
-              <td><strong>Aksi Nyata Panca Cinta</strong></td>
-              <td>${escapeHtml(docData.panca_cinta?.aktivitas_cinta || "")}</td>
+              <td><strong>3. Merefleksi</strong><br/><em>(Muhasabah & Penguatan Nilai)</em></td>
+              <td style="white-space:pre-line;">${escapeHtml(d.deep_learning?.langkah_merefleksi || "")}</td>
             </tr>
           </tbody>
         </table>
 
-        <div class="doc-section-title">E. Materi Ajar, Glosarium & Bahan Ajar</div>
+        <div class="doc-section-title">E. MATERI AJAR, BAHAN AJAR & GLOSARIUM</div>
         <table class="doc-table">
+          <tr><th style="width:28%;">Ringkasan Konsep</th><td>${escapeHtml(d.materi_ajar?.ringkasan_konsep || "")}</td></tr>
           <tr>
-            <th style="width: 28%;">Ringkasan Konsep</th>
-            <td>${escapeHtml(docData.materi_ajar?.ringkasan_konsep || "")}</td>
+            <th>Pokok-Pokok Materi</th>
+            <td><ul style="margin:0; padding-left:18px;">${(d.materi_ajar?.poin_utama || []).map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul></td>
           </tr>
-          <tr>
-            <th>Pokok-Pokok Materi Ajar</th>
-            <td>
-              <ul style="margin: 0; padding-left: 18px;">
-                ${(docData.materi_ajar?.poin_utama || []).map((pt) => `<li>${escapeHtml(pt)}</li>`).join("")}
-              </ul>
-            </td>
-          </tr>
-          <tr>
-            <th>Contoh Kontekstual</th>
-            <td>${escapeHtml(docData.materi_ajar?.contoh_kontekstual || "")}</td>
-          </tr>
-          <tr>
-            <th>Glosarium Kata Kunci</th>
-            <td>
-              ${(docData.materi_ajar?.glosarium || []).map((g) => `<div><strong>${escapeHtml(g.istilah)}:</strong> ${escapeHtml(g.arti)}</div>`).join("")}
-            </td>
-          </tr>
+          <tr><th>Uraian Materi Mendalam</th><td style="white-space:pre-line;">${escapeHtml(d.materi_ajar?.uraian_mendalam || "")}</td></tr>
+          <tr><th>Contoh Kontekstual</th><td>${escapeHtml(d.materi_ajar?.contoh_kontekstual || "")}</td></tr>
           <tr>
             <th>Daftar Bahan Ajar</th>
-            <td>
-              <ul style="margin: 0; padding-left: 18px;">
-                ${(docData.bahan_ajar || []).map((ba) => `<li>${escapeHtml(ba)}</li>`).join("")}
-              </ul>
-            </td>
+            <td><ol style="margin:0; padding-left:18px;">${(d.bahan_ajar || []).map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ol></td>
           </tr>
+          ${(d.materi_ajar?.glosarium && d.materi_ajar.glosarium.length > 0) ? `
+            <tr>
+              <th>Glosarium Istilah</th>
+              <td>${d.materi_ajar.glosarium.map((g) => `<strong>${escapeHtml(g.istilah)}:</strong> ${escapeHtml(g.arti)}`).join("<br/>")}</td>
+            </tr>
+          ` : ``}
         </table>
 
-        <div class="doc-section-title">F. Asesmen, LKPD & Tindak Lanjut</div>
+        <div class="doc-section-title">F. ASESMEN, LKPD & TINDAK LANJUT</div>
         <table class="doc-table">
-          <tr><th style="width: 28%;">Asesmen Diagnostik</th><td>${escapeHtml(docData.asesmen?.diagnostik || "-")}</td></tr>
-          <tr><th>Asesmen Formatif</th><td>${escapeHtml(docData.asesmen?.formatif || "-")}</td></tr>
-          <tr><th>Asesmen Sumatif</th><td>${escapeHtml(docData.asesmen?.sumatif || "-")}</td></tr>
-          <tr><th>Rubrik Penilaian Ringkas</th><td>${escapeHtml(docData.asesmen?.rubrik_ringkas || "-")}</td></tr>
-          <tr><th>Lembar Kerja (LKPD)</th><td>${escapeHtml(docData.asesmen?.lkpd || "-")}</td></tr>
-          <tr><th>Pengayaan & Remedial</th><td>${escapeHtml(docData.asesmen?.pengayaan_remedial || "-")}</td></tr>
+          <tr><th style="width:28%;">Asesmen Diagnostik</th><td>${escapeHtml(d.asesmen?.diagnostik || "")}</td></tr>
+          <tr><th>Asesmen Formatif</th><td>${escapeHtml(d.asesmen?.formatif || "")}</td></tr>
+          <tr><th>Asesmen Sumatif</th><td>${escapeHtml(d.asesmen?.sumatif || "")}</td></tr>
+          <tr><th>Rubrik Penilaian</th><td>${escapeHtml(d.asesmen?.rubrik_ringkas || "")}</td></tr>
+          <tr><th>Lembar Kerja (LKPD)</th><td>${escapeHtml(d.asesmen?.lkpd || "")}</td></tr>
+          <tr><th>Pengayaan & Remedial</th><td>${escapeHtml(d.asesmen?.pengayaan_remedial || "")}</td></tr>
         </table>
 
-        ${ttdBlockHTML}
+        ${signatureHTML}
       `;
     }
 
     // =========================================================================
-    // FUNGSI EKSPOR DOKUMEN (WORD .DOC, CETAK PDF, & SLIDE PPTX)
+    // FUNGSI EKSPOR WORD (.DOC), PRINT PDF, & POWERPOINT (.PPTX)
     // =========================================================================
     function exportDocumentToWord() {
-      const docData = state.generatedDoc;
-      if (!docData) return;
-
-      const bodyHtml = buildOfficialDocumentHTML(docData);
+      const d = state.generatedDoc;
+      if (!d) return;
+      const contentHTML = buildOfficialDocumentHTML(d);
       const isLandscape = state.paperOrientation === "landscape";
       const pageSizeCss = state.paperSize === "F4"
         ? (isLandscape ? "330mm 215mm" : "215mm 330mm")
         : (isLandscape ? "297mm 210mm" : "210mm 297mm");
 
-      const wordHtml = `
-        <html xmlns:o="urn:schemas-microsoft-com:office:office"
-              xmlns:w="urn:schemas-microsoft-com:office:word"
-              xmlns="http://www.w3.org/TR/REC-html40">
+      const fullWordDoc = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office'
+              xmlns:w='urn:schemas-microsoft-com:office:word'
+              xmlns='http://www.w3.org/TR/REC-html40'>
         <head>
           <meta charset="utf-8" />
-          <title>${escapeHtml(docData.topik_materi)}</title>
+          <title>${escapeHtml(d.topik_materi || "Perangkat Pembelajaran")}</title>
           <style>
-            @page { size: ${pageSizeCss}; margin: 15mm 18mm; }
-            body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.45; color: #111827; }
+            @page WordSection1 {
+              size: ${pageSizeCss};
+              margin: 15mm 18mm 15mm 18mm;
+            }
+            div.WordSection1 { page: WordSection1; }
+            body { font-family: 'Times New Roman', serif; font-size: 11pt; color: #111827; line-height: 1.45; }
             .doc-section-title { font-weight: bold; font-size: 11pt; margin-top: 12px; margin-bottom: 5px; text-transform: uppercase; }
-            .doc-table { width: 100%; border-collapse: collapse; margin-top: 4px; margin-bottom: 10px; font-size: 10.5pt; }
+            .doc-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 10.5pt; }
             .doc-table th, .doc-table td { border: 1px solid #1F2937; padding: 6px 8px; vertical-align: top; text-align: left; }
             .doc-table th { background-color: #F3F4F6; font-weight: bold; }
           </style>
         </head>
-        <body>${bodyHtml}</body>
+        <body>
+          <div class="WordSection1">${contentHTML}</div>
+        </body>
         </html>
       `;
 
-      const blob = new Blob(["\ufeff", wordHtml], { type: "application/msword" });
+      const blob = new Blob(["\ufeff", fullWordDoc], { type: "application/msword" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      const safeTitle = (docData.topik_materi || "Perangkat_Ajar").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 45);
-      link.href = url;
-      link.download = `${docData.jenis_dokumen || "Modul"}_${safeTitle}.doc`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const a = document.createElement("a");
+      const safeName = (d.topik_materi || "Perangkat_Ajar").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 45);
+      a.href = url;
+      a.download = `${d.jenjang}_${safeName}.doc`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
       showToast("File Microsoft Word (.doc) berhasil diunduh!", "success");
     }
 
     function printDocumentToPDF() {
-      const styleEl = document.getElementById("dynamic-print-style");
-      const isLandscape = state.paperOrientation === "landscape";
-      const pageSizeCss = state.paperSize === "F4"
-        ? (isLandscape ? "330mm 215mm" : "215mm 330mm")
-        : (isLandscape ? "A4 landscape" : "A4 portrait");
-
-      if (styleEl) {
-        styleEl.textContent = `@page { size: ${pageSizeCss}; margin: 12mm 15mm; }`;
+      const styleTag = document.getElementById("dynamic-print-style");
+      if (styleTag) {
+        const sizeRule = state.paperSize === "F4"
+          ? `215mm 330mm ${state.paperOrientation}`
+          : `A4 ${state.paperOrientation}`;
+        styleTag.textContent = `@page { size: ${sizeRule}; margin: 12mm 15mm; }`;
       }
       window.print();
     }
 
-    function exportPresentationToPPTX() {
-      const docData = state.generatedDoc;
-      if (!docData) return;
-      if (!window.PptxGenJS) {
-        showToast("Library PPTX sedang dimuat, coba sesaat lagi.", "error");
+    async function exportPresentationToPPTX() {
+      const d = state.generatedDoc;
+      if (!d) return;
+      if (typeof window.PptxGenJS === "undefined") {
+        showToast("Library PptxGenJS belum siap. Periksa koneksi internet Anda.", "error");
         return;
       }
 
       try {
         const pptx = new window.PptxGenJS();
         pptx.layout = "LAYOUT_16x9";
-        pptx.author = docData.author_nama || "KlikAjar";
-        pptx.title = docData.topik_materi || "Presentasi Pembelajaran";
+        pptx.author = d.author_nama || "KlikAjar";
+        pptx.title = d.topik_materi || "Presentasi Pembelajaran";
 
-        const isKBC = docData.jalur_kurikulum === "KBC";
-        const primaryColor = isKBC ? "0D9488" : "5B5CE6";
-        const slides = docData.slides || buildSlideDeckFromDoc(docData);
+        const isKBC = d.jalur_kurikulum === "KBC";
+        const primaryHex = isKBC ? "0D9488" : "5B5CE6";
+        const slides = d.slides || buildSlideDeckFromDoc(d);
 
-        slides.forEach((sl, index) => {
+        slides.forEach((sl, idx) => {
           const slide = pptx.addSlide();
-          if (index === 0) {
-            slide.background = { color: primaryColor };
-            slide.addText(sl.subjudul || "", {
-              x: 0.7, y: 0.9, w: 8.6, h: 0.4,
-              fontSize: 13, bold: true, color: "E0E7FF"
+          if (idx === 0) {
+            slide.background = { color: primaryHex };
+            slide.addText(`SLIDE ${sl.nomor} • ${sl.subjudul}`, {
+              x: 0.6, y: 0.7, w: 8.8, h: 0.4, fontSize: 12, bold: true, color: "E0E7FF"
             });
-            slide.addText(sl.judul || "", {
-              x: 0.7, y: 1.4, w: 8.6, h: 1.5,
-              fontSize: 28, bold: true, color: "FFFFFF"
+            slide.addText(sl.judul, {
+              x: 0.6, y: 1.3, w: 8.8, h: 1.6, fontSize: 28, bold: true, color: "FFFFFF"
             });
-            const bulletItems = (sl.poin || []).map((p) => ({ text: p, options: { bullet: true, color: "F8FAFC", fontSize: 14 } }));
-            if (bulletItems.length) {
-              slide.addText(bulletItems, { x: 0.7, y: 3.1, w: 8.6, h: 1.8 });
-            }
+            const bulletItems = (sl.poin || []).map((p) => ({ text: p, options: { bullet: true, color: "F8FAFC", fontSize: 15 } }));
+            slide.addText(bulletItems, { x: 0.6, y: 3.1, w: 8.8, h: 1.8 });
           } else {
             slide.background = { color: "F8FAFC" };
-            slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 10, h: 0.14, fill: { color: primaryColor } });
-            slide.addText(`Slide ${sl.nomor} • ${sl.subjudul || ""}`, {
-              x: 0.6, y: 0.35, w: 8.8, h: 0.35,
-              fontSize: 11, bold: true, color: primaryColor
+            slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: "100%", h: 0.14, fill: { color: primaryHex } });
+            slide.addText(`SLIDE ${sl.nomor} / ${slides.length}  |  ${sl.subjudul}`, {
+              x: 0.6, y: 0.35, w: 8.8, h: 0.35, fontSize: 11, bold: true, color: primaryHex
             });
-            slide.addText(sl.judul || "", {
-              x: 0.6, y: 0.72, w: 8.8, h: 0.65,
-              fontSize: 22, bold: true, color: "1E293B"
+            slide.addText(sl.judul, {
+              x: 0.6, y: 0.75, w: 8.8, h: 0.7, fontSize: 22, bold: true, color: "1E293B"
             });
             const bulletItems = (sl.poin || []).map((p) => ({
-              text: String(p).replace(/\n/g, " "),
-              options: { bullet: true, color: "334155", fontSize: 14, breakLine: true }
+              text: p,
+              options: { bullet: true, color: "334155", fontSize: 15, breakLine: true }
             }));
-            if (bulletItems.length) {
-              slide.addText(bulletItems, { x: 0.6, y: 1.55, w: 8.8, h: 3.4, valign: "top" });
-            }
-            slide.addText(`${state.madrasah.nama_madrasah || "KlikAjar"} — ${docData.mata_pelajaran}`, {
-              x: 0.6, y: 5.15, w: 8.8, h: 0.3,
-              fontSize: 10, color: "94A3B8"
+            slide.addText(bulletItems, { x: 0.6, y: 1.65, w: 8.8, h: 3.2, valign: "top" });
+            slide.addText(`${state.madrasah.nama_madrasah || "KlikAjar"} — ${d.mata_pelajaran} (${d.jenjang})`, {
+              x: 0.6, y: 5.15, w: 8.8, h: 0.3, fontSize: 10, color: "94A3B8"
             });
           }
         });
 
-        const safeTitle = (docData.topik_materi || "Slide_Materi").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 45);
-        pptx.writeFile({ fileName: `PPT_${safeTitle}.pptx` });
+        const safeName = (d.topik_materi || "Slide_Materi").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 40);
+        await pptx.writeFile({ fileName: `PPT_${d.jenjang}_${safeName}.pptx` });
         showToast("File PowerPoint (.pptx) berhasil diunduh!", "success");
       } catch (err) {
         showToast("Gagal membuat file PPTX: " + err.message, "error");
@@ -1950,215 +1973,65 @@
     }
 
     // =========================================================================
-    // VIEW 6: PENGATURAN PROFIL MADRASAH, LOGO KEMENAG/MADRASAH & TTD
-    // =========================================================================
-    function renderMadrasahSettingsView() {
-      const m = state.madrasah || {};
-      const ttdPenyusunActive = state.userTtdUrl || m.ttd_penyusun_url || "";
-
-      return `
-        <div class="max-w-4xl mx-auto space-y-6">
-          <form id="madrasah-settings-form" class="neu-card rounded-3xl p-5 sm:p-6 space-y-5">
-            <div class="pb-3 border-b border-slate-200/70">
-              <h2 class="text-base sm:text-lg font-extrabold text-slate-800">Profil Satuan Pendidikan, Kop Surat & Tanda Tangan</h2>
-              <p class="text-xs text-slate-400">Data ini tampil otomatis pada Kop Surat dan pengesahan dokumen Word/PDF.</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama RA / Madrasah *</label>
-                <input type="text" id="set-nama-madrasah" required value="${escapeHtml(m.nama_madrasah || "")}"
-                  placeholder="Contoh: MADRASAH TERPADU AL-HIKMAH"
-                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5">Tahun Pelajaran</label>
-                <input type="text" id="set-tapel" value="${escapeHtml(m.tahun_pelajaran || "2026/2027")}"
-                  placeholder="2026/2027"
-                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5">NSM (Nomor Statistik Madrasah)</label>
-                <input type="text" id="set-nsm" value="${escapeHtml(m.nsm || "")}"
-                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5">NPSN</label>
-                <input type="text" id="set-npsn" value="${escapeHtml(m.npsn || "")}"
-                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-slate-600 mb-1.5">Alamat Lengkap Madrasah</label>
-              <input type="text" id="set-alamat" value="${escapeHtml(m.alamat || "")}"
-                class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama Kepala RA / Madrasah</label>
-                <input type="text" id="set-kepala" value="${escapeHtml(m.nama_kepala || "")}"
-                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5">NIP Kepala RA / Madrasah</label>
-                <input type="text" id="set-nip-kepala" value="${escapeHtml(m.nip_kepala || "")}"
-                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
-              </div>
-            </div>
-
-            <!-- 4 Kartu Upload Logo Kemenag, Logo Madrasah, TTD Kepala & TTD Penyusun -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-2">
-              <div class="neu-surface rounded-2xl p-3.5 text-center space-y-2">
-                <div class="text-xs font-extrabold text-slate-700">Logo Kemenag RI</div>
-                <div class="h-20 neu-inset rounded-xl flex items-center justify-center p-2">
-                  ${m.logo_kemenag_url
-                    ? `<img src="${m.logo_kemenag_url}" alt="Logo Kemenag" class="max-h-16 object-contain" />`
-                    : `<span class="text-[11px] text-slate-400">Belum ada</span>`}
-                </div>
-                <div class="flex items-center justify-center gap-1.5">
-                  <label class="neu-btn px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
-                    Upload
-                    <input type="file" accept="image/*" onchange="window.__uploadMadrasahImage('logo_kemenag_url', event)" class="hidden" />
-                  </label>
-                  ${m.logo_kemenag_url ? `<button type="button" onclick="window.__clearMadrasahImage('logo_kemenag_url')" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
-                </div>
-              </div>
-
-              <div class="neu-surface rounded-2xl p-3.5 text-center space-y-2">
-                <div class="text-xs font-extrabold text-slate-700">Logo RA / Madrasah</div>
-                <div class="h-20 neu-inset rounded-xl flex items-center justify-center p-2">
-                  ${m.logo_url
-                    ? `<img src="${m.logo_url}" alt="Logo Madrasah" class="max-h-16 object-contain" />`
-                    : `<span class="text-[11px] text-slate-400">Belum ada</span>`}
-                </div>
-                <div class="flex items-center justify-center gap-1.5">
-                  <label class="neu-btn px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
-                    Upload
-                    <input type="file" accept="image/*" onchange="window.__uploadMadrasahImage('logo_url', event)" class="hidden" />
-                  </label>
-                  ${m.logo_url ? `<button type="button" onclick="window.__clearMadrasahImage('logo_url')" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
-                </div>
-              </div>
-
-              <div class="neu-surface rounded-2xl p-3.5 text-center space-y-2">
-                <div class="text-xs font-extrabold text-slate-700">TTD Kepala</div>
-                <div class="h-20 neu-inset rounded-xl flex items-center justify-center p-2">
-                  ${m.ttd_kepala_url
-                    ? `<img src="${m.ttd_kepala_url}" alt="TTD Kepala" class="max-h-16 object-contain" />`
-                    : `<span class="text-[11px] text-slate-400">Belum ada</span>`}
-                </div>
-                <div class="flex items-center justify-center gap-1.5">
-                  <label class="neu-btn px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
-                    Upload
-                    <input type="file" accept="image/*" onchange="window.__uploadMadrasahImage('ttd_kepala_url', event)" class="hidden" />
-                  </label>
-                  ${m.ttd_kepala_url ? `<button type="button" onclick="window.__clearMadrasahImage('ttd_kepala_url')" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
-                </div>
-              </div>
-
-              <div class="neu-surface rounded-2xl p-3.5 text-center space-y-2">
-                <div class="text-xs font-extrabold text-slate-700">TTD Penyusun / Guru</div>
-                <div class="h-20 neu-inset rounded-xl flex items-center justify-center p-2">
-                  ${ttdPenyusunActive
-                    ? `<img src="${ttdPenyusunActive}" alt="TTD Penyusun" class="max-h-16 object-contain" />`
-                    : `<span class="text-[11px] text-slate-400">Belum ada</span>`}
-                </div>
-                <div class="flex items-center justify-center gap-1.5">
-                  <label class="neu-btn px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
-                    Upload
-                    <input type="file" accept="image/*" onchange="window.__uploadTtdGuruQuick(event)" class="hidden" />
-                  </label>
-                  ${ttdPenyusunActive ? `<button type="button" onclick="window.__clearTtdGuruQuick()" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
-                </div>
-              </div>
-            </div>
-
-            <button type="submit" class="w-full brand-gradient text-white py-3.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg">
-              <i data-lucide="save" class="w-4 h-4"></i> Simpan Pengaturan Madrasah
-            </button>
-          </form>
-        </div>
-      `;
-    }
-
-    // =========================================================================
-    // VIEW 0A: GERBANG PEMILIHAN JALUR SEBELUM LOGIN (1. KURMER & 2. KBC)
+    // VIEW 0A: GERBANG PEMILIHAN JALUR KURIKULUM (KURMER vs KBC)
     // =========================================================================
     function renderTrackSelectionGate() {
       return `
-        <div class="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 bg-[#EEF1F6]">
-          <div class="max-w-4xl w-full neu-surface rounded-[28px] p-6 sm:p-10 space-y-7">
-            <div class="text-center max-w-2xl mx-auto space-y-2.5">
-              <div class="w-14 h-14 rounded-2xl brand-gradient text-white flex items-center justify-center mx-auto mb-3">
+        <div class="min-h-screen w-full flex items-center justify-center p-4 sm:p-8 bg-[#EEF1F6]">
+          <div class="max-w-4xl w-full space-y-6">
+            <div class="text-center space-y-2">
+              <div class="w-14 h-14 rounded-2xl brand-gradient text-white flex items-center justify-center mx-auto shadow-lg">
                 <i data-lucide="book-open-check" class="w-7 h-7"></i>
               </div>
-              <span class="inline-block px-3.5 py-1 rounded-full bg-indigo-100 text-[#5B5CE6] text-[11px] font-extrabold tracking-wide uppercase">
-                Platform Perangkat Pembelajaran Madrasah (RA – MA)
-              </span>
-              <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
-                KlikAjar
-              </h1>
-              <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
-                Silakan pilih pendekatan kurikulum perangkat pembelajaran yang akan Anda susun sebelum masuk ke ruang kerja pendidik.
+              <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">KlikAjar</h1>
+              <p class="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto">
+                Platform Penyusunan Perangkat Pembelajaran Madrasah (RA, MI, MTs, MA) & Generator Slide Presentasi Otomatis. Pilih jalur kurikulum untuk memulai:
               </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <!-- Pilihan 1: Kurikulum Merdeka (Deep Learning) -->
+              <!-- Kartu 1: Kurikulum Merdeka (Deep Learning) -->
               <div onclick="window.__selectTrack('KURMER')"
-                class="neu-card neu-card-hover rounded-3xl p-6 cursor-pointer border-2 border-transparent hover:border-[#5B5CE6] flex flex-col justify-between gap-5">
+                class="neu-card neu-card-hover rounded-[28px] p-6 sm:p-7 cursor-pointer border-2 border-transparent hover:border-[#5B5CE6] flex flex-col justify-between gap-5">
                 <div class="space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="px-3 py-1 rounded-full bg-indigo-100 text-[#5B5CE6] text-xs font-extrabold">
-                      Pilihan 1
-                    </span>
-                    <div class="w-11 h-11 rounded-2xl brand-gradient text-white flex items-center justify-center">
-                      <i data-lucide="brain-circuit" class="w-5 h-5"></i>
+                    <div class="w-12 h-12 rounded-2xl brand-gradient text-white flex items-center justify-center">
+                      <i data-lucide="brain-circuit" class="w-6 h-6"></i>
                     </div>
+                    <span class="px-3 py-1 rounded-full bg-indigo-100 text-[#5B5CE6] text-[11px] font-extrabold">
+                      Jalur 1
+                    </span>
                   </div>
-                  <h2 class="text-lg font-extrabold text-slate-800">
-                    Kurikulum Merdeka (Deep Learning)
-                  </h2>
+                  <h2 class="text-lg font-extrabold text-slate-800">Kurikulum Merdeka (Deep Learning)</h2>
                   <p class="text-xs text-slate-500 leading-relaxed">
-                    Penyusunan Modul Ajar, RPPH, ATP, Materi Ajar, dan Slide PPT berbasis pembelajaran mendalam (<em>Mindful, Meaningful, Joyful</em>), alur <em>Memahami–Mengaplikasi–Merefleksi</em>, serta 8 Dimensi Profil Lulusan.
+                    Berfokus pada pembelajaran mendalam berbasis <strong>Mindful, Meaningful, Joyful</strong>, 8 Dimensi Profil Lulusan, serta sintaks model pembelajaran aktif (PBL, PjBL, Discovery, Inquiry).
                   </p>
                 </div>
-                <button type="button"
-                  class="w-full brand-gradient text-white py-3 rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2">
-                  <span>Pilih Jalur Kurmer</span>
-                  <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </button>
+                <div class="brand-gradient text-white py-3 rounded-2xl text-xs font-extrabold text-center">
+                  Pilih Jalur Kurmer &rarr;
+                </div>
               </div>
 
-              <!-- Pilihan 2: Kurikulum Berbasis Cinta (Panca Cinta) -->
+              <!-- Kartu 2: Kurikulum Berbasis Cinta (KBC / Panca Cinta) -->
               <div onclick="window.__selectTrack('KBC')"
-                class="neu-card neu-card-hover rounded-3xl p-6 cursor-pointer border-2 border-transparent hover:border-emerald-500 flex flex-col justify-between gap-5">
+                class="neu-card neu-card-hover rounded-[28px] p-6 sm:p-7 cursor-pointer border-2 border-transparent hover:border-emerald-500 flex flex-col justify-between gap-5">
                 <div class="space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-extrabold">
-                      Pilihan 2
-                    </span>
-                    <div class="w-11 h-11 rounded-2xl kbc-gradient text-white flex items-center justify-center">
-                      <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+                    <div class="w-12 h-12 rounded-2xl kbc-gradient text-white flex items-center justify-center">
+                      <i data-lucide="heart-handshake" class="w-6 h-6"></i>
                     </div>
+                    <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-extrabold">
+                      Jalur 2 • Kemenag RI
+                    </span>
                   </div>
-                  <h2 class="text-lg font-extrabold text-slate-800">
-                    Kurikulum Berbasis Cinta (Panca Cinta)
-                  </h2>
+                  <h2 class="text-lg font-extrabold text-slate-800">Kurikulum Berbasis Cinta (Panca Cinta)</h2>
                   <p class="text-xs text-slate-500 leading-relaxed">
-                    Penyusunan perangkat pembelajaran madrasah yang menginternalisasikan 5 Pilar Cinta (<em>Hubbullah, Hubbul 'Ilmi, Hubbunnafs, Hubbul Bi'ah, Hubbul Wathan</em>), refleksi hati, dan aksi nyata kasih sayang.
+                    Mengintegrasikan <strong>5 Pilar Panca Cinta</strong> (Cinta Allah & Rasul, Cinta Ilmu, Cinta Diri & Sesama, Cinta Lingkungan, Cinta Tanah Air) ke dalam setiap tahapan belajar.
                   </p>
                 </div>
-                <button type="button"
-                  class="w-full kbc-gradient text-white py-3 rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2">
-                  <span>Pilih Jalur KBC (Panca Cinta)</span>
-                  <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </button>
+                <div class="kbc-gradient text-white py-3 rounded-2xl text-xs font-extrabold text-center">
+                  Pilih Jalur KBC (Panca Cinta) &rarr;
+                </div>
               </div>
             </div>
           </div>
@@ -2179,7 +2052,6 @@
             "Assalamu'alaikum Admin KlikAjar, saya ingin konfirmasi persetujuan (Approve) pendaftaran akun Guru baru."
           )
         : "";
-      const hasBankInfo = Boolean(adm.bank_nama || adm.bank_rekening || adm.bank_atas_nama || adm.catatan_pembayaran);
 
       return `
         <div class="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 bg-[#EEF1F6]">
@@ -2279,41 +2151,64 @@
                   <span>Setiap guru wajib mendaftar terlebih dahulu. Setelah mendaftar, akun akan aktif setelah disetujui (<strong>Approve</strong>) oleh Admin.</span>
                 </div>
 
-                <!-- Informasi Rekening Bank, Keterangan & WhatsApp Admin -->
-                ${(hasBankInfo || adm.whatsapp_admin) ? `
-                  <div class="neu-surface rounded-2xl p-3.5 border-l-4 border-emerald-500 space-y-2 text-[11px]">
-                    <div class="font-extrabold text-emerald-700 flex items-center gap-1.5">
-                      <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Informasi Pembayaran & Konfirmasi Admin
+                <!-- Informasi Pembayaran & Konfirmasi Admin (Selalu Tampil di Halaman Pendaftar) -->
+                <div class="neu-surface rounded-2xl p-4 border-l-4 border-emerald-500 space-y-2.5 text-[11px]">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="font-extrabold text-emerald-700 flex items-center gap-1.5 text-xs">
+                      <i data-lucide="credit-card" class="w-4 h-4"></i> Informasi Pembayaran & Konfirmasi Admin
                     </div>
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-extrabold">
+                      Wajib Konfirmasi
+                    </span>
+                  </div>
 
-                    ${(adm.bank_nama || adm.bank_rekening || adm.bank_atas_nama) ? `
-                      <div class="bg-white/80 rounded-xl p-2.5 space-y-0.5 text-slate-700 border border-slate-200/70">
-                        ${adm.bank_nama ? `<div>Bank / E-Wallet: <strong>${escapeHtml(adm.bank_nama)}</strong></div>` : ``}
-                        ${adm.bank_rekening ? `<div>No. Rekening: <strong class="font-mono text-xs text-slate-900">${escapeHtml(adm.bank_rekening)}</strong></div>` : ``}
-                        ${adm.bank_atas_nama ? `<div>Atas Nama: <strong>${escapeHtml(adm.bank_atas_nama)}</strong></div>` : ``}
-                        ${adm.biaya_aktivasi ? `<div>Nominal / Paket: <strong class="text-emerald-700">${escapeHtml(adm.biaya_aktivasi)}</strong></div>` : ``}
+                  <div class="bg-white/90 rounded-xl p-3 space-y-1.5 text-slate-700 border border-slate-200/80 shadow-sm">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="text-slate-500">Bank / E-Wallet:</span>
+                      <strong class="text-slate-800">${escapeHtml(adm.bank_nama || "Belum diatur Admin")}</strong>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="text-slate-500">No. Rekening:</span>
+                      <div class="flex items-center gap-1.5">
+                        <strong class="font-mono text-xs text-slate-900">${escapeHtml(adm.bank_rekening || "-")}</strong>
+                        ${adm.bank_rekening ? `
+                          <button type="button" onclick="window.__copyBankRekening()"
+                            class="px-2 py-0.5 rounded-md bg-indigo-50 text-[#5B5CE6] text-[10px] font-extrabold hover:bg-indigo-100">
+                            Salin
+                          </button>
+                        ` : ``}
                       </div>
-                    ` : ``}
-
-                    ${adm.catatan_pembayaran ? `
-                      <div class="text-slate-600 leading-relaxed bg-amber-50/80 border border-amber-200/70 rounded-xl p-2.5">
-                        <strong>Keterangan:</strong> ${escapeHtml(adm.catatan_pembayaran)}
-                      </div>
-                    ` : ``}
-
-                    ${adm.whatsapp_admin ? `
-                      <div class="flex items-center justify-between gap-2 pt-1">
-                        <div class="text-slate-600">
-                          WA Admin${adm.nama_admin ? ` (${escapeHtml(adm.nama_admin)})` : ""}: <strong>${escapeHtml(adm.whatsapp_admin)}</strong>
-                        </div>
-                        <a href="${waLink}" target="_blank" rel="noopener noreferrer"
-                          class="kbc-gradient text-white px-2.5 py-1.5 rounded-lg text-[10px] font-extrabold inline-flex items-center gap-1 shrink-0">
-                          <i data-lucide="message-circle" class="w-3 h-3"></i> Konfirmasi WA
-                        </a>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="text-slate-500">Atas Nama:</span>
+                      <strong class="text-slate-800">${escapeHtml(adm.bank_atas_nama || "-")}</strong>
+                    </div>
+                    ${adm.biaya_aktivasi ? `
+                      <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-100">
+                        <span class="text-slate-500">Nominal / Paket:</span>
+                        <strong class="text-emerald-700">${escapeHtml(adm.biaya_aktivasi)}</strong>
                       </div>
                     ` : ``}
                   </div>
-                ` : ``}
+
+                  <div class="text-slate-700 leading-relaxed bg-amber-50/90 border border-amber-200/80 rounded-xl p-2.5">
+                    <strong class="text-amber-800">Keterangan:</strong>
+                    ${escapeHtml(adm.catatan_pembayaran || "Silakan lakukan pembayaran sesuai ketentuan Admin, unggah bukti transfer di bawah, lalu hubungi WhatsApp Admin untuk persetujuan (Approve) akun.")}
+                  </div>
+
+                  <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-200/70">
+                    <div class="text-slate-600">
+                      <div>Admin: <strong class="text-slate-800">${escapeHtml(adm.nama_admin || "Administrator")}</strong></div>
+                      <div>WhatsApp: <strong class="text-emerald-700">${escapeHtml(adm.whatsapp_admin || "-")}</strong></div>
+                    </div>
+                    ${waLink ? `
+                      <a href="${waLink}" target="_blank" rel="noopener noreferrer"
+                        class="kbc-gradient text-white px-3 py-2 rounded-xl text-[11px] font-extrabold inline-flex items-center gap-1.5 shrink-0 shadow-sm">
+                        <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Konfirmasi WA
+                      </a>
+                    ` : ``}
+                  </div>
+                </div>
 
                 <div>
                   <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap & Gelar *</label>
@@ -3603,6 +3498,152 @@
     }
 
     // =========================================================================
+    // VIEW 6: PENGATURAN IDENTITAS MADRASAH, LOGO KEMENAG/MADRASAH & TTD
+    // =========================================================================
+    function renderMadrasahSettingsView() {
+      const m = state.madrasah || {};
+      const ttdPenyusun = state.userTtdUrl || m.ttd_penyusun_url || "";
+
+      return `
+        <div class="max-w-4xl mx-auto space-y-6">
+          <form id="madrasah-settings-form" class="neu-card rounded-3xl p-5 sm:p-6 space-y-5">
+            <div class="pb-3 border-b border-slate-200/70">
+              <h2 class="text-base sm:text-lg font-extrabold text-slate-800">Profil Madrasah, Logo Kop Surat & Tanda Tangan</h2>
+              <p class="text-xs text-slate-400">Data ini otomatis muncul pada Kop Surat dan Blok Pengesahan dokumen Word (.doc) maupun PDF.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama Satuan Pendidikan (RA/MI/MTs/MA) *</label>
+                <input type="text" id="set-nama-madrasah" required value="${escapeHtml(m.nama_madrasah || "")}"
+                  placeholder="Contoh: MADRASAH TERPADU AL-HIKMAH"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">Tahun Pelajaran</label>
+                <input type="text" id="set-tapel" value="${escapeHtml(m.tahun_pelajaran || "2026/2027")}"
+                  placeholder="2026/2027"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">Nomor Statistik Madrasah (NSM)</label>
+                <input type="text" id="set-nsm" value="${escapeHtml(m.nsm || "")}"
+                  placeholder="12 digit NSM"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">NPSN</label>
+                <input type="text" id="set-npsn" value="${escapeHtml(m.npsn || "")}"
+                  placeholder="8 digit NPSN"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1.5">Alamat Lengkap Madrasah</label>
+              <input type="text" id="set-alamat" value="${escapeHtml(m.alamat || "")}"
+                placeholder="Jl. Pendidikan No. 99, Kabupaten/Kota"
+                class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama Kepala RA/Madrasah</label>
+                <input type="text" id="set-kepala" value="${escapeHtml(m.nama_kepala || "")}"
+                  placeholder="Nama lengkap & gelar Kepala Madrasah"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">NIP Kepala RA/Madrasah</label>
+                <input type="text" id="set-nip-kepala" value="${escapeHtml(m.nip_kepala || "")}"
+                  placeholder="NIP Kepala Madrasah"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
+              </div>
+            </div>
+
+            <!-- 4 Kartu Upload Gambar: Logo Kemenag, Logo Madrasah, TTD Kepala, TTD Penyusun -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-2">
+              <!-- Logo Kemenag -->
+              <div class="neu-surface rounded-2xl p-3.5 text-center space-y-2">
+                <div class="text-xs font-extrabold text-slate-700">Logo Kemenag RI</div>
+                <div class="h-20 rounded-xl bg-white border border-slate-200 flex items-center justify-center p-2">
+                  ${m.logo_kemenag_url
+                    ? `<img src="${m.logo_kemenag_url}" alt="Logo Kemenag" class="max-h-16 object-contain" />`
+                    : `<span class="text-[10px] text-slate-400">Kop Kiri</span>`}
+                </div>
+                <div class="flex items-center justify-center gap-1.5">
+                  <label class="neu-btn px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
+                    Upload
+                    <input type="file" accept="image/*" onchange="window.__uploadMadrasahImage('logo_kemenag_url', event)" class="hidden" />
+                  </label>
+                  ${m.logo_kemenag_url ? `<button type="button" onclick="window.__clearMadrasahImage('logo_kemenag_url')" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
+                </div>
+              </div>
+
+              <!-- Logo RA/Madrasah -->
+              <div class="neu-surface rounded-2xl p-3.5 text-center space-y-2">
+                <div class="text-xs font-extrabold text-slate-700">Logo RA/Madrasah</div>
+                <div class="h-20 rounded-xl bg-white border border-slate-200 flex items-center justify-center p-2">
+                  ${m.logo_url
+                    ? `<img src="${m.logo_url}" alt="Logo Madrasah" class="max-h-16 object-contain" />`
+                    : `<span class="text-[10px] text-slate-400">Kop Kanan</span>`}
+                </div>
+                <div class="flex items-center justify-center gap-1.5">
+                  <label class="neu-btn px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
+                    Upload
+                    <input type="file" accept="image/*" onchange="window.__uploadMadrasahImage('logo_url', event)" class="hidden" />
+                  </label>
+                  ${m.logo_url ? `<button type="button" onclick="window.__clearMadrasahImage('logo_url')" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
+                </div>
+              </div>
+
+              <!-- TTD Kepala -->
+              <div class="neu-surface rounded-2xl p-3.5 text-center space-y-2">
+                <div class="text-xs font-extrabold text-slate-700">TTD Kepala</div>
+                <div class="h-20 rounded-xl bg-white border border-slate-200 flex items-center justify-center p-2">
+                  ${m.ttd_kepala_url
+                    ? `<img src="${m.ttd_kepala_url}" alt="TTD Kepala" class="max-h-16 object-contain" />`
+                    : `<span class="text-[10px] text-slate-400">Pengesahan Kiri</span>`}
+                </div>
+                <div class="flex items-center justify-center gap-1.5">
+                  <label class="neu-btn px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
+                    Upload
+                    <input type="file" accept="image/*" onchange="window.__uploadMadrasahImage('ttd_kepala_url', event)" class="hidden" />
+                  </label>
+                  ${m.ttd_kepala_url ? `<button type="button" onclick="window.__clearMadrasahImage('ttd_kepala_url')" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
+                </div>
+              </div>
+
+              <!-- TTD Penyusun / Guru -->
+              <div class="neu-surface rounded-2xl p-3.5 text-center space-y-2">
+                <div class="text-xs font-extrabold text-slate-700">TTD Penyusun</div>
+                <div class="h-20 rounded-xl bg-white border border-slate-200 flex items-center justify-center p-2">
+                  ${ttdPenyusun
+                    ? `<img src="${ttdPenyusun}" alt="TTD Penyusun" class="max-h-16 object-contain" />`
+                    : `<span class="text-[10px] text-slate-400">Pengesahan Kanan</span>`}
+                </div>
+                <div class="flex items-center justify-center gap-1.5">
+                  <label class="neu-btn px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
+                    Upload
+                    <input type="file" accept="image/*" onchange="window.__uploadTtdGuruQuick(event)" class="hidden" />
+                  </label>
+                  ${ttdPenyusun ? `<button type="button" onclick="window.__clearTtdGuruQuick()" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="w-full brand-gradient text-white py-3.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg">
+              <i data-lucide="save" class="w-4 h-4"></i> Simpan Pengaturan Madrasah & TTD
+            </button>
+          </form>
+        </div>
+      `;
+    }
+
+    // =========================================================================
     // VIEW 8: PROFIL PRIBADI ADMIN & PENGATURAN REKENING PEMBAYARAN (KHUSUS ADMIN)
     // =========================================================================
     function renderAdminProfileView() {
@@ -4149,7 +4190,26 @@
 
     window.__setLoginTab = (tab) => {
       state.loginTab = tab;
+      if (tab === "DAFTAR_GURU" && !IS_PREVIEW) {
+        loadPublicMadrasahAndAdminInfo();
+      }
       renderApp();
+    };
+
+    window.__copyBankRekening = () => {
+      const rek = state.adminProfile?.bank_rekening || "";
+      if (!rek) return;
+      const ta = document.createElement("textarea");
+      ta.value = rek;
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast("Nomor rekening (" + rek + ") berhasil disalin!", "success");
+      } catch (e) {
+        showToast("Gagal menyalin nomor rekening.", "error");
+      }
+      document.body.removeChild(ta);
     };
 
     window.__uploadRegBuktiPembayaran = (event) => {
