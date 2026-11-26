@@ -82,7 +82,6 @@
     /* =====================================================================
        5 TEMA APLIKASI GLOBAL (DISINKRONKAN ADMIN KE SELURUH AKUN GURU)
        ===================================================================== */
-    /* 1. Minimalis & Fungsional (Notion/Trello Style) */
     body.app-theme-minimalis {
       background-color: #FFFFFF;
       color: #191919;
@@ -91,113 +90,46 @@
       background-color: #FFFFFF;
       border: 1px solid #E5E7EB;
       box-shadow: none;
-      border-radius: 10px;
     }
-    body.app-theme-minimalis .app-sidebar,
-    body.app-theme-minimalis .app-header {
-      background-color: #FBFBFA;
-      border-color: #EBEBEA;
-    }
-
-    /* 2. Dark Mode / Cyberpunk Modern */
     body.app-theme-cyberpunk {
       background-color: #070B14;
       color: #E2E8F0;
     }
-    body.app-theme-cyberpunk .app-sidebar,
-    body.app-theme-cyberpunk .app-header {
-      background-color: rgba(11, 18, 34, 0.94);
-      border-color: rgba(34, 211, 238, 0.25);
-    }
-    body.app-theme-cyberpunk .app-card {
-      background-color: #0F172A;
-      border: 1px solid rgba(34, 211, 238, 0.3);
-      box-shadow: 0 0 20px rgba(6, 182, 212, 0.08);
-      color: #F1F5F9;
-    }
-    body.app-theme-cyberpunk .hero-gradient {
-      background: linear-gradient(135deg, #0F172A 0%, #0E7490 55%, #10B981 100%);
-      border: 1px solid rgba(34, 211, 238, 0.45);
-    }
-    body.app-theme-cyberpunk input,
-    body.app-theme-cyberpunk select,
-    body.app-theme-cyberpunk textarea {
-      background-color: #1E293B !important;
-      color: #F8FAFC !important;
-      border-color: rgba(34, 211, 238, 0.35) !important;
-    }
-    body.app-theme-cyberpunk .text-slate-900 { color: #F8FAFC !important; }
-    body.app-theme-cyberpunk .text-slate-700,
-    body.app-theme-cyberpunk .text-slate-600 { color: #CBD5E1 !important; }
-
-    /* 3. Bento Grid & Kartu Modular */
-    body.app-theme-bento {
-      background-color: #F1F5F9;
-    }
-    body.app-theme-bento .app-card {
-      background-color: #FFFFFF;
-      border: 1.5px solid #E2E8F0;
-      border-radius: 24px;
-      box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.06);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    body.app-theme-bento .app-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 24px -6px rgba(15, 118, 110, 0.12);
-    }
-
-    /* 4. Glassmorphism & Soft Gradient */
-    body.app-theme-glass {
-      background: linear-gradient(135deg, #ECFDF5 0%, #F0F9FF 50%, #FEFCE8 100%);
-      background-attachment: fixed;
-    }
-    body.app-theme-glass .app-sidebar,
-    body.app-theme-glass .app-header,
     body.app-theme-glass .app-card {
-      background: rgba(255, 255, 255, 0.72);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.85);
-      box-shadow: 0 8px 30px rgba(15, 118, 110, 0.07);
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(12px);
     }
-
-    /* 5. Visual & Interaktif */
-    body.app-theme-interaktif {
-      background-color: #F8FAFC;
+    .dark body.app-theme-glass .app-card {
+      background: rgba(30, 41, 59, 0.78);
     }
     body.app-theme-interaktif .app-card {
-      background-color: #FFFFFF;
-      border: 1px solid #CCFBF1;
-      border-radius: 20px;
-      box-shadow: 0 8px 24px -6px rgba(20, 184, 166, 0.12);
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     body.app-theme-interaktif .app-card:hover {
-      transform: translateY(-3px) scale(1.003);
-      border-color: #0F766E;
-    }
-    body.app-theme-interaktif button {
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    body.app-theme-interaktif button:active {
-      transform: scale(0.97);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px -8px rgba(15, 118, 110, 0.18);
     }
 
-    /* Document Paper A4 & F4 (Folio) Standard Layout */
+    /* =====================================================================
+       STANDAR TATA LETAK DOKUMEN AKADEMIK (A4 & F4, PORTRAIT & LANDSCAPE)
+       COVER RESMI, PENOMORAN HALAMAN, HIERARKI HEADING, TABEL PROPORSIONAL
+       ===================================================================== */
     .doc-paper {
       width: 100%;
       margin: 0 auto;
       background: #FFFFFF;
       color: #0F172A;
-      padding: 18mm 18mm;
+      /* Standar Margin Resmi: Atas 2.5cm, Kanan 2.5cm, Bawah 2.5cm, Kiri 3cm */
+      padding: 25mm 25mm 25mm 30mm;
       box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.14);
-      border-radius: 6px;
+      border-radius: 4px;
       line-height: 1.5;
-      font-size: 11pt;
-      font-family: 'Open Sans', 'Lato', 'Roboto', sans-serif;
+      font-size: 11.5pt;
+      font-family: 'Calibri', 'Arial', 'Open Sans', sans-serif;
       box-sizing: border-box;
       position: relative;
       overflow-wrap: break-word;
+      text-align: justify;
     }
 
     .doc-paper.paper-a4 {
@@ -210,25 +142,177 @@
       min-height: 330mm;
     }
 
-    .doc-paper h1, .doc-paper h2, .doc-paper h3, .doc-paper .doc-heading {
-      font-family: 'Poppins', 'Montserrat', sans-serif;
+    .doc-paper.orient-landscape {
+      max-width: 297mm !important;
+      min-height: 210mm !important;
+      padding: 25mm 25mm 25mm 30mm;
     }
 
-    .doc-paper p, .doc-paper li {
+    /* Halaman Sampul (Cover) Elegan, Formal, dan Profesional */
+    .doc-cover-page {
+      border: 3px double #1E3A8A;
+      outline: 1px solid #D97706;
+      outline-offset: -7px;
+      padding: 24mm 18mm;
+      min-height: 242mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+      break-after: page;
+      page-break-after: always;
+      margin-bottom: 24px;
+      box-sizing: border-box;
+    }
+
+    .doc-paper.orient-landscape .doc-cover-page {
+      min-height: 158mm;
+      padding: 14mm 20mm;
+    }
+
+    .doc-cover-badge {
+      display: inline-block;
+      padding: 5px 16px;
+      border: 1px solid #0F766E;
+      background-color: #F0FDFA;
+      color: #0F766E;
+      font-size: 10pt;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 4px;
+    }
+
+    .doc-cover-title {
+      font-family: 'Calibri', 'Arial', sans-serif;
+      font-size: 19pt;
+      font-weight: 700;
+      color: #1E3A8A;
+      line-height: 1.3;
+      text-transform: uppercase;
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .doc-cover-subtitle {
+      font-size: 12pt;
+      font-weight: 600;
+      color: #334155;
+      text-align: center;
+      margin: 0;
+    }
+
+    .doc-cover-meta-box {
+      width: 88%;
+      border-top: 2px solid #1E3A8A;
+      border-bottom: 2px solid #1E3A8A;
+      background-color: #FFFFFF;
+      padding: 12px 16px;
+      text-align: left;
+    }
+
+    .doc-cover-meta-box table {
+      margin: 0 !important;
+      width: 100%;
+    }
+
+    .doc-cover-meta-box td {
+      border: none !important;
+      background: transparent !important;
+      padding: 4px 6px !important;
+      font-size: 11pt;
+      color: #0F172A;
+    }
+
+    /* Hierarki Heading Bertingkat & Konsisten (Anti-Orphan Heading) */
+    .doc-paper h1 {
+      font-family: 'Calibri', 'Arial', sans-serif;
+      font-size: 17pt;
+      font-weight: 700;
+      line-height: 1.3;
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+
+    .doc-paper h2 {
+      font-family: 'Calibri', 'Arial', sans-serif;
+      font-size: 15pt;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .doc-paper h3, .doc-paper .doc-section-title {
+      font-family: 'Calibri', 'Arial', sans-serif;
+      font-size: 13.5pt;
+      font-weight: 700;
+      line-height: 1.35;
+      text-align: left;
+      color: #1E3A8A;
+      border-bottom: 1.5px solid #D97706;
+      padding-bottom: 5px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      break-after: avoid;
+      page-break-after: avoid;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .doc-paper h4 {
+      font-family: 'Calibri', 'Arial', sans-serif;
+      font-size: 12pt;
+      font-weight: 700;
+      line-height: 1.4;
+      text-align: left;
+      color: #0F766E;
+      margin-top: 14px;
       margin-bottom: 6px;
-      line-height: 1.45;
+      break-after: avoid;
+      page-break-after: avoid;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .doc-paper p {
+      margin-top: 0;
+      margin-bottom: 10px;
+      line-height: 1.5;
+      text-align: justify;
+      orphans: 3;
+      widows: 3;
+    }
+
+    .doc-paper li {
+      margin-bottom: 6px;
+      line-height: 1.5;
+      text-align: justify;
     }
 
     .doc-paper ul, .doc-paper ol {
-      padding-left: 18px;
-      margin: 4px 0 10px 0;
+      padding-left: 22px;
+      margin: 6px 0 12px 0;
     }
 
+    /* Pemecahan Halaman Alami untuk Dokumen Panjang */
+    .doc-page-break {
+      break-before: page;
+      page-break-before: always;
+      margin-top: 26px;
+      padding-top: 14px;
+      border-top: 1px dashed #CBD5E1;
+    }
+
+    /* Desain Tabel Akademik Minimalis, Proporsional & Zebra Striping */
     .doc-paper table {
       width: 100%;
       border-collapse: collapse;
-      margin: 8px 0 14px 0;
-      font-size: 10pt;
+      table-layout: fixed;
+      margin: 12px 0 16px 0;
+      font-size: 10.5pt;
+      line-height: 1.42;
+      text-align: left;
       page-break-inside: auto;
     }
 
@@ -241,28 +325,39 @@
       page-break-inside: avoid;
     }
 
+    .doc-paper tbody tr:nth-child(even) td {
+      background-color: #F8FAFC;
+    }
+
     .doc-paper th, .doc-paper td {
-      border: 1px solid #CBD5E1;
-      padding: 6px 9px;
+      border: 1px solid #94A3B8;
+      padding: 8px 10px;
       vertical-align: top;
       text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
     .doc-paper th {
-      background-color: #F1F5F9;
+      background-color: #1E3A8A;
+      color: #FFFFFF;
       font-weight: 700;
+      border-color: #1E3A8A;
     }
 
     .doc-section-block {
-      margin-bottom: 14px;
+      margin-bottom: 18px;
     }
 
     .doc-callout {
       border-left: 4px solid #0F766E;
-      background-color: #F0FDF4;
-      padding: 10px 14px;
-      border-radius: 0 8px 8px 0;
-      margin: 8px 0 12px 0;
+      border-top: 1px solid #E2E8F0;
+      border-right: 1px solid #E2E8F0;
+      border-bottom: 1px solid #E2E8F0;
+      background-color: #F8FAFC;
+      padding: 12px 15px;
+      border-radius: 0 6px 6px 0;
+      margin: 12px 0 16px 0;
       break-inside: avoid;
       page-break-inside: avoid;
     }
@@ -270,6 +365,212 @@
     .doc-signature-block {
       break-inside: avoid;
       page-break-inside: avoid;
+      text-align: left;
+    }
+
+    .doc-running-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9pt;
+      color: #475569;
+      border-bottom: 1.5px solid #CBD5E1;
+      padding-bottom: 6px;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .doc-running-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9pt;
+      color: #475569;
+      border-top: 1.5px solid #CBD5E1;
+      padding-top: 8px;
+      margin-top: 24px;
+      text-align: left;
+    }
+
+    .doc-page-number::after {
+      content: "Halaman " counter(page);
+      font-weight: 700;
+      color: #1E3A8A;
+    }
+
+    .doc-paper.paper-a4 {
+      max-width: 210mm;
+      min-height: 297mm;
+    }
+
+    .doc-paper.paper-f4 {
+      max-width: 215mm;
+      min-height: 330mm;
+    }
+
+    .doc-paper.orient-landscape {
+      max-width: 297mm !important;
+      min-height: 210mm !important;
+      padding: 25mm 25mm 25mm 30mm;
+    }
+
+    /* Hierarki Heading Bertingkat & Konsisten */
+    .doc-paper h1 {
+      font-family: 'Calibri', 'Arial', sans-serif;
+      font-size: 17pt;
+      font-weight: 700;
+      line-height: 1.3;
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+
+    .doc-paper h2 {
+      font-family: 'Calibri', 'Arial', sans-serif;
+      font-size: 15pt;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .doc-paper h3, .doc-paper .doc-section-title {
+      font-family: 'Calibri', 'Arial', sans-serif;
+      font-size: 14pt;
+      font-weight: 700;
+      line-height: 1.4;
+      text-align: left;
+      color: #1E3A8A;
+      border-bottom: 1.5px solid #CBD5E1;
+      padding-bottom: 5px;
+      margin-top: 18px;
+      margin-bottom: 10px;
+      break-after: avoid;
+      page-break-after: avoid;
+    }
+
+    .doc-paper h4 {
+      font-family: 'Calibri', 'Arial', sans-serif;
+      font-size: 12pt;
+      font-weight: 700;
+      line-height: 1.4;
+      text-align: left;
+      color: #0F766E;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      break-after: avoid;
+      page-break-after: avoid;
+    }
+
+    .doc-paper p {
+      margin-bottom: 10px;
+      line-height: 1.5;
+      text-align: justify;
+    }
+
+    .doc-paper li {
+      margin-bottom: 6px;
+      line-height: 1.5;
+      text-align: justify;
+    }
+
+    .doc-paper ul, .doc-paper ol {
+      padding-left: 22px;
+      margin: 6px 0 12px 0;
+    }
+
+    /* Pemecahan Halaman Alami untuk Dokumen Panjang */
+    .doc-page-break {
+      break-before: page;
+      page-break-before: always;
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 1px dashed #CBD5E1;
+    }
+
+    /* Desain Tabel Akademik Minimalis, Proporsional & Zebra Striping */
+    .doc-paper table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      margin: 12px 0 16px 0;
+      font-size: 10.5pt;
+      line-height: 1.4;
+      text-align: left;
+      page-break-inside: auto;
+    }
+
+    .doc-paper thead {
+      display: table-header-group;
+    }
+
+    .doc-paper tr {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .doc-paper tbody tr:nth-child(even) td {
+      background-color: #F8FAFC;
+    }
+
+    .doc-paper th, .doc-paper td {
+      border: 1px solid #94A3B8;
+      padding: 8px 11px;
+      vertical-align: top;
+      text-align: left;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .doc-paper th {
+      background-color: #1E3A8A;
+      color: #FFFFFF;
+      font-weight: 700;
+      border-color: #1E3A8A;
+    }
+
+    .doc-section-block {
+      margin-bottom: 18px;
+    }
+
+    .doc-callout {
+      border-left: 4px solid #0F766E;
+      border-top: 1px solid #E2E8F0;
+      border-right: 1px solid #E2E8F0;
+      border-bottom: 1px solid #E2E8F0;
+      background-color: #F8FAFC;
+      padding: 12px 15px;
+      border-radius: 0 6px 6px 0;
+      margin: 12px 0 16px 0;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .doc-signature-block {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      text-align: left;
+    }
+
+    .doc-running-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9pt;
+      color: #64748B;
+      border-bottom: 1px solid #E2E8F0;
+      padding-bottom: 5px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .doc-running-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9pt;
+      color: #64748B;
+      border-top: 1px solid #CBD5E1;
+      padding-top: 8px;
+      margin-top: 24px;
+      text-align: left;
     }
 
     /* Gaya Desain Berdasarkan Jenjang */
@@ -300,14 +601,19 @@
     .style-infografis .doc-section-block {
       border: 1px solid #E2E8F0;
       border-radius: 12px;
-      padding: 12px 14px;
+      padding: 14px 16px;
       background: #FAFAFA;
     }
 
     /* 10 Tema Dokumen & Palet Warna Terkurasi (Maksimal 3 Warna Utama) */
+    .tpl-modern-academic .doc-banner { border-top: 4px solid #1E3A8A; border-bottom: 3px double #0F766E; padding: 14px 0; background: #FFFFFF; color: #0F172A; }
+    .tpl-modern-academic .doc-section-title { color: #1E3A8A; border-bottom: 1.5px solid #D97706; }
+    .tpl-modern-academic th { background-color: #1E3A8A !important; color: #FFFFFF; }
+    .tpl-modern-academic .doc-callout { border-left-color: #D97706; background-color: #F8FAFC; }
+
     .tpl-minimalist-lesson .doc-banner { border-bottom: 2px solid #1E293B; padding-bottom: 12px; background: #FFFFFF; color: #0F172A; }
     .tpl-minimalist-lesson .doc-section-title { color: #0F172A; border-bottom: 1px solid #CBD5E1; padding-bottom: 4px; }
-    .tpl-minimalist-lesson th { background-color: #F8FAFC !important; color: #0F172A; border-color: #94A3B8; }
+    .tpl-minimalist-lesson th { background-color: #F1F5F9 !important; color: #0F172A; border-color: #94A3B8; }
     .tpl-minimalist-lesson .doc-callout { border-left-color: #334155; background-color: #F8FAFC; }
 
     .tpl-modern-syllabus .doc-banner { background: #0F766E; color: #FFFFFF; padding: 16px; border-radius: 10px; }
@@ -321,7 +627,7 @@
     .tpl-geometric-worksheet .doc-callout { border-left-color: #D97706; background-color: #FEF3C7; }
 
     .tpl-corporate-minimalist .doc-banner { border-top: 5px solid #0F172A; border-bottom: 1px solid #94A3B8; padding: 14px 0; background: #FFFFFF; color: #0F172A; }
-    .tpl-corporate-minimalist .doc-section-title { color: #1E293B; text-transform: uppercase; letter-spacing: 0.04em; font-size: 10.5pt; }
+    .tpl-corporate-minimalist .doc-section-title { color: #1E293B; text-transform: uppercase; letter-spacing: 0.04em; font-size: 11pt; }
     .tpl-corporate-minimalist th { background-color: #1E293B !important; color: #FFFFFF; }
     .tpl-corporate-minimalist .doc-callout { border-left-color: #0F172A; background-color: #F1F5F9; }
 
@@ -344,10 +650,6 @@
     .tpl-madrasah .doc-section-title { color: #0F766E; }
     .tpl-madrasah th { background-color: #D1FAE5 !important; color: #064E3B; }
 
-    .tpl-formal .doc-banner { border-bottom: 3px solid #0F172A; padding-bottom: 12px; }
-    .tpl-formal .doc-section-title { color: #0F172A; }
-    .tpl-formal th { background-color: #E2E8F0 !important; color: #0F172A; }
-
     .tpl-monochrome .doc-banner { border: 2px solid #111827; padding: 12px; }
     .tpl-monochrome .doc-section-title { color: #111827; }
     .tpl-monochrome th { background-color: #F3F4F6 !important; color: #111827; }
@@ -359,7 +661,18 @@
 
     @media print {
       @page {
-        margin: 15mm 15mm 15mm 15mm;
+        margin: 25mm 25mm 25mm 30mm;
+        @bottom-right {
+          content: "Halaman " counter(page) " dari " counter(pages);
+          font-family: 'Calibri', 'Arial', sans-serif;
+          font-size: 9pt;
+          color: #475569;
+        }
+      }
+      @page :first {
+        @bottom-right {
+          content: "";
+        }
       }
       html, body {
         background: #FFFFFF !important;
@@ -384,6 +697,15 @@
         padding: 0 !important;
         margin: 0 !important;
         background: #FFFFFF !important;
+      }
+      .doc-cover-page {
+        min-height: 244mm !important;
+        margin-bottom: 0 !important;
+      }
+      .doc-page-break {
+        border-top: none !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
       }
       .no-print {
         display: none !important;
@@ -433,48 +755,49 @@
     // DATA REFERENSI PEDAGOGIS & KURIKULUM INDONESIA
     // =========================================================================
     const DEVICE_TYPES = [
-      { id: 'modul-ajar', name: 'Modul Ajar', cat: 'Perencanaan', icon: 'book-open', desc: '32 Komponen lengkap + Pembelajaran Mendalam & Panca Cinta' },
-      { id: 'rpp', name: 'RPP', cat: 'Perencanaan', icon: 'file-text', desc: 'Rencana Pelaksanaan Pembelajaran ringkas & sistematis' },
-      { id: 'atp', name: 'ATP', cat: 'Kurikulum', icon: 'git-branch', desc: 'Alur Tujuan Pembelajaran terurut sesuai fase & alokasi waktu' },
-      { id: 'cp', name: 'CP', cat: 'Kurikulum', icon: 'compass', desc: 'Analisis Capaian Pembelajaran per elemen & kompetensi' },
-      { id: 'tp', name: 'TP', cat: 'Kurikulum', icon: 'target', desc: 'Perumusan Tujuan Pembelajaran & indikator ketercapaian' },
-      { id: 'prota', name: 'Prota', cat: 'Program', icon: 'calendar', desc: 'Program Tahunan terintegrasi minggu efektif kalender sekolah' },
-      { id: 'promes', name: 'Promes', cat: 'Program', icon: 'calendar-range', desc: 'Program Semester detail per minggu & jadwal asesmen' },
-      { id: 'lkpd', name: 'LKPD', cat: 'Aktivitas', icon: 'clipboard-list', desc: '11 Jenis LKPD (PBL, PjBL, Discovery, Inquiry, Literasi, Numerasi)' },
-      { id: 'materi-ajar', name: 'Materi Ajar', cat: 'Bahan Belajar', icon: 'book', desc: 'Ringkas, Sedang, Lengkap, Mendalam (Narasi/Handout siap cetak)' },
-      { id: 'bahan-ajar', name: 'Bahan Ajar', cat: 'Bahan Belajar', icon: 'layers', desc: 'Paket sumber belajar terstruktur dengan studi kasus kontekstual' },
-      { id: 'asesmen', name: 'Asesmen', cat: 'Evaluasi', icon: 'check-square', desc: '14 Jenis Asesmen & 10 Tipe Soal HOTS (Taksonomi Bloom C1-C6)' },
-      { id: 'kisi-kisi', name: 'Kisi-Kisi Soal', cat: 'Evaluasi', icon: 'table', desc: 'Kisi-kisi otomatis selaras nomor soal, indikator, dan level kognitif' },
-      { id: 'rubrik', name: 'Rubrik Penilaian', cat: 'Evaluasi', icon: 'award', desc: 'Rubrik analitik & holistik skor 1-4 beserta konversi nilai' },
-      { id: 'media', name: 'Media Pembelajaran', cat: 'Inovasi', icon: 'monitor-play', desc: 'Rancangan slide, infografis, alat peraga, dan media interaktif' },
+      { id: 'paket-lengkap', name: 'Paket Perangkat Lengkap (Modul 1–19)', cat: 'Bundel Terpadu', icon: 'package-check', desc: 'Analisis CP, ATP, Prota, Promes, Modul Ajar, Bahan Ajar, LKPD, Media, Asesmen HOTS, Rubrik & Jurnal' },
+      { id: 'modul-ajar', name: 'Modul Ajar', cat: 'Perencanaan', icon: 'book-open', desc: 'Dokumen lengkap 19 komponen + Pembelajaran Mendalam & Panca Cinta' },
+      { id: 'rpp', name: 'RPP', cat: 'Perencanaan', icon: 'file-text', desc: 'Rencana Pelaksanaan Pembelajaran lengkap, sistematis & siap cetak' },
+      { id: 'atp', name: 'ATP', cat: 'Kurikulum', icon: 'git-branch', desc: 'Alur Tujuan Pembelajaran 10 kolom sesuai fase & alokasi waktu' },
+      { id: 'cp', name: 'CP & Analisis CP', cat: 'Kurikulum', icon: 'compass', desc: 'Analisis Capaian Pembelajaran 12 komponen + potensi Deep Learning & Panca Cinta' },
+      { id: 'tp', name: 'TP', cat: 'Kurikulum', icon: 'target', desc: 'Perumusan Tujuan Pembelajaran operasional & indikator ketercapaian' },
+      { id: 'prota', name: 'Prota', cat: 'Program', icon: 'calendar', desc: 'Program Tahunan 8 kolom terintegrasi minggu efektif kalender sekolah/madrasah' },
+      { id: 'promes', name: 'Promes', cat: 'Program', icon: 'calendar-range', desc: 'Program Semester 8 kolom detail per minggu & jadwal asesmen' },
+      { id: 'lkpd', name: 'LKPD', cat: 'Aktivitas', icon: 'clipboard-list', desc: 'Lembar Kerja Peserta Didik 16 struktur lengkap dengan stimulus & rubrik' },
+      { id: 'materi-ajar', name: 'Materi Ajar', cat: 'Bahan Belajar', icon: 'book', desc: 'Bahan bacaan siswa 15 struktur: peta konsep, contoh, studi kasus & latihan' },
+      { id: 'bahan-ajar', name: 'Bahan Ajar', cat: 'Bahan Belajar', icon: 'layers', desc: 'Paket sumber belajar terstruktur dengan ilustrasi kontekstual' },
+      { id: 'asesmen', name: 'Asesmen Lengkap', cat: 'Evaluasi', icon: 'check-square', desc: 'Diagnostik, Formatif, Sumatif, Kisi-Kisi 8 kolom, Soal HOTS & Kunci Jawaban' },
+      { id: 'kisi-kisi', name: 'Kisi-Kisi Soal', cat: 'Evaluasi', icon: 'table', desc: 'Kisi-kisi otomatis 8 kolom selaras TP, indikator, level kognitif & nomor soal' },
+      { id: 'rubrik', name: 'Rubrik Penilaian', cat: 'Evaluasi', icon: 'award', desc: 'Rubrik analitik skor 1–4 beserta rumus konversi nilai 100' },
+      { id: 'media', name: 'Media & Alat Peraga', cat: 'Inovasi', icon: 'monitor-play', desc: 'Rancangan media murah, mudah dibuat & bernilai pedagogis tinggi' },
       { id: 'projek', name: 'Projek Pembelajaran', cat: 'Aktivitas', icon: 'rocket', desc: 'Panduan P5 / PPRA dan proyek berbasis masalah nyata' },
-      { id: 'bank-soal', name: 'Bank Soal', cat: 'Evaluasi', icon: 'database', desc: 'Kumpulan soal bertingkat lengkap dengan kunci & pembahasan' },
+      { id: 'bank-soal', name: 'Bank Soal HOTS', cat: 'Evaluasi', icon: 'database', desc: 'Kumpulan soal PG homogen & uraian studi kasus lengkap pembahasan' },
       { id: 'refleksi', name: 'Refleksi', cat: 'Administrasi', icon: 'sparkles', desc: 'Instrumen refleksi guru & peserta didik berbasis Deep Learning' },
-      { id: 'jurnal', name: 'Jurnal Mengajar', cat: 'Administrasi', icon: 'notebook-pen', desc: 'Catatan pelaksanaan harian, ketercapaian TP, dan tindak lanjut' },
+      { id: 'jurnal', name: 'Jurnal Pembelajaran', cat: 'Administrasi', icon: 'notebook-pen', desc: 'Catatan pelaksanaan harian, ketercapaian TP, dan tindak lanjut' },
       { id: 'perangkat-guru', name: 'Perangkat Guru', cat: 'Administrasi', icon: 'briefcase', desc: 'Bundel administrasi pembelajaran lengkap siap supervisi' }
     ];
 
     const PANCA_CINTA_ITEMS = [
       {
         id: 'pc1',
-        title: '1. Cinta kepada Allah dan Rasul',
+        title: '1. Cinta kepada Allah SWT dan Rasul-Nya',
         bentuk: 'Penanaman rasa syukur, kejujuran, amanah, dan kesadaran spiritual dalam setiap proses belajar.',
-        aktivitas: 'Peserta didik mengawali pembelajaran dengan doa penuh kesadaran, mengaitkan fenomena ilmu dengan kebesaran Tuhan, dan menjaga kejujuran saat asesmen.',
+        aktivitas: 'Peserta didik mengawali pembelajaran dengan doa penuh kesadaran, mengaitkan fenomena ilmu dengan kebesaran Allah SWT, dan menjaga kejujuran saat asesmen.',
         indikator: 'Menunjukkan sikap syukur, jujur, disiplin, dan berakhlak mulia selama pembelajaran.'
       },
       {
         id: 'pc2',
-        title: '2. Cinta kepada Ilmu',
-        bentuk: 'Menumbuhkan rasa ingin tahu, keterbukaan terhadap bukti ilmiah, literasi kritis, dan ketekunan belajar.',
-        aktivitas: 'Peserta didik aktif mengajukan pertanyaan eksploratif, menelusuri sumber belajar terpercaya, dan berdiskusi secara objektif.',
-        indikator: 'Antusias menggali konsep secara mendalam dan menyusun argumen berbasis data.'
+        title: '2. Cinta kepada Diri Sendiri',
+        bentuk: 'Menumbuhkan kesadaran diri, rasa ingin tahu intelektual, perawatan kesehatan mental-fisik, dan ketekunan belajar.',
+        aktivitas: 'Peserta didik melakukan refleksi kesiapan diri, mengelola emosi saat berdiskusi, serta menggali konsep secara mandiri dan tekun.',
+        indikator: 'Mampu mengelola diri, percaya diri menyampaikan gagasan, dan tekun menyelesaikan tugas.'
       },
       {
         id: 'pc3',
-        title: '3. Cinta kepada Diri Sendiri dan Sesama',
-        bentuk: 'Pengembangan empati, penghargaan terhadap perbedaan (inklusif), kesehatan mental-fisik, dan kolaborasi.',
-        aktivitas: 'Peserta didik bekerja sama dalam kelompok heterogen, saling menghargai pendapat teman, dan memberi umpan balik santun.',
-        indikator: 'Mampu berkolaborasi tanpa diskriminasi serta menjaga keselamatan dan kenyamanan bersama.'
+        title: '3. Cinta kepada Sesama Manusia',
+        bentuk: 'Pengembangan empati, toleransi, penghargaan terhadap perbedaan (inklusif), dan kolaborasi santun.',
+        aktivitas: 'Peserta didik bekerja sama dalam kelompok heterogen, saling menghargai pendapat teman, dan memberi umpan balik konstruktif.',
+        indikator: 'Mampu berkolaborasi tanpa diskriminasi serta menunjukkan empati dan kepedulian sosial.'
       },
       {
         id: 'pc4',
@@ -519,15 +842,15 @@
     ];
 
     const DOC_TEMPLATES = [
-      { id: 'tpl-minimalist-lesson', name: 'Minimalist Lesson Plan', badge: 'Standar Baru', desc: 'Tata letak bersih, garis tegas, ruang kosong lega, dan fokus keterbacaan cetak.' },
-      { id: 'tpl-modern-syllabus', name: 'Modern Education Syllabus', badge: 'Segar & Alami', desc: 'Header Hijau Zamrud (Emerald) dengan aksen Sage & latar putih bersih.' },
+      { id: 'tpl-modern-academic', name: 'Modern Academic Style (Navy, Teal & Gold)', badge: 'Standar Akademik', desc: 'Desain dokumen pendidikan formal bergaya Modern Academic dengan palet Navy Blue, Teal, Gold, dan abu-abu lembut.' },
+      { id: 'tpl-minimalist-lesson', name: 'Minimalist Lesson Plan', badge: 'Bersih & Tegas', desc: 'Tata letak bersih, garis tegas, ruang kosong lega, dan fokus keterbacaan cetak.' },
+      { id: 'tpl-modern-syllabus', name: 'Modern Education Syllabus', badge: 'Teal & Emerald', desc: 'Header Hijau Zamrud/Teal dengan aksen lembut & latar putih bersih.' },
       { id: 'tpl-geometric-worksheet', name: 'Clean Geometric Worksheet', badge: 'SMP / SMA / SMK', desc: 'Sudut membulat geometris dengan kontras Biru Dongker & Kuning Mustard.' },
       { id: 'tpl-corporate-minimalist', name: 'Corporate Report Minimalist', badge: 'Profesional', desc: 'Garis atas tegas ala laporan akademik/eksekutif dengan tabel monokrom rapi.' },
       { id: 'tpl-akademik-tenang', name: 'Akademik Tenang (Navy & Mustard)', badge: 'Terpercaya', desc: 'Dominan Biru Dongker, aksen Kuning Mustard lembut, dan latar putih tulang.' },
       { id: 'tpl-segar-alami', name: 'Segar & Alami (Emerald & Sage)', badge: 'Ramah Lingkungan', desc: 'Nuansa hijau zamrud sejuk dengan kotak callout lembut.' },
       { id: 'tpl-kreatif-hangat', name: 'Kreatif & Hangat (Terakota & Sky)', badge: 'PAUD / SD / MI', desc: 'Kombinasi terakota hangat dengan aksen biru muda energik untuk jenjang dasar.' },
       { id: 'tpl-madrasah', name: 'Madrasah Emerald Kemenag', badge: 'Madrasah', desc: 'Kop hijau zamrud elegan dengan bingkai ganda resmi.' },
-      { id: 'tpl-formal', name: 'Formal Kedinasan', badge: 'Kedinasan', desc: 'Tata letak hitam-putih tegas standar administrasi dinas pendidikan.' },
       { id: 'tpl-monochrome', name: 'Print Friendly Hemat Tinta', badge: 'Hemat Tinta', desc: 'Optimasi garis tipis kontras tinggi untuk pencetakan massal.' }
     ];
 
@@ -571,52 +894,867 @@
     ];
 
     // =========================================================================
-    // STATE UTAMA APLIKASI (MENDUKUNG DUAL-MODE IS_PREVIEW)
+    // ENGINE GENERATOR PERANGKAT PEMBELAJARAN LENGKAP (MODUL 1 - MODUL 19)
+    // =========================================================================
+    function generatePedagogicalSections(form) {
+      const mapel = form.mataPelajaran === 'Mata Pelajaran Lainnya' && form.mapelCustom
+        ? form.mapelCustom
+        : form.mataPelajaran;
+      const isKemenag = isMadrasahCheck(form);
+      const isKurikulumCinta = form.kurikulum === 'Kurikulum Berbasis Cinta (Panca Cinta)';
+      const activePanca = !isKurikulumCinta || form.pancaCintaMode === 'nonaktif'
+        ? []
+        : PANCA_CINTA_ITEMS.filter(item => form.pancaCintaMode === 'otomatis' || form.pancaCintaSelected.includes(item.id));
+
+      const pancaSummaryList = activePanca.length > 0
+        ? activePanca.map(p => p.title.replace(/^\d+\.\s*/, '')).join(', ')
+        : 'Integrasi Karakter Profil Pelajar Pancasila & Pembelajaran Mendalam';
+
+      const pancaTableHTML = activePanca.length > 0 ? `
+        <table>
+          <thead>
+            <tr>
+              <th width="22%">Nilai Panca Cinta</th>
+              <th width="26%">Bentuk Integrasi</th>
+              <th width="30%">Aktivitas Peserta Didik</th>
+              <th width="22%">Indikator</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${activePanca.map(p => `
+              <tr>
+                <td><strong>${p.title}</strong></td>
+                <td>${p.bentuk}</td>
+                <td>${p.aktivitas} (Konteks: <em>${form.materiPokok}</em>)</td>
+                <td>${p.indikator}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      ` : '<p><em>Perangkat ini disusun berlandaskan <strong>Kurikulum Merdeka & Pembelajaran Mendalam (Deep Learning)</strong>. Untuk mengaktifkan tabel Panca Cinta secara eksplisit, pilih kerangka "Kurikulum Berbasis Cinta (Panca Cinta)".</em></p>';
+
+      const type = form.jenisPerangkat;
+      const tglFormatted = formatTanggalIndo(form.tanggalPenyusunan);
+      const cal = state.calendarData;
+      const totalJpSemester = (cal.mingguEfektif || 18) * (cal.jamPerMinggu || 3);
+
+      // MODUL 1: ANALISIS CP (12 KOMPONEN LENGKAP)
+      const secAnalisisCP = {
+        id: 'mod-cp',
+        title: 'MODUL 1. CAPAIAN PEMBELAJARAN (CP) DAN ANALISIS CP',
+        content: `
+          <table>
+            <tr><th width="34%">1. Identitas Mata Pelajaran</th><td>${mapel} (${form.naungan === 'Kemenag' ? 'Madrasah / Kemenag' : 'Satuan Pendidikan Umum'})</td></tr>
+            <tr><th>2. Fase & 3. Kelas</th><td>${form.fase} — Kelas ${form.kelas} (${form.jenjang})</td></tr>
+            <tr><th>4. Elemen Pembelajaran</th><td>Pemahaman Konsep, Analisis Kontekstual, dan Aplikasi Keterampilan Proses pada Lingkup ${form.materiPokok}</td></tr>
+            <tr><th>5. Capaian Pembelajaran (Draft Adaptasi)</th><td>Pada akhir ${form.fase}, peserta didik mampu memahami secara mendalam, menganalisis keterkaitan konsep, serta mengaplikasikan nilai dan prinsip <strong>${form.materiPokok}</strong> dalam pemecahan masalah nyata secara kritis, kreatif, kolaboratif, dan berakhlak mulia.<br/><em>(Catatan Verifikasi: Rumusan CP ini merupakan draft adaptasi pedagogis. Guru wajib memverifikasi kesesuaian redaksi dengan Keputusan BSKAP / KMA Kurikulum Madrasah terbaru yang berlaku).</em></td></tr>
+            <tr><th>6. Analisis Kompetensi</th><td>Peserta didik dituntut menguasai kompetensi bertahap mulai dari memahami makna dasar (C2), menerapkan prinsip dalam situasi kontekstual (C3), menganalisis studi kasus (C4), mengevaluasi dampak perilaku (C5), hingga merancang karya/solusi nyata (C6).</td></tr>
+            <tr><th>7. Analisis Materi</th><td>Materi pokok <strong>${form.materiPokok}</strong> dengan submateri <em>${form.submateri}</em> memiliki sifat konseptual sekaligus aplikatif yang sangat erat dengan pengalaman keseharian dan tantangan sosial peserta didik.</td></tr>
+            <tr><th>8. Analisis Karakteristik Peserta Didik</th><td>${form.karakteristikSiswa} (${form.jumlahSiswa}).</td></tr>
+            <tr><th>9. Kompetensi yang Harus Dicapai</th><td>(a) Ketepatan konseptual tentang ${form.materiPokok}; (b) Keterampilan berpikir kritis & pemecahan masalah pada ${form.topikPembelajaran}; (c) Sikap empati, tanggung jawab, dan integritas diri.</td></tr>
+            <tr><th>10. Pengetahuan Prasyarat</th><td>Pemahaman dasar terkait <em>${form.submateri}</em> dari jenjang/pertemuan sebelumnya serta keterampilan dasar literasi baca-tulis dan kerja kelompok.</td></tr>
+            <tr><th>11. Potensi Integrasi Deep Learning</th><td>Sangat tinggi untuk dikembangkan melalui pendekatan <strong>Berkesadaran (Mindful)</strong> saat refleksi diri, <strong>Bermakna (Meaningful)</strong> melalui studi kasus autentik, dan <strong>Menggembirakan (Joyful)</strong> melalui simulasi kolaboratif.</td></tr>
+            <tr><th>12. Potensi Integrasi Panca Cinta</th><td>${isKurikulumCinta ? `Terintegrasi secara alami pada nilai: <strong>${pancaSummaryList}</strong> melalui pembiasaan akhlak, empati sosial, dan kepedulian lingkungan belajar.` : 'Mendukung penguatan karakter profil lulusan, empati sosial, dan kepedulian lingkungan belajar.'}</td></tr>
+          </table>
+        `
+      };
+
+      // MODUL 2: ALUR TUJUAN PEMBELAJARAN (ATP 10 KOLOM)
+      const secATP = {
+        id: 'mod-atp',
+        pageBreakBefore: true,
+        title: 'MODUL 2. ALUR TUJUAN PEMBELAJARAN (ATP)',
+        content: `
+          <p><em>Disusun berurutan dari kompetensi sederhana menuju kompleks, operasional, dan terukur selaras dengan Capaian Pembelajaran ${form.fase}.</em></p>
+          <table>
+            <thead>
+              <tr>
+                <th width="4%">No</th>
+                <th width="9%">Elemen</th>
+                <th width="12%">Capaian Pembelajaran</th>
+                <th width="16%">Tujuan Pembelajaran (TP)</th>
+                <th width="11%">Materi</th>
+                <th width="14%">Indikator Ketercapaian</th>
+                <th width="10%">Dimensi / Kompetensi</th>
+                <th width="9%">Deep Learning</th>
+                <th width="9%">Panca Cinta</th>
+                <th width="6%">Waktu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Pemahaman Konsep</td>
+                <td>Memahami hakikat ${form.materiPokok} pada ${form.fase}.</td>
+                <td><strong>TP 1:</strong> Menjelaskan pengertian, ruang lingkup, dan landasan <strong>${form.materiPokok}</strong> secara runtut dengan bahasa sendiri (C2).</td>
+                <td>Konsep Dasar ${form.materiPokok}</td>
+                <td>Mampu menguraikan minimal 3 konsep kunci dan contoh konkret dalam diskusi kelas.</td>
+                <td>Bernalar Kritis, Mandiri</td>
+                <td>Mindful & Memahami</td>
+                <td>Cinta Ilmu & Allah SWT</td>
+                <td>2 JP</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Analisis Kontekstual</td>
+                <td>Menganalisis penerapan ${form.submateri} dalam kehidupan nyata.</td>
+                <td><strong>TP 2:</strong> Menganalisis faktor pendukung, tantangan, dan dampak penerapan <em>${form.submateri}</em> melalui studi kasus (C4).</td>
+                <td>Studi Kasus ${form.submateri}</td>
+                <td>Mampu mengidentifikasi akar masalah dan argumen logis pada lembar kerja analisis.</td>
+                <td>Bernalar Kritis, Komunikatif</td>
+                <td>Meaningful & Mengaplikasi</td>
+                <td>Cinta Diri & Sesama</td>
+                <td>2 JP</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Aplikasi & Kreasi Solusi</td>
+                <td>Merancang solusi aplikatif terkait ${form.topikPembelajaran}.</td>
+                <td><strong>TP 3:</strong> Merancang karya atau aksi nyata pemecahan masalah <em>${form.topikPembelajaran}</em> serta merefleksikan dampaknya (C6).</td>
+                <td>Aksi Nyata ${form.topikPembelajaran}</td>
+                <td>Menghasilkan produk solusi kelompok yang aplikatif dan mempresentasikannya dengan santun.</td>
+                <td>Kreatif, Gotong Royong, Berakhlak</td>
+                <td>Joyful & Merefleksi</td>
+                <td>Cinta Lingkungan & Bangsa</td>
+                <td>2 JP</td>
+              </tr>
+            </tbody>
+          </table>
+        `
+      };
+
+      // MODUL 3 & 4: PROTA & PROMES (8 KOLOM)
+      const secProtaPromes = {
+        id: 'mod-prota-promes',
+        pageBreakBefore: true,
+        title: 'MODUL 3 & 4. PROGRAM TAHUNAN (PROTA) DAN PROGRAM SEMESTER (PROMES)',
+        content: `
+          <h4>A. Program Tahunan (Prota) — Tahun Ajaran ${cal.tahunAjaran}</h4>
+          <p><strong>Identitas:</strong> ${form.namaInstitusi} | Mata Pelajaran: ${mapel} | Kelas/Fase: ${form.kelas} / ${form.fase} | Estimasi Minggu Efektif: ${cal.mingguEfektif} Minggu/Semester (${totalJpSemester} JP/Semester — <em>rancangan dapat disesuaikan kalender satuan pendidikan</em>).</p>
+          <table>
+            <thead>
+              <tr>
+                <th width="5%">No</th>
+                <th width="10%">Semester</th>
+                <th width="13%">Elemen</th>
+                <th width="18%">Materi / Unit</th>
+                <th width="24%">Tujuan Pembelajaran</th>
+                <th width="8%">JP</th>
+                <th width="10%">Bulan</th>
+                <th width="12%">Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Ganjil</td>
+                <td>Pemahaman & Analisis</td>
+                <td>Unit 1: ${form.materiPokok}</td>
+                <td>Memahami konsep dasar dan menganalisis penerapan ${form.materiPokok} secara kontekstual.</td>
+                <td>6 JP</td>
+                <td>Jul – Agu</td>
+                <td>Terintegrasi LKPD & Formatif</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Ganjil</td>
+                <td>Aplikasi & Karakter</td>
+                <td>Unit 2: ${form.submateri}</td>
+                <td>Menerapkan dan mengevaluasi prinsip ${form.submateri} dalam studi kasus kehidupan sehari-hari.</td>
+                <td>6 JP</td>
+                <td>Sep – Okt</td>
+                <td>Projek & Sumatif Tengah</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Genap</td>
+                <td>Kreasi & Refleksi</td>
+                <td>Unit 3: ${form.topikPembelajaran}</td>
+                <td>Merancang solusi kolaboratif dan merefleksikan nilai karakter dalam kehidupan bermasyarakat.</td>
+                <td>6 JP</td>
+                <td>Jan – Mar</td>
+                <td>Projek Penguatan & Sumatif Akhir</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>B. Program Semester (Promes) — Semester ${cal.semester} (${cal.tahunAjaran})</h4>
+          <table>
+            <thead>
+              <tr>
+                <th width="5%">No</th>
+                <th width="20%">Materi</th>
+                <th width="23%">Tujuan Pembelajaran (TP)</th>
+                <th width="10%">Minggu ke-</th>
+                <th width="10%">Bulan</th>
+                <th width="8%">JP</th>
+                <th width="12%">Asesmen</th>
+                <th width="12%">Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Konsep Dasar ${form.materiPokok}</td>
+                <td>TP 1: Menjelaskan konsep dan urgensi ${form.materiPokok} (C2)</td>
+                <td>Minggu 1–2</td>
+                <td>Bulan 1</td>
+                <td>2 JP</td>
+                <td>Diagnostik & Lisan</td>
+                <td>Awal Semester</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Analisis ${form.submateri}</td>
+                <td>TP 2: Menganalisis studi kasus ${form.submateri} (C4)</td>
+                <td>Minggu 3–4</td>
+                <td>Bulan 2</td>
+                <td>2 JP</td>
+                <td>Formatif LKPD</td>
+                <td>Diskusi Kelompok</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Aksi Nyata ${form.topikPembelajaran}</td>
+                <td>TP 3: Merancang solusi & presentasi karya (C6)</td>
+                <td>Minggu 5–6</td>
+                <td>Bulan 3</td>
+                <td>2 JP</td>
+                <td>Sumatif HOTS & Rubrik</td>
+                <td>Cadangan Remedial</td>
+              </tr>
+            </tbody>
+          </table>
+        `
+      };
+
+      // MODUL 5: MODUL AJAR / RPP PROFESIONAL (LENGKAP DENGAN TABEL LANGKAH 6 KOLOM)
+      const secModulAjarInti = {
+        id: 'mod-ajar-inti',
+        pageBreakBefore: type === 'paket-lengkap',
+        title: 'MODUL 5. MODUL AJAR / RPP PROFESIONAL (DEEP LEARNING & PANCA CINTA)',
+        content: `
+          <h4>1. Identitas Modul</h4>
+          <table>
+            <tr><th width="32%">Naungan Instansi</th><td>${form.naungan === 'Kemenag' ? 'Kementerian Agama (Kemenag)' : form.naungan === 'Diknas' ? 'Dinas Pendidikan / Kemendikbudristek' : 'Satuan Pendidikan Mandiri'}</td></tr>
+            <tr><th>Nama Sekolah / Madrasah</th><td>${form.namaInstitusi} (NPSN: ${form.npsn || '-'}${isKemenag && form.nsm ? ' / NSM: ' + form.nsm : ''})</td></tr>
+            <tr><th>Alamat & Kota/Kabupaten</th><td>${form.alamatInstitusi || '-'}, ${form.kotaKabupaten || '-'}</td></tr>
+            <tr><th>Penyusun / NIP</th><td>${form.namaGuru || '[Nama Guru]'} ${form.nipGuru ? '(NIP. ' + form.nipGuru + ')' : ''}</td></tr>
+            <tr><th>Jenjang / Fase / Kelas</th><td>${form.jenjang} / ${form.fase} / Kelas ${form.kelas}</td></tr>
+            <tr><th>Semester / Tahun Ajaran</th><td>${form.semester} / ${form.tahunAjaran}</td></tr>
+            <tr><th>Mata Pelajaran</th><td>${mapel}</td></tr>
+            <tr><th>Materi Pokok & Submateri</th><td>${form.materiPokok} — <em>${form.submateri}</em></td></tr>
+            <tr><th>Topik Pembelajaran</th><td>${form.topikPembelajaran}</td></tr>
+            <tr><th>Alokasi Waktu & Pertemuan</th><td>${form.alokasiWaktu} (${form.jumlahPertemuan})</td></tr>
+            <tr><th>Kerangka Kurikulum</th><td><strong>${form.kurikulum}</strong></td></tr>
+            <tr><th>Model & Metode</th><td>${form.modelPembelajaran} — <em>Dipilih karena mendorong peserta didik aktif mengonstruksi pengetahuan melalui pemecahan masalah nyata, kolaborasi kelompok, dan berpikir kritis.</em></td></tr>
+            <tr><th>Media, Alat & Sumber Belajar</th><td>${form.saranaPrasarana}, LKPD Terstruktur, Bahan Ajar Kontekstual, dan Buku Teks ${mapel} Kelas ${form.kelas}.</td></tr>
+          </table>
+
+          <h4>2. Kompetensi Awal, Karakteristik Peserta Didik & Profil Pelajar</h4>
+          <ul>
+            <li><strong>Kompetensi Awal:</strong> Peserta didik telah mengenal pengetahuan prasyarat mengenai <em>${form.submateri}</em> dari pengalaman sehari-hari dan pertemuan sebelumnya.</li>
+            <li><strong>Karakteristik Peserta Didik:</strong> ${form.karakteristikSiswa} (${form.jumlahSiswa}).</li>
+            <li><strong>Profil Pelajar Pancasila${isKemenag ? ' & Profil Pelajar Rahmatan lil Alamin (PPRA)' : ''}:</strong> Beriman, bertakwa kepada Tuhan YME, dan berakhlak mulia; Bernalar kritis; Bergotong royong; Kreatif${isKemenag ? '; serta nilai <em>Ta’addub</em> (berkeadaban), <em>Qudwah</em> (keteladanan), dan <em>Tasamuh</em> (toleransi)' : ''}.</li>
+          </ul>
+
+          <h4>3. Integrasi Nilai Panca Cinta</h4>
+          ${pancaTableHTML}
+
+          <div class="doc-callout">
+            <h4 style="margin-top:0;">4. Pemahaman Bermakna & Pertanyaan Pemantik</h4>
+            <p><strong>Pemahaman Bermakna:</strong> Penguasaan terhadap <strong>${form.materiPokok}</strong> membekali peserta didik dengan kemampuan berpikir kritis, kepekaan empati, dan tanggung jawab moral untuk mengambil keputusan bijak dalam kehidupan nyata.</p>
+            <p style="margin-bottom:4px;"><strong>Pertanyaan Pemantik:</strong></p>
+            <ol style="margin-bottom:0;">
+              <li>Mengapa pemahaman mendalam tentang <strong>${form.materiPokok}</strong> sangat memengaruhi kualitas hubungan kita dengan sesama dan lingkungan sekitar?</li>
+              <li>Tantangan nyata apa yang paling sering dihadapi pelajar saat berupaya menerapkan <em>${form.submateri}</em> di era digital saat ini?</li>
+              <li>Bagaimana cara kita memastikan bahwa setiap keputusan yang kita ambil dalam kelompok mencerminkan kejujuran dan kasih sayang?</li>
+              <li>Solusi konkret apa yang dapat kita rancang bersama hari ini untuk mengatasi persoalan <em>${form.topikPembelajaran}</em> di sekolah/madrasah?</li>
+            </ol>
+          </div>
+        `
+      };
+
+      const secLangkahPembelajaran = {
+        id: 'mod-ajar-langkah',
+        pageBreakBefore: true,
+        title: 'LANGKAH-LANGKAH PEMBELAJARAN & DIFERENSIASI (6 KOLOM)',
+        content: `
+          <h4>1. Skenario Langkah Pembelajaran (${form.alokasiWaktu})</h4>
+          <table>
+            <thead>
+              <tr>
+                <th width="12%">Tahap</th>
+                <th width="23%">Aktivitas Guru</th>
+                <th width="25%">Aktivitas Peserta Didik</th>
+                <th width="15%">Integrasi Deep Learning</th>
+                <th width="16%">Integrasi Panca Cinta</th>
+                <th width="9%">Waktu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>A. Pendahuluan</strong></td>
+                <td>
+                  1. Membuka pelajaran dengan salam hangat dan mengajak berdoa.<br/>
+                  2. Memandu teknik jeda hening sejenak (<em>mindful check-in</em>) dan mengecek kesiapan siswa.<br/>
+                  3. Melakukan apersepsi diagnostik melalui pertanyaan pemantik dan menyampaikan tujuan pembelajaran.
+                </td>
+                <td>
+                  1. Menjawab salam dan berdoa dengan khusyuk.<br/>
+                  2. Menyadari kondisi emosi dan kesiapan belajar diri.<br/>
+                  3. Merespons pertanyaan pemantik berdasarkan pengalaman nyata sehari-hari.
+                </td>
+                <td><strong>Berkesadaran (Mindful)</strong> & Aktivasi Pengetahuan Awal</td>
+                <td>Cinta Allah SWT & Rasul-Nya (syukur & doa) serta Cinta Diri Sendiri</td>
+                <td>15% Waktu</td>
+              </tr>
+              <tr>
+                <td><strong>B. Kegiatan Inti</strong><br/><em>1. Memahami</em></td>
+                <td>
+                  1. Menyajikan stimulus studi kasus autentik tentang <strong>${form.materiPokok}</strong>.<br/>
+                  2. Membagi kelompok heterogen dan membagikan Bahan Ajar serta LKPD.<br/>
+                  3. Membimbing siswa mengidentifikasi konsep kunci dari bacaan.
+                </td>
+                <td>
+                  1. Mengamati stimulus dan membaca Bahan Ajar secara saksama.<br/>
+                  2. Mengajukan pertanyaan kritis dan berdiskusi mengidentifikasi prinsip inti <em>${form.submateri}</em>.<br/>
+                  3. Mencatat temuan fakta pada tabel pengamatan LKPD.
+                </td>
+                <td><strong>Bermakna (Meaningful)</strong> — Pengalaman Belajar <em>Memahami</em></td>
+                <td>Cinta kepada Ilmu (rasa ingin tahu & keterbukaan terhadap bukti)</td>
+                <td>25% Waktu</td>
+              </tr>
+              <tr>
+                <td><strong>B. Kegiatan Inti</strong><br/><em>2. Mengaplikasi</em></td>
+                <td>
+                  1. Memfasilitasi pemecahan masalah berbasis <em>${form.modelPembelajaran}</em>.<br/>
+                  2. Memberikan pendampingan diferensiasi sesuai kebutuhan kelompok.<br/>
+                  3. Mengarahkan sesi presentasi karya dan umpan balik antar-kelompok.
+                </td>
+                <td>
+                  1. Berkolaborasi merancang solusi kreatif atas masalah <em>${form.topikPembelajaran}</em>.<br/>
+                  2. Menyusun produk hasil diskusi (poster/peta konsep/laporan analisis).<br/>
+                  3. Mempresentasikan hasil karya dan menanggapi masukan teman secara santun.
+                </td>
+                <td><strong>Menggembirakan (Joyful)</strong> — Pengalaman Belajar <em>Mengaplikasi</em></td>
+                <td>Cinta Sesama Manusia (empati & gotong royong) & Cinta Lingkungan</td>
+                <td>30% Waktu</td>
+              </tr>
+              <tr>
+                <td><strong>B. Kegiatan Inti</strong><br/><em>3. Merefleksi</em></td>
+                <td>
+                  1. Memandu verifikasi konsep dan meluruskan miskonsepsi.<br/>
+                  2. Mengajak siswa menghubungkan hasil belajar dengan komitmen perilaku di luar kelas.
+                </td>
+                <td>
+                  1. Mengevaluasi proses kerja kelompok dan ketepatan solusi yang dibuat.<br/>
+                  2. Menuliskan komitmen tindakan nyata terkait <em>${form.materiPokok}</em>.
+                </td>
+                <td>Pengalaman Belajar <em>Merefleksi</em> & Transfer Pengetahuan</td>
+                <td>Cinta Bangsa & Negara (tanggung jawab sosial & budaya positif)</td>
+                <td>15% Waktu</td>
+              </tr>
+              <tr>
+                <td><strong>C. Penutup</strong></td>
+                <td>
+                  1. Memfasilitasi penyimpulan materi bersama.<br/>
+                  2. Memberikan asesmen formatif akhir (<em>Exit Ticket</em>).<br/>
+                  3. Menyampaikan tindak lanjut pengayaan/remedial serta menutup dengan doa.
+                </td>
+                <td>
+                  1. Menyampaikan kesimpulan inti pembelajaran hari ini.<br/>
+                  2. Mengerjakan <em>Exit Ticket</em> dengan jujur dan mandiri.<br/>
+                  3. Berdoa penutup dan merapikan kembali ruang kelas.
+                </td>
+                <td>Evaluasi Diri & Umpan Balik Berkelanjutan</td>
+                <td>Cinta Lingkungan (kebersihan kelas) & Syukur Penutup</td>
+                <td>15% Waktu</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>2. Strategi Diferensiasi Pembelajaran</h4>
+          <table>
+            <thead>
+              <tr><th width="24%">Aspek Diferensiasi</th><th width="76%">Implementasi Konkret di Kelas</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Diferensiasi Konten</strong></td><td>Menyediakan teks bacaan terstruktur, ringkasan poin visual, dan kartu studi kasus bertingkat sesuai kesiapan literasi peserta didik.</td></tr>
+              <tr><td><strong>Diferensiasi Proses</strong></td><td>Kelompok yang memerlukan bantuan mendapatkan bimbingan bertahap (<em>scaffolding</em>) dari guru, sedangkan kelompok mahir diberikan tantangan analisis lanjutan.</td></tr>
+              <tr><td><strong>Diferensiasi Produk</strong></td><td>Peserta didik bebas memilih bentuk penyajian solusi: infografis, peta pikiran (<em>mind map</em>), narasi studi kasus, atau simulasi peran.</td></tr>
+              <tr><td><strong>Dukungan Inklusif</strong></td><td>Instruksi disajikan lisan dan tertulis dengan kalimat jelas, serta penerapan tutor sebaya untuk membantu peserta didik yang membutuhkan pendampingan khusus.</td></tr>
+            </tbody>
+          </table>
+        `
+      };
+
+      // MODUL 6: BAHAN AJAR (15 STRUKTUR LENGKAP)
+      const secBahanAjar = {
+        id: 'mod-bahan-ajar',
+        pageBreakBefore: true,
+        title: 'MODUL 6. BAHAN AJAR PESERTA DIDIK (SIAP BACA & CETAK)',
+        content: `
+          <table>
+            <tr><th width="28%">1. Judul Bahan Ajar</th><td><strong>Memahami dan Mengamalkan ${form.materiPokok} dalam Kehidupan Nyata</strong></td></tr>
+            <tr><th>2. Identitas Materi</th><td>${mapel} • ${form.jenjang} Kelas ${form.kelas} (${form.fase}) • Semester ${form.semester}</td></tr>
+            <tr><th>3. Tujuan Pembelajaran</th><td>Peserta didik mampu memahami konsep, menganalisis studi kasus, dan menerapkan nilai-nilai ${form.materiPokok} secara bertanggung jawab.</td></tr>
+          </table>
+
+          <h4>4. Peta Konsep Materi</h4>
+          <div class="doc-callout" style="text-align:center;">
+            <strong>[ ${form.materiPokok.toUpperCase()} ]</strong><br/>
+            ↓<br/>
+            <strong>Landasan & Prinsip Inti</strong> ➔ <strong>Submateri: ${form.submateri}</strong> ➔ <strong>Aplikasi: ${form.topikPembelajaran}</strong><br/>
+            ↓<br/>
+            <em>Terwujudnya Peserta Didik Berpikir Kritis, Berempati, dan Berakhlak Mulia</em>
+          </div>
+
+          <h4>5. Pendahuluan</h4>
+          <p>Pernahkah kalian memperhatikan bagaimana sebuah keputusan kecil yang kita ambil di sekolah atau di media sosial dapat berdampak besar bagi orang lain? Melalui bahan ajar ini, kalian akan diajak menelusuri makna mendalam di balik <strong>${form.materiPokok}</strong> sehingga tidak hanya dipahami sebagai teori di buku, tetapi menjadi pedoman sikap sehari-hari.</p>
+
+          <h4>6. Materi Inti & 7. Penjelasan Konsep</h4>
+          <p>Secara konseptual, <strong>${form.materiPokok}</strong> mencakup pemahaman utuh mengenai <em>${form.submateri}</em>. Dalam kehidupan bermasyarakat maupun di lingkungan madrasah/sekolah, prinsip ini menuntut keselarasan antara pengetahuan yang benar (ilmu), ketulusan niat (kesadaran diri), dan tindakan nyata yang membawa kebaikan bagi sesama.</p>
+          <ul>
+            <li><strong>Aspek Pemahaman (Kognitif):</strong> Mengenali batasan, aturan, dan nilai kebenaran yang melandasi <em>${form.materiPokok}</em>.</li>
+            <li><strong>Aspek Sikap (Afektif):</strong> Menumbuhkan rasa empati, kejujuran, dan penghargaan terhadap perbedaan pendapat.</li>
+            <li><strong>Aspek Tindakan (Psikomotorik):</strong> Mewujudkan gagasan dalam perilaku nyata yang konstruktif di lingkungan kelas dan keluarga.</li>
+          </ul>
+
+          <h4>8. Contoh & 9. Ilustrasi Kontekstual</h4>
+          <p><strong>Studi Kasus Singkat:</strong> Di sebuah kelas, muncul perbedaan pendapat saat menyusun jadwal piket dan pembagian tugas proyek kelompok. Sebagian anggota merasa tugasnya terlalu berat, sementara yang lain kurang aktif berkomunikasi. Dengan menerapkan prinsip <strong>${form.topikPembelajaran}</strong>, ketua kelompok mengajak seluruh anggota bermusyawarah secara terbuka, mendengarkan alasan tiap teman tanpa menghakimi, lalu membagi peran secara adil sesuai kemampuan masing-masing.</p>
+
+          <h4>10. Aktivitas Belajar Mandiri</h4>
+          <p>Tuliskan dua contoh peristiwa nyata di sekolah atau lingkungan rumahmu yang menunjukkan keberhasilan penerapan <em>${form.materiPokok}</em>, lalu jelaskan manfaat yang dirasakan oleh orang-orang di sekitarmu!</p>
+
+          <h4>11. Rangkuman</h4>
+          <p><strong>${form.materiPokok}</strong> merupakan fondasi penting dalam membentuk karakter pelajar yang cerdas sekaligus penuh kasih sayang. Pemahaman terhadap <em>${form.submateri}</em> membantu kita menyelesaikan persoalan sehari-hari secara bijak, adil, dan kolaboratif.</p>
+
+          <h4>12. Glosarium</h4>
+          <p><strong>Empati:</strong> Kemampuan memahami dan merasakan kondisi atau sudut pandang orang lain secara tulus.<br/>
+          <strong>Kolaborasi:</strong> Kerja sama aktif antarindividu dengan saling menghargai peran untuk mencapai tujuan bersama.<br/>
+          <strong>Refleksi:</strong> Proses meninjau kembali pengalaman belajar untuk menemukan makna dan perbaikan diri.</p>
+
+          <h4>13. Pertanyaan Refleksi & 14. Latihan Pemahaman</h4>
+          <ol>
+            <li>Apa hal baru yang paling bermakna bagimu setelah membaca materi <em>${form.materiPokok}</em> ini?</li>
+            <li>Mengapa kejujuran dan empati sangat dibutuhkan ketika kita bekerja dalam kelompok?</li>
+            <li>Bagaimana langkahmu jika melihat teman mengalami kesulitan memahami materi di kelas?</li>
+          </ol>
+
+          <h4>15. Referensi</h4>
+          <p>Buku Siswa ${mapel} Kelas ${form.kelas} Kemendikbudristek / Kemenag RI, serta Modul Pengayaan Pembelajaran Mendalam KlikAjar.</p>
+        `
+      };
+
+      // MODUL 7: LKPD LENGKAP SIAP CETAK (16 STRUKTUR)
+      const secLKPD = {
+        id: 'mod-lkpd',
+        pageBreakBefore: true,
+        title: 'MODUL 7. LEMBAR KERJA PESERTA DIDIK (LKPD)',
+        content: `
+          <table>
+            <tr><th width="26%">Judul Kegiatan LKPD</th><td><strong>Investigasi & Pemecahan Masalah: ${form.topikPembelajaran}</strong></td></tr>
+            <tr><th>Identitas Peserta Didik</th><td>Nama / Kelompok: ......................................................... | Kelas: ${form.kelas} | Tanggal: ...........................</td></tr>
+            <tr><th>Tujuan Kegiatan</th><td>Melalui diskusi kelompok dan analisis kasus, peserta didik mampu menganalisis penerapan <strong>${form.materiPokok}</strong> dan merancang solusi aplikatif.</td></tr>
+          </table>
+
+          <h4>A. Petunjuk Pengerjaan</h4>
+          <ol>
+            <li>Awali kegiatan kelompok dengan berdoa dan membagi peran anggota (ketua, pencatat, penyaji, pengatur waktu).</li>
+            <li>Bacalah stimulus permasalahan di bawah ini dengan cermat dan diskusikan bersama anggota kelompok.</li>
+            <li>Isilah tabel pengamatan serta jawablah pertanyaan analisis dan HOTS berdasarkan argumen yang logis.</li>
+          </ol>
+
+          <h4>B. Stimulus & Permasalahan Kontekstual</h4>
+          <div class="doc-callout">
+            <p style="margin-bottom:0;"><strong>Kasus Pengamatan:</strong> Pada era informasi cepat saat ini, banyak pelajar berinteraksi secara intensif baik di ruang kelas maupun ruang digital. Namun, masih sering dijumpai kesalahpahaman akibat kurangnya tabayyun (verifikasi fakta), rendahnya kepedulian terhadap kebersihan ruang bersama, serta kurangnya kerja sama dalam menyelesaikan tugas. Kelompok Anda diminta menjadi tim perumus solusi berbasis nilai <strong>${form.materiPokok}</strong> dan <em>${form.submateri}</em>.</p>
+          </div>
+
+          <h4>C. Langkah Kerja & Tabel Pengamatan</h4>
+          <table>
+            <thead>
+              <tr>
+                <th width="8%">No</th>
+                <th width="28%">Aspek Permasalahan yang Diamati</th>
+                <th width="32%">Akar Penyebab (Analisis Fakta)</th>
+                <th width="32%">Solusi Nyata Berbasis ${form.materiPokok}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>Komunikasi & Empati Antar-Teman</td><td style="height:36px;"></td><td></td></tr>
+              <tr><td>2</td><td>Tanggung Jawab & Kejujuran Belajar</td><td style="height:36px;"></td><td></td></tr>
+              <tr><td>3</td><td>Kepedulian Lingkungan Kelas</td><td style="height:36px;"></td><td></td></tr>
+            </tbody>
+          </table>
+
+          <h4>D. Pertanyaan Analisis & Pertanyaan HOTS</h4>
+          <ol>
+            <li><strong>(Analisis — C4):</strong> Berdasarkan tabel pengamatan kelompokmu, mengapa akar penyebab masalah tersebut dapat menghambat terwujudnya suasana belajar yang nyaman dan bermakna?</li>
+            <li><strong>(Evaluasi — C5):</strong> Dari berbagai alternatif solusi yang muncul dalam diskusi, solusi mana yang paling efektif untuk segera diterapkan di kelas kita? Jelaskan alasan logisnya!</li>
+            <li><strong>(Kreasi Produk — C6):</strong> Rancanglah sebuah <em>Piagam Komitmen Kelas</em> atau poster kampanye singkat (3–5 poin utama) sebagai hasil karya kelompokmu!</li>
+          </ol>
+
+          <h4>E. Integrasi Panca Cinta & Refleksi LKPD</h4>
+          <p><strong>Refleksi Kelompok:</strong> Nilai kasih sayang dan kerja sama apa yang paling kalian rasakan selama menyelesaikan LKPD ini? Tuliskan secara singkat: ....................................................................................................................................................</p>
+        `
+      };
+
+      // MODUL 8: MEDIA DAN ALAT PERAGA (TABEL 5 KOLOM)
+      const secMedia = {
+        id: 'mod-media',
+        pageBreakBefore: true,
+        title: 'MODUL 8. REKOMENDASI MEDIA DAN ALAT PERAGA PEMBELAJARAN',
+        content: `
+          <p><em>Dirancang agar mudah dibuat oleh guru, hemat biaya, kontekstual untuk kondisi sekolah/madrasah, dan bernilai pedagogis tinggi.</em></p>
+          <table>
+            <thead>
+              <tr>
+                <th width="18%">Nama Media</th>
+                <th width="20%">Tujuan Pedagogis</th>
+                <th width="18%">Bahan & Alat</th>
+                <th width="26%">Cara Penggunaan di Kelas</th>
+                <th width="18%">Alternatif Jika Terbatas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. Kartu Studi Kasus Kontekstual (Case Cards)</strong></td>
+                <td>Melatih kemampuan analisis masalah (C4) dan empati sosial secara berkelompok.</td>
+                <td>Kertas manila/karton bekas, spidol warna, gunting, atau cetak A4.</td>
+                <td>Setiap kelompok mengambil 1 kartu kasus nyata terkait <em>${form.materiPokok}</em>, mendiskusikan akar masalah, lalu menempelkan solusi di papan pajang.</td>
+                <td>Ditulis langsung di papan tulis atau dibacakan secara lisan per kelompok.</td>
+              </tr>
+              <tr>
+                <td><strong>2. Papan Alur Konsep (Concept Flow Board)</strong></td>
+                <td>Memvisualisasikan hubungan antar-konsep <em>${form.submateri}</em> agar mudah dipahami siswa visual.</td>
+                <td>Kertas plano/karton, sticky notes (kertas tempel), penggaris.</td>
+                <td>Siswa menempelkan kata kunci dan panah hubungan sebab-akibat secara bertahap selama sesi eksplorasi materi.</td>
+                <td>Menggunakan diagram kolom pada buku tulis masing-masing siswa.</td>
+              </tr>
+              <tr>
+                <td><strong>3. Slide Interaktif & Kuis Refleksi</strong></td>
+                <td>Menumbuhkan suasana belajar menggembirakan (<em>joyful</em>) dan umpan balik cepat.</td>
+                <td>Laptop, proyektor/LCD, salindia presentasi ringkas.</td>
+                <td>Guru menampilkan pemantik visual di awal kelas dan kuis diagnostik/formatif singkat di akhir sesi.</td>
+                <td>Menggunakan lembar isyarat kartu warna (Hijau/Kuning/Merah) angkat tangan.</td>
+              </tr>
+            </tbody>
+          </table>
+        `
+      };
+
+      // MODUL 9, 10, 11, 12, 13, 14, 15: PAKET ASESMEN LENGKAP (DIAGNOSTIK, FORMATIF, KISI-KISI 8 KOLOM, SOAL HOTS, KUNCI & RUBRIK)
+      const secAsesmenLengkap = {
+        id: 'mod-asesmen-lengkap',
+        pageBreakBefore: true,
+        title: 'MODUL 9–15. PAKET ASESMEN (DIAGNOSTIK, FORMATIF, KISI-KISI, SOAL HOTS, KUNCI & RUBRIK)',
+        content: `
+          <h4>1. Asesmen Diagnostik (Non-Kognitif & Kognitif Awal — Non-Menghakimi)</h4>
+          <table>
+            <thead>
+              <tr><th width="22%">Jenis Diagnostik</th><th width="38%">Pertanyaan / Instrumen Pemetaan</th><th width="40%">Interpretasi & Tindak Lanjut Guru</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Diagnostik Non-Kognitif</strong></td>
+                <td>"Bagaimana perasaanmu hari ini sebelum belajar (skala 1–5), dan cara belajar apa yang paling membantumu memahami materi (membaca, berdiskusi, atau praktik)?"</td>
+                <td>Memetakan kesiapan emosional dan preferensi gaya belajar untuk pembentukan kelompok diferensiasi tanpa memberi label negatif.</td>
+              </tr>
+              <tr>
+                <td><strong>Diagnostik Kognitif Awal</strong></td>
+                <td>"Menurut pendapatmu, apa contoh nyata penerapan <em>${form.materiPokok}</em> yang pernah kamu lihat di sekolah atau rumah?"</td>
+                <td>Jika mayoritas siswa sudah paham contoh dasar, pembelajaran langsung diperdalam ke analisis kasus (C4); jika belum, guru memberi penguatan konsep dasar terlebih dahulu.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>2. Asesmen Formatif Selama Proses Pembelajaran</h4>
+          <table>
+            <thead>
+              <tr>
+                <th width="6%">No</th>
+                <th width="18%">Aktivitas</th>
+                <th width="24%">Indikator</th>
+                <th width="16%">Instrumen</th>
+                <th width="16%">Teknik</th>
+                <th width="20%">Tindak Lanjut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Diskusi Kelompok LKPD</td>
+                <td>Mampu mengidentifikasi fakta dan bekerja sama secara santun.</td>
+                <td>Lembar Observasi Guru</td>
+                <td>Observasi Terstruktur</td>
+                <td>Pendampingan langsung bagi kelompok yang mengalami kebuntuan analisis.</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Presentasi Solusi</td>
+                <td>Mampu menyampaikan argumen logis dan merespons pertanyaan teman.</td>
+                <td>Daftar Cek Presentasi</td>
+                <td>Penilaian Kinerja</td>
+                <td>Umpan balik penguatan konsep dan apresiasi keberanian tampil.</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Exit Ticket Akhir</td>
+                <td>Mampu menyimpulkan makna inti pembelajaran dalam 2 kalimat.</td>
+                <td>Kartu Refleksi Singkat</td>
+                <td>Tes Tertulis Singkat</td>
+                <td>Pemetaan siswa untuk program pengayaan atau bimbingan remedial.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>3. Kisi-Kisi Asesmen Sumatif (8 Kolom Selaras TP)</h4>
+          <table>
+            <thead>
+              <tr>
+                <th width="5%">No</th>
+                <th width="16%">TP</th>
+                <th width="14%">Materi</th>
+                <th width="26%">Indikator Soal</th>
+                <th width="12%">Bentuk Soal</th>
+                <th width="9%">Level</th>
+                <th width="9%">No Soal</th>
+                <th width="9%">Bobot</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>TP 1 (Pemahaman)</td><td>${form.materiPokok}</td><td>Disajikan pernyataan konseptual, siswa menentukan prinsip utama ${form.materiPokok}.</td><td>Pilihan Ganda</td><td>C2</td><td>1</td><td>15</td></tr>
+              <tr><td>2</td><td>TP 2 (Aplikasi)</td><td>${form.submateri}</td><td>Disajikan ilustrasi interaksi pelajar, siswa menentukan sikap yang selaras dengan ${form.submateri}.</td><td>Pilihan Ganda</td><td>C3</td><td>2</td><td>15</td></tr>
+              <tr><td>3</td><td>TP 2 (Analisis HOTS)</td><td>${form.submateri}</td><td>Disajikan studi kasus dilema sosial pelajar, siswa menganalisis dua akar penyebab masalah.</td><td>Uraian HOTS</td><td>C4</td><td>3</td><td>35</td></tr>
+              <tr><td>4</td><td>TP 3 (Kreasi HOTS)</td><td>${form.topikPembelajaran}</td><td>Disajikan konteks tantangan kelas, siswa merancang tiga langkah solusi konkret yang aplikatif.</td><td>Uraian HOTS</td><td>C6</td><td>4</td><td>35</td></tr>
+            </tbody>
+          </table>
+
+          <h4>4. Naskah Soal HOTS & Instrumen Asesmen Sumatif</h4>
+          <p><strong>A. Soal Pilihan Ganda (Opsi Homogen & Bebas Petunjuk Panjang)</strong></p>
+          <p><strong>1.</strong> Esensi utama penerapan <em>${form.materiPokok}</em> bagi peserta didik dalam kehidupan bermasyarakat adalah ....<br/>
+          A. menguasai seluruh istilah teoritis secara hafalan<br/>
+          B. menyelaraskan pemahaman ilmu dengan perilaku nyata<br/>
+          C. mengutamakan kepentingan pribadi saat berdiskusi<br/>
+          D. menyerahkan penyelesaian masalah kepada orang lain</p>
+
+          <p><strong>2.</strong> Ketika terjadi perbedaan pendapat saat membahas <em>${form.submateri}</em> di kelas, tindakan yang paling mencerminkan sikap bernalar kritis dan saling menghormati adalah ....<br/>
+          A. mempertahankan pendapat pribadi tanpa mendengar masukan<br/>
+          B. menghentikan diskusi agar tidak terjadi perdebatan<br/>
+          C. menyimak argumen teman lalu mencari solusi berbasis bukti<br/>
+          D. mengikuti suara terbanyak tanpa mempertimbangkan data</p>
+
+          <p><strong>B. Soal Uraian HOTS (Berbasis Stimulus Studi Kasus)</strong></p>
+          <div class="doc-callout">
+            <p style="margin-bottom:0;"><strong>Stimulus:</strong> Di era digital saat ini, arus informasi berlangsung sangat cepat sehingga sebagian pelajar mudah terpengaruh berita yang belum terverifikasi dan kurang menjaga etika komunikasi saat berbeda pendapat. Kondisi ini berdampak pada menurunnya rasa saling percaya dalam kerja kelompok terkait <strong>${form.topikPembelajaran}</strong>.</p>
+          </div>
+          <p><strong>3. (Level C4 — Menganalisis):</strong> Berdasarkan stimulus di atas, analisislah <strong>dua faktor utama</strong> yang menyebabkan melemahnya penerapan <em>${form.materiPokok}</em> dalam interaksi pelajar!</p>
+          <p><strong>4. (Level C6 — Mencipta Solusi):</strong> Rancanglah <strong>tiga langkah aksi nyata</strong> yang dapat dilaksanakan oleh siswa bersama guru di kelas untuk membangun budaya positif terkait <em>${form.topikPembelajaran}</em>!</p>
+
+          <h4>5. Kunci Jawaban Ideal & Pedoman Penskoran</h4>
+          <table>
+            <thead>
+              <tr><th width="10%">No</th><th width="48%">Kunci Jawaban / Variasi Jawaban Ideal yang Diterima</th><th width="27%">Kriteria Penskoran</th><th width="15%">Skor Maks</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td><strong>B</strong> (Menyelaraskan pemahaman ilmu dengan perilaku nyata)</td><td>Jawaban benar = 15; Jawaban salah = 0</td><td>15</td></tr>
+              <tr><td>2</td><td><strong>C</strong> (Menyimak argumen teman lalu mencari solusi berbasis bukti)</td><td>Jawaban benar = 15; Jawaban salah = 0</td><td>15</td></tr>
+              <tr><td>3</td><td>Dua faktor logis: (1) Rendahnya kebiasaan memverifikasi fakta/literasi kritis; (2) Kurangnya kesadaran empati terhadap dampak ucapan/tindakan bagi sesama. (Menerima variasi jawaban logis lainnya yang relevan dengan stimulus).</td><td>2 faktor dianalisis tajam = 35; 2 faktor umum = 25; 1 faktor = 15</td><td>35</td></tr>
+              <tr><td>4</td><td>Tiga aksi konkret: (1) Kesepakatan etika diskusi & komunikasi santun; (2) Pembiasaan cek fakta sebelum berbagi informasi; (3) Forum refleksi & apresiasi karya jujur setiap pekan.</td><td>3 solusi aplikatif & terukur = 35; 2 solusi = 25; 1 solusi = 15</td><td>35</td></tr>
+            </tbody>
+          </table>
+
+          <h4>6. Rubrik Penilaian Kinerja, Diskusi, LKPD & Sikap (Skor 1–4)</h4>
+          <table>
+            <thead>
+              <tr>
+                <th width="16%">Aspek</th>
+                <th width="20%">Indikator</th>
+                <th width="16%">Skor 4 (Sangat Baik)</th>
+                <th width="16%">Skor 3 (Baik)</th>
+                <th width="16%">Skor 2 (Cukup)</th>
+                <th width="16%">Skor 1 (Perlu Bimbingan)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Pengetahuan & Analisis</strong></td>
+                <td>Ketepatan konsep & analisis studi kasus ${form.materiPokok}</td>
+                <td>Analisis sangat mendalam, akurat, sistematis, dan didukung argumen kuat.</td>
+                <td>Analisis tepat dan logis namun contoh pendukung masih terbatas.</td>
+                <td>Memahami konsep dasar tetapi analisis hubungan sebab-akibat belum utuh.</td>
+                <td>Memerlukan bimbingan intensif untuk memahami konsep dasar.</td>
+              </tr>
+              <tr>
+                <td><strong>Keterampilan & LKPD</strong></td>
+                <td>Kualitas produk solusi & penyajian presentasi</td>
+                <td>Produk sangat kreatif, aplikatif, rapi, dan dipresentasikan dengan jelas.</td>
+                <td>Produk sesuai instruksi dan dipresentasikan dengan cukup runtut.</td>
+                <td>Produk selesai namun langkah solusi masih bersifat umum.</td>
+                <td>Produk belum selesai dan belum menunjukkan solusi nyata.</td>
+              </tr>
+              <tr>
+                <td><strong>Sikap & Panca Cinta</strong></td>
+                <td>Empati, kejujuran, dan kolaborasi kelompok</td>
+                <td>Sangat aktif berkolaborasi, santun, jujur, dan menghargai perbedaan.</td>
+                <td>Aktif bekerja sama dan menjalankan peran kelompok dengan baik.</td>
+                <td>Berpartisipasi sesekali namun masih perlu dorongan guru.</td>
+                <td>Pasif dan belum menunjukkan sikap kerja sama kelompok.</td>
+              </tr>
+            </tbody>
+          </table>
+          <p><strong>Rumus Konversi Nilai Skala 100:</strong> $\\text{Nilai Akhir} = \\frac{\\text{Total Skor Perolehan}}{12} \\times 100$. Peserta didik dinyatakan tuntas apabila mencapai nilai minimal <strong>75</strong>.</p>
+        `
+      };
+
+      // MODUL 16, 17, 19: REMEDIAL, PENGAYAAN, REFLEKSI, JURNAL PEMBELAJARAN & AUDIT KUALITAS
+      const secPenutupJurnal = {
+        id: 'mod-jurnal-refleksi',
+        pageBreakBefore: true,
+        title: 'MODUL 16–19. REMEDIAL, PENGAYAAN, REFLEKSI, JURNAL & LAMPIRAN OBSERVASI',
+        content: `
+          <h4>1. Program Remedial dan Pengayaan</h4>
+          <table>
+            <thead>
+              <tr><th width="20%">Program</th><th width="45%">Strategi & Aktivitas Pelaksanaan</th><th width="35%">Instrumen & Indikator Keberhasilan</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Remedial</strong><br/>(Nilai &lt; 75)</td>
+                <td>Identifikasi bagian TP yang belum dikuasai, pemberian penguatan konsep inti menggunakan peta konsep visual, dan pendampingan bimbingan kelompok kecil.</td>
+                <td>Tes ulang 2 soal uraian terstruktur; berhasil jika mencapai nilai ≥ 75.</td>
+              </tr>
+              <tr>
+                <td><strong>Pengayaan</strong><br/>(Nilai ≥ 75)</td>
+                <td>Penugasan studi kasus lanjutan, penyusunan infografis kampanye edukatif, atau menjadi tutor sebaya bagi teman sekelas.</td>
+                <td>Portofolio karya pengayaan; berhasil jika mampu menyajikan analisis mandiri.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>2. Lembar Refleksi Peserta Didik</h4>
+          <ol>
+            <li>Pelajaran paling bermakna apa yang saya peroleh dari materi <strong>${form.materiPokok}</strong> hari ini?</li>
+            <li>Bagaimana perasaan saya saat bekerja sama dengan teman kelompok dalam memecahkan studi kasus?</li>
+            <li>Tindakan positif apa yang akan segera saya praktikkan di sekolah dan di rumah mulai hari ini?</li>
+          </ol>
+
+          <h4>3. Format Refleksi Guru</h4>
+          <table>
+            <thead>
+              <tr><th width="34%">Aspek Refleksi</th><th width="66%">Catatan Evaluasi & Rencana Guru</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Ketercapaian TP</strong></td><td style="height:28px;"></td></tr>
+              <tr><td><strong>Aktivitas yang Berhasil</strong></td><td style="height:28px;"></td></tr>
+              <tr><td><strong>Kendala Pembelajaran</strong></td><td style="height:28px;"></td></tr>
+              <tr><td><strong>Peserta Didik yang Membutuhkan Dukungan</strong></td><td style="height:28px;"></td></tr>
+              <tr><td><strong>Perbaikan Pembelajaran & Tindak Lanjut</strong></td><td style="height:28px;"></td></tr>
+            </tbody>
+          </table>
+
+          <h4>4. Jurnal Pembelajaran Harian / Per Pertemuan</h4>
+          <table>
+            <thead>
+              <tr>
+                <th width="14%">Tanggal / Jam</th>
+                <th width="12%">Kelas</th>
+                <th width="24%">Materi & TP</th>
+                <th width="24%">Ringkasan Aktivitas & Kehadiran</th>
+                <th width="26%">Catatan Kejadian & Tindak Lanjut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>${tglFormatted}</td><td>${form.kelas}</td><td>${form.materiPokok}</td><td style="height:34px;"></td><td></td></tr>
+              <tr><td style="height:34px;"></td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+
+          <h4>5. Lampiran — Lembar Observasi Sikap & Aktivitas Peserta Didik</h4>
+          <table>
+            <thead>
+              <tr>
+                <th width="8%">No</th>
+                <th width="30%">Nama Peserta Didik</th>
+                <th width="15%">Pengetahuan (1–4)</th>
+                <th width="15%">Keterampilan (1–4)</th>
+                <th width="16%">Sikap / Karakter (1–4)</th>
+                <th width="16%">Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td style="height:26px;"></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>2</td><td style="height:26px;"></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>3</td><td style="height:26px;"></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>4</td><td style="height:26px;"></td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        `
+      };
+
+      // SELEKSI MODUL SESUAI JENIS PERANGKAT YANG DIPILIH GURU
+      if (type === 'paket-lengkap' || type === 'perangkat-guru') {
+        return [
+          secAnalisisCP,
+          secATP,
+          secProtaPromes,
+          secModulAjarInti,
+          secLangkahPembelajaran,
+          secBahanAjar,
+          secLKPD,
+          secMedia,
+          secAsesmenLengkap,
+          secPenutupJurnal
+        ];
+      }
+      if (type === 'cp') return [secAnalisisCP];
+      if (type === 'atp' || type === 'tp') return [secAnalisisCP, secATP];
+      if (type === 'prota' || type === 'promes') return [secProtaPromes];
+      if (type === 'modul-ajar' || type === 'rpp') return [secModulAjarInti, secLangkahPembelajaran, secAsesmenLengkap, secPenutupJurnal];
+      if (type === 'materi-ajar' || type === 'bahan-ajar') return [secBahanAjar];
+      if (type === 'lkpd') return [secLKPD, secPenutupJurnal];
+      if (type === 'media') return [secMedia];
+      if (['asesmen', 'kisi-kisi', 'bank-soal', 'rubrik'].includes(type)) return [secAsesmenLengkap];
+      if (['refleksi', 'jurnal', 'projek'].includes(type)) return [secPenutupJurnal];
+
+      return [secModulAjarInti, secLangkahPembelajaran, secPenutupJurnal];
+    }
+
+    // =========================================================================
+    // STATE APLIKASI UTAMA KLIKAJAR
     // =========================================================================
     const state = {
       currentView: 'landing', // 'landing' | 'login' | 'register' | 'app'
+      authTab: 'guru', // 'guru' | 'admin'
       activeMenu: 'dashboard',
       sidebarOpen: false,
       sidebarCollapsed: false,
       darkMode: false,
-      globalAppTheme: 'bento', // Tema global aplikasi yang diatur Admin & otomatis berlaku di akun Guru
-      currentUser: null,
-      authTab: 'guru',
-      searchQuery: '',
-      docFilterType: 'all',
-      isGenerating: false,
-      activeDoc: null,
-      toastMessage: null,
-
-      // State Modal & Kontrol Akun Guru di Panel Admin
-      adminUserModal: null, // null | { mode: 'add' | 'edit' | 'reset', user: {...} }
-      revealedPasswords: {}, // { [userId]: true/false }
+      globalAppTheme: 'bento',
       notifDropdownOpen: false,
       readAnnouncementIds: [],
+      isGenerating: false,
+      searchQuery: '',
+      docFilterType: 'all',
+      currentUser: null,
+      activeDoc: null,
+      toastMessage: null,
+      adminUserModal: null,
+      revealedPasswords: {},
 
-      // Daftar Pemberitahuan / Informasi dari Admin untuk Guru
       announcements: IS_PREVIEW ? [
         {
           id: 'ann-1',
-          judul: 'Pembaruan Format Cetak A4 & F4 (Folio) Kini Tersedia!',
-          isi: 'Bapak/Ibu Guru kini dapat memilih ukuran kertas A4 maupun F4 (Folio) serta 4 tema dokumen baru langsung di Editor Perangkat Pembelajaran tanpa terpotong saat dicetak.',
+          judul: 'Selamat Datang di KlikAjar — Generator Perangkat Pembelajaran Lengkap (Modul 1–19)',
+          isi: 'Gunakan opsi Paket Perangkat Lengkap (Modul 1–19) pada menu Generator untuk menyusun Analisis CP, ATP, Prota, Promes, Modul Ajar, Bahan Ajar, LKPD, Media, Asesmen HOTS, Rubrik, dan Jurnal sekaligus dalam standar Modern Academic Style.',
           kategori: 'Pembaruan Fitur',
           isPinned: true,
           author: 'Admin Pusat KlikAjar',
           createdAt: '27 Nov 2026'
-        },
-        {
-          id: 'ann-2',
-          judul: 'Lengkapi Data Instansi & Upload Logo Sebelum Mencetak Modul Ajar',
-          isi: 'Silakan buka menu Data Instansi & Lembaga untuk mengisi NPSN/NSM, Kota/Kabupaten, serta mengunggah Logo Kemenag/Kemendikbud dan Logo Lembaga agar kop surat tampil otomatis.',
-          kategori: 'Info Penting',
-          isPinned: false,
-          author: 'Admin Pusat KlikAjar',
-          createdAt: '25 Nov 2026'
         }
       ] : [],
 
-      // Profil Admin & Pengaturan Pembayaran (Tampil di Halaman Daftar Guru)
       adminPaymentConfig: {
         namaAdmin: 'Ahmad Fauzi, M.Pd. (Admin Pusat KlikAjar)',
         noWhatsapp: '6281234567890',
@@ -627,7 +1765,6 @@
         keteranganPembayaran: 'Silakan transfer sesuai nominal paket di atas, lalu unggah/tuliskan keterangan bukti transfer dan klik tombol Konfirmasi WhatsApp Admin agar akun Anda segera diaktifkan.'
       },
 
-      // Data Instansi & Lembaga (Naungan Diknas / Kemenag + Upload Logo)
       institutionData: {
         naungan: 'Kemenag',
         namaInstansiInduk: 'Kementerian Agama Republik Indonesia',
@@ -643,7 +1780,6 @@
         logoLembagaDataUrl: ''
       },
 
-      // Data Akun Guru (Terpisah per pengguna, Admin dapat mengakses semua akun)
       usersList: IS_PREVIEW ? [
         {
           id: 'guru-demo-1',
@@ -677,7 +1813,6 @@
         }
       ] : [],
 
-      // Koleksi Dokumen Perangkat Ajar (Terisolasi per userId, Admin dapat melihat semua)
       documents: IS_PREVIEW ? [
         {
           id: 'doc-demo-1',
@@ -705,31 +1840,34 @@
           mataPelajaran: 'Akidah Akhlak',
           materiPokok: 'Meneladani Akhlak Terpuji (Jujur, Amanah, Istiqamah)',
           kurikulum: 'Kurikulum Berbasis Cinta (Panca Cinta)',
-          templateStyle: 'tpl-madrasah',
+          templateStyle: 'tpl-modern-academic',
           designStyle: 'style-geometris',
           paperSize: 'a4',
+          paperOrientation: 'portrait',
           tags: ['Kurikulum Berbasis Cinta', 'Panca Cinta', 'HOTS'],
           updatedAt: '2026-11-25T09:30:00Z',
           sections: [
             {
               id: 'sec-1',
-              title: '1. Informasi Umum & Identitas Modul Ajar',
+              title: 'BAB I. INFORMASI UMUM & IDENTITAS SATUAN PENDIDIKAN',
               content: `<table>
-                <tr><th width="32%">Satuan Pendidikan</th><td>MTs Negeri 1 Cendekia Nusantara (NPSN: 20109988 / NSM: 121132010001)</td></tr>
-                <tr><th>Penyusun / Tahun</th><td>Ustadzah Siti Aminah, S.Pd. / 2026-2027</td></tr>
+                <tr><th width="32%">Naungan Instansi</th><td>Kementerian Agama (Kemenag)</td></tr>
+                <tr><th>Nama Madrasah</th><td>MTs Negeri 1 Cendekia Nusantara (NPSN: 20109988 / NSM: 121132010001)</td></tr>
+                <tr><th>Penyusun / NIP</th><td>Ustadzah Siti Aminah, S.Pd. (NIP. 198805122015032004)</td></tr>
                 <tr><th>Jenjang / Fase / Kelas</th><td>MTs / Fase D / Kelas VIII</td></tr>
+                <tr><th>Semester / Tahun Ajaran</th><td>Ganjil / 2026-2027</td></tr>
                 <tr><th>Mata Pelajaran</th><td>Akidah Akhlak</td></tr>
                 <tr><th>Materi Pokok</th><td>Meneladani Akhlak Terpuji (Jujur, Amanah, Istiqamah)</td></tr>
                 <tr><th>Alokasi Waktu</th><td>2 x 40 Menit (1 Pertemuan)</td></tr>
-                <tr><th>Kurikulum</th><td>Kurikulum Berbasis Cinta (Panca Cinta)</td></tr>
+                <tr><th>Kerangka Kurikulum</th><td>Kurikulum Berbasis Cinta (Panca Cinta)</td></tr>
               </table>`
             },
             {
               id: 'sec-2',
-              title: '2. Integrasi Kurikulum Berbasis Cinta (Panca Cinta)',
+              title: 'BAB II. INTEGRASI KURIKULUM BERBASIS CINTA (PANCA CINTA)',
               content: `<table>
                 <thead>
-                  <tr><th>Nilai Panca Cinta</th><th>Bentuk Integrasi</th><th>Aktivitas Peserta Didik</th><th>Indikator</th></tr>
+                  <tr><th width="22%">Nilai Panca Cinta</th><th width="26%">Bentuk Integrasi</th><th width="30%">Aktivitas Peserta Didik</th><th width="22%">Indikator</th></tr>
                 </thead>
                 <tbody>
                   <tr><td><strong>Cinta kepada Allah dan Rasul</strong></td><td>Menunjukkan syukur dan kejujuran sebagai bukti keimanan.</td><td>Menganalisis kisah keteladanan kejujuran Rasulullah SAW dalam bermuamalah.</td><td>Menunjukkan sikap jujur dan amanah dalam simulasi transaksi.</td></tr>
@@ -741,9 +1879,8 @@
         }
       ] : [],
 
-      // Form State untuk AI Generator
       genForm: {
-        jenisPerangkat: 'modul-ajar',
+        jenisPerangkat: 'paket-lengkap',
         naungan: 'Kemenag',
         namaInstitusi: 'MTs Negeri 1 Cendekia Nusantara',
         npsn: '20109988',
@@ -783,14 +1920,14 @@
         asesmenJenis: 'Asesmen Formatif & Sumatif HOTS',
         jumlahSoal: 5,
         bloomDistribution: { c1c2: 20, c3: 30, c4c6: 50 },
-        paperSize: 'a4',
+        templateStyle: 'tpl-modern-academic',
         designStyle: 'style-geometris',
-        templateStyle: 'tpl-minimalist-lesson',
+        paperSize: 'a4',
+        paperOrientation: 'portrait',
         aiMode: 'all',
         catatanTambahan: ''
       },
 
-      // Kalender Pendidikan Mandiri
       calendarData: {
         tahunAjaran: '2026/2027',
         semester: 'Ganjil',
@@ -799,7 +1936,6 @@
         catatanLibur: 'Pekan Penilaian Tengah Semester (Minggu ke-9), Penilaian Akhir Semester (Minggu ke-17), Libur Hari Besar Nasional & Keagamaan.'
       },
 
-      // Pengaturan AI Provider (BYOK - Aman di Memori)
       aiSettings: {
         provider: 'Builtin Pedagogical Engine (Tanpa API Key)',
         apiKey: '',
@@ -1042,425 +2178,6 @@
     }
 
     // =========================================================================
-    // ENGINE GENERATOR PERANGKAT PEMBELAJARAN SUPER LENGKAP
-    // =========================================================================
-    function generatePedagogicalSections(form) {
-      const mapel = form.mataPelajaran === 'Mata Pelajaran Lainnya' && form.mapelCustom
-        ? form.mapelCustom
-        : form.mataPelajaran;
-      const isKemenag = isMadrasahCheck(form);
-      const isKurikulumCinta = form.kurikulum === 'Kurikulum Berbasis Cinta (Panca Cinta)';
-      const activePanca = !isKurikulumCinta || form.pancaCintaMode === 'nonaktif'
-        ? []
-        : PANCA_CINTA_ITEMS.filter(item => form.pancaCintaMode === 'otomatis' || form.pancaCintaSelected.includes(item.id));
-
-      const pancaTableHTML = activePanca.length > 0 ? `
-        <table>
-          <thead>
-            <tr>
-              <th width="22%">Nilai Panca Cinta</th>
-              <th width="26%">Bentuk Integrasi</th>
-              <th width="30%">Aktivitas Peserta Didik</th>
-              <th width="22%">Indikator</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${activePanca.map(p => `
-              <tr>
-                <td><strong>${p.title}</strong></td>
-                <td>${p.bentuk}</td>
-                <td>${p.aktivitas} (Konteks: <em>${form.materiPokok}</em>)</td>
-                <td>${p.indikator}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      ` : '<p><em>Dokumen ini disusun menggunakan kerangka <strong>Kurikulum Merdeka (Pendekatan Pembelajaran Mendalam / Deep Learning)</strong>.</em></p>';
-
-      const type = form.jenisPerangkat;
-      const tglFormatted = formatTanggalIndo(form.tanggalPenyusunan);
-
-      // 1. MODUL AJAR / RPP / PERANGKAT GURU
-      if (type === 'modul-ajar' || type === 'rpp' || type === 'perangkat-guru') {
-        return [
-          {
-            id: 'ma-1',
-            title: 'A. Informasi Umum & Identitas Satuan Pendidikan',
-            content: `
-              <table>
-                <tr><th width="32%">Naungan Instansi</th><td>${form.naungan === 'Kemenag' ? 'Kementerian Agama (Kemenag)' : form.naungan === 'Diknas' ? 'Dinas Pendidikan / Kemendikbudristek' : 'Mandiri / Umum'}</td></tr>
-                <tr><th>Nama Sekolah / Madrasah</th><td>${form.namaInstitusi}</td></tr>
-                <tr><th>NPSN ${isKemenag && form.nsm ? '/ NSM' : ''}</th><td>${form.npsn || '-'}${isKemenag && form.nsm ? ' / NSM: ' + form.nsm : ''}</td></tr>
-                <tr><th>Alamat & Kota/Kabupaten</th><td>${form.alamatInstitusi || '-'}, ${form.kotaKabupaten || '-'}</td></tr>
-                <tr><th>Nama Penyusun / NIP</th><td>${form.namaGuru} ${form.nipGuru ? '(NIP. ' + form.nipGuru + ')' : ''}</td></tr>
-                <tr><th>Jenjang / Fase / Kelas</th><td>${form.jenjang} / ${form.fase} / Kelas ${form.kelas}</td></tr>
-                <tr><th>Semester / Tahun Ajaran</th><td>${form.semester} / ${form.tahunAjaran}</td></tr>
-                <tr><th>Mata Pelajaran</th><td>${mapel}</td></tr>
-                <tr><th>Materi Pokok / Submateri</th><td>${form.materiPokok} — <em>${form.submateri}</em></td></tr>
-                <tr><th>Topik Pembelajaran</th><td>${form.topikPembelajaran}</td></tr>
-                <tr><th>Alokasi Waktu & Pertemuan</th><td>${form.alokasiWaktu} (${form.jumlahPertemuan})</td></tr>
-                <tr><th>Jumlah & Karakteristik Siswa</th><td>${form.jumlahSiswa} — ${form.karakteristikSiswa}</td></tr>
-                <tr><th>Kurikulum Utama</th><td><strong>${form.kurikulum}</strong></td></tr>
-                <tr><th>Model & Metode</th><td>${form.modelPembelajaran} (${form.metodePembelajaran})</td></tr>
-                <tr><th>Sarana dan Prasarana</th><td>${form.saranaPrasarana}</td></tr>
-                <tr><th>Tempat & Tanggal Penyusunan</th><td>${form.kotaKabupaten || '-'}, ${tglFormatted}</td></tr>
-              </table>
-            `
-          },
-          {
-            id: 'ma-2',
-            title: 'B. Capaian Pembelajaran (CP), Kompetensi Awal & Tujuan Pembelajaran',
-            content: `
-              <p><strong>1. Capaian Pembelajaran (Draft Referensi Fase):</strong><br/>
-              Pada akhir ${form.fase}, peserta didik mampu memahami, menganalisis, serta menerapkan konsep <strong>${form.materiPokok}</strong> dalam kehidupan nyata secara kritis, kreatif, kolaboratif, dan berakhlak mulia. <em>(Catatan: Harap sesuaikan redaksi CP dengan keputusan BSKAP/Kemenag terbaru yang berlaku).</em></p>
-              <p><strong>2. Kompetensi Awal:</strong><br/>
-              Peserta didik telah mengenal konsep dasar yang berkaitan dengan ${form.submateri} dari pengalaman sehari-hari maupun pembelajaran pada jenjang/materi sebelumnya.</p>
-              <p><strong>3. Tujuan Pembelajaran (TP):</strong></p>
-              <ol>
-                <li>Melalui eksplorasi studi kasus dan diskusi kelompok, peserta didik mampu <strong>menganalisis (C4)</strong> konsep inti ${form.materiPokok} dengan tepat.</li>
-                <li>Melalui kegiatan pemecahan masalah berbasis <em>${form.modelPembelajaran}</em>, peserta didik mampu <strong>merancang solusi atau karya (C6)</strong> terkait ${form.topikPembelajaran} secara kolaboratif.</li>
-                <li>Melalui refleksi bermakna, peserta didik mampu <strong>menginternalisasi nilai karakter</strong> dalam perilaku sehari-hari.</li>
-              </ol>
-              <p><strong>4. Indikator Ketercapaian Tujuan Pembelajaran (IKTP):</strong></p>
-              <ul>
-                <li>Mengidentifikasi unsur-unsur utama dan prinsip ${form.materiPokok} secara akurat.</li>
-                <li>Menyajikan hasil analisis studi kasus kontekstual menggunakan argumen logis dan santun.</li>
-                <li>Menunjukkan sikap empati, tanggung jawab, dan refleksi diri setelah pembelajaran.</li>
-              </ul>
-            `
-          },
-          {
-            id: 'ma-3',
-            title: 'C. Pemahaman Bermakna, Pertanyaan Pemantik & Profil Lulusan',
-            content: `
-              <div class="doc-callout">
-                <p><strong>1. Pemahaman Bermakna:</strong><br/>
-                Penguasaan terhadap <em>${form.materiPokok}</em> bukan sekadar hafalan konseptual, melainkan bekal nyata bagi peserta didik untuk mengambil keputusan bijak, memecahkan tantangan kehidupan modern, serta menebarkan kemaslahatan bagi sesama.</p>
-                <p style="margin-bottom:0;"><strong>2. Pertanyaan Pemantik:</strong></p>
-                <ul style="margin-bottom:0;">
-                  <li>Mengapa pemahaman yang benar tentang <strong>${form.materiPokok}</strong> sangat menentukan kualitas kehidupan kita di masyarakat saat ini?</li>
-                  <li>Apa tantangan terbesar yang sering kita hadapi ketika menerapkan konsep <em>${form.submateri}</em> di era digital?</li>
-                  <li>Bagaimana cara kita menghadirkan solusi yang adil, berempati, dan berdampak positif bagi lingkungan sekitar?</li>
-                </ul>
-              </div>
-              <p><strong>3. Dimensi Profil Lulusan & Penguatan Karakter:</strong></p>
-              <ul>
-                <li><strong>Profil Pelajar Pancasila:</strong> Beriman, bertakwa kepada Tuhan YME dan berakhlak mulia; Bernalar kritis; Bergotong royong; Kreatif.</li>
-                ${isKemenag ? '<li><strong>Profil Pelajar Rahmatan lil Alamin (PPRA):</strong> <em>Ta’addub</em> (Berkeadaban), <em>Qudwah</em> (Keteladanan), <em>Tathawwur wa Ibtikar</em> (Dinamis dan Inovatif), serta <em>Tasamuh</em> (Toleransi).</li>' : ''}
-              </ul>
-            `
-          },
-          ...(isKurikulumCinta ? [{
-            id: 'ma-4',
-            title: 'D. Tabel Integrasi Kurikulum Berbasis Cinta (Panca Cinta)',
-            content: pancaTableHTML
-          }] : []),
-          {
-            id: 'ma-5',
-            title: isKurikulumCinta ? 'E. Strategi Pembelajaran Berdiferensiasi, Sumber & Media Belajar' : 'D. Strategi Pembelajaran Berdiferensiasi, Sumber & Media Belajar',
-            content: `
-              <table>
-                <tr><th width="25%">Diferensiasi Konten</th><td>Menyediakan bahan bacaan ringkas, infografis visual, dan studi kasus video/teks sesuai kesiapan belajar peserta didik.</td></tr>
-                <tr><th>Diferensiasi Proses</th><td>Pendampingan terbimbing bagi kelompok yang memerlukan penguatan konsep dasar, serta tantangan analisis HOTS bagi kelompok mahir.</td></tr>
-                <tr><th>Diferensiasi Produk</th><td>Peserta didik bebas menyajikan hasil proyek dalam bentuk poster infografis, peta konsep, presentasi lisan, atau simulasi peran.</td></tr>
-                <tr><th>Pembelajaran Inklusif</th><td>Penataan tempat duduk aksesibel, instruksi bertahap yang jelas, dan dukungan teman sebaya (<em>peer buddy</em>).</td></tr>
-                <tr><th>Sumber & Media Belajar</th><td>Buku Teks Utama ${mapel} Kelas ${form.kelas}, LKPD KlikAjar, Kartu Kasus Kontekstual, dan ${form.saranaPrasarana}.</td></tr>
-              </table>
-            `
-          },
-          {
-            id: 'ma-6',
-            title: isKurikulumCinta ? 'F. Langkah-Langkah Pembelajaran Mendalam (Deep Learning)' : 'E. Langkah-Langkah Pembelajaran Mendalam (Deep Learning)',
-            content: `
-              <p><em>Dirancang sistematis menerapkan 3 Prinsip Pembelajaran Mendalam (<strong>Berkesadaran, Bermakna, Menggembirakan</strong>) dan 3 Pengalaman Belajar (<strong>Memahami, Mengaplikasi, Merefleksi</strong>) selaras alokasi waktu ${form.alokasiWaktu}.</em></p>
-              <table>
-                <thead>
-                  <tr><th width="20%">Tahap & Alokasi</th><th width="55%">Aktivitas Guru dan Peserta Didik</th><th width="25%">Prinsip & Muatan</th></tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>1. Pendahuluan</strong><br/>(± 15% Waktu)</td>
-                    <td>
-                      <ul>
-                        <li><strong>Salam & Orientasi:</strong> Guru menyapa dengan hangat, mengajak berdoa bersama, dan mengecek kesiapan fisik-emosional siswa (<em>mindful check-in</em>).</li>
-                        <li><strong>Apersepsi & Diagnostik Awal:</strong> Guru mengajukan pertanyaan pemantik visual terkait <em>${form.topikPembelajaran}</em> untuk memetakan pengetahuan awal.</li>
-                        <li><strong>Motivasi & Tujuan:</strong> Menyampaikan tujuan pembelajaran, manfaat nyata materi, serta kesepakatan kelas yang penuh penghargaan.</li>
-                      </ul>
-                    </td>
-                    <td>Berkesadaran (<em>Mindful</em>)<br/>${isKurikulumCinta ? 'Panca Cinta' : 'Deep Learning'}</td>
-                  </tr>
-                  <tr>
-                    <td><strong>2. Kegiatan Inti</strong><br/>(± 70% Waktu)<br/><em>Sintaks ${form.modelPembelajaran}</em></td>
-                    <td>
-                      <p><strong>Tahap I — MEMAHAMI (Eksplorasi & Analisis Konsep):</strong></p>
-                      <ul>
-                        <li>Peserta didik mengamati fenomena/studi kasus nyata tentang <strong>${form.materiPokok}</strong>.</li>
-                        <li>Dalam kelompok kolaboratif, siswa membaca bahan ajar, mengidentifikasi akar masalah, dan mendiskusikan konsep kunci secara kritis.</li>
-                      </ul>
-                      <p><strong>Tahap II — MENGAPLIKASI (Pemecahan Masalah & Kreasi Nyata):</strong></p>
-                      <ul>
-                        <li>Peserta didik merancang solusi atau proyek mini pada LKPD untuk menjawab tantangan <em>${form.submateri}</em>.</li>
-                        <li>Guru berkeliling memberikan bimbingan diferensiasi dan memastikan setiap anggota berperan aktif.</li>
-                        <li>Setiap kelompok mempresentasikan karyanya secara interaktif (<em>gallery walk</em> / simulasi) dan saling memberi apresiasi.</li>
-                      </ul>
-                      <p><strong>Tahap III — MEREFLEKSI (Evaluasi & Transfer Pembelajaran):</strong></p>
-                      <ul>
-                        <li>Peserta didik mengevaluasi proses kerja kelompok, membandingkan pemahaman awal dengan pemahaman baru, serta merumuskan komitmen tindakan nyata di rumah/sekolah.</li>
-                      </ul>
-                    </td>
-                    <td>Bermakna (<em>Meaningful</em>) & Menggembirakan (<em>Joyful</em>)<br/>HOTS C4–C6</td>
-                  </tr>
-                  <tr>
-                    <td><strong>3. Penutup</strong><br/>(± 15% Waktu)</td>
-                    <td>
-                      <ul>
-                        <li><strong>Kesimpulan Bersama:</strong> Guru dan peserta didik menyimpulkan poin-poin esensial pembelajaran.</li>
-                        <li><strong>Asesmen Formatif Singkat:</strong> Kuis exit-ticket 2 pertanyaan pemaknaan.</li>
-                        <li><strong>Tindak Lanjut & Penutup:</strong> Penyampaian rencana pertemuan berikutnya, pengayaan/remedial, doa penutup, dan salam hangat.</li>
-                      </ul>
-                    </td>
-                    <td>Reflektif & Apresiatif</td>
-                  </tr>
-                </tbody>
-              </table>
-            `
-          },
-          {
-            id: 'ma-7',
-            title: isKurikulumCinta ? 'G. Sistem Asesmen, Rubrik, Pengayaan & Remedial' : 'F. Sistem Asesmen, Rubrik, Pengayaan & Remedial',
-            content: `
-              <ul>
-                <li><strong>Asesmen Diagnostik (Awal):</strong> Pertanyaan pemantik lisan/polling cepat untuk memetakan kesiapan belajar siswa.</li>
-                <li><strong>Asesmen Formatif (Proses):</strong> Observasi diskusi kelompok, penilaian kinerja LKPD, dan unjuk kerja presentasi.</li>
-                <li><strong>Asesmen Sumatif (Akhir):</strong> Tes uraian analitis HOTS (C4–C6) dan penilaian produk proyek.</li>
-              </ul>
-              <table>
-                <thead>
-                  <tr><th>Kriteria Penilaian</th><th>Skor 4 (Sangat Baik)</th><th>Skor 3 (Baik)</th><th>Skor 2 (Cukup)</th><th>Skor 1 (Perlu Bimbingan)</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td><strong>Ketepatan Analisis Konsep</strong></td><td>Menganalisis konsep ${form.materiPokok} secara mendalam, akurat, dan disertai bukti kuat.</td><td>Menganalisis konsep dengan tepat namun contoh pendukung terbatas.</td><td>Memahami konsep dasar namun analisis masih dangkal.</td><td>Memerlukan bimbingan intensif memahami konsep dasar.</td></tr>
-                  <tr><td><strong>Solusi HOTS & Kreativitas</strong></td><td>Solusi sangat orisinal, logis, aplikatif, dan berdampak positif.</td><td>Solusi logis dan sesuai permasalahan yang dikaji.</td><td>Solusi masih bersifat umum dan kurang terperinci.</td><td>Belum mampu merumuskan solusi secara mandiri.</td></tr>
-                  <tr><td><strong>Kolaborasi & Karakter</strong></td><td>Sangat aktif, empatik, menghargai teman, dan bertanggung jawab penuh.</td><td>Aktif bekerja sama dan menjalankan peran dengan baik.</td><td>Sesekali berpartisipasi namun perlu dorongan.</td><td>Pasif dalam kerja kelompok.</td></tr>
-                </tbody>
-              </table>
-              <p><strong>Pengayaan & Remedial:</strong> Peserta didik yang melampaui KKTP diberikan tugas proyek lanjutan berbasis studi kasus aktual. Peserta didik yang belum mencapai KKTP mengikuti pendampingan terbimbing menggunakan media visual bertahap.</p>
-            `
-          },
-          {
-            id: 'ma-8',
-            title: isKurikulumCinta ? 'H. Refleksi Guru, Refleksi Peserta Didik, Glosarium & Referensi' : 'G. Refleksi Guru, Refleksi Peserta Didik, Glosarium & Referensi',
-            content: `
-              <p><strong>Refleksi Guru:</strong> (1) Apakah 3 prinsip Pembelajaran Mendalam (berkesadaran, bermakna, menggembirakan) sudah terasa sepanjang proses? (2) Bagian mana yang paling antusias diikuti siswa? (3) Apa perbaikan strategi untuk pertemuan berikutnya?</p>
-              <p><strong>Refleksi Peserta Didik:</strong> (1) Hal baru apa yang paling bermakna saya pelajari hari ini? (2) Nilai karakter apa yang akan langsung saya praktikkan hari ini? (3) Bagian mana yang masih ingin saya tanyakan?</p>
-              <p><strong>Glosarium:</strong> <em>Pembelajaran Mendalam (Deep Learning)</em>: pendekatan pembelajaran yang menekankan pemahaman konseptual mendalam, berkesadaran, bermakna, dan menggembirakan.${isKurikulumCinta ? ' <em>Panca Cinta</em>: lima pilar nilai kasih sayang dalam pendidikan (Allah & Rasul, Ilmu, Diri & Sesama, Lingkungan, Bangsa & Negara).' : ''}</p>
-              <p><strong>Referensi:</strong> Panduan Pembelajaran dan Asesmen Kurikulum Merdeka; Naskah Akademik Pembelajaran Mendalam; ${isKurikulumCinta ? 'Panduan Implementasi Kurikulum Berbasis Cinta; ' : ''}Buku Siswa & Buku Guru ${mapel} Kelas ${form.kelas}.</p>
-            `
-          }
-        ];
-      }
-
-      // 2. LKPD INTERAKTIF
-      if (type === 'lkpd') {
-        return [
-          {
-            id: 'lkpd-1',
-            title: `Lembar Kerja Peserta Didik (${form.lkpdJenis})`,
-            content: `
-              <table>
-                <tr><th width="28%">Satuan Pendidikan</th><td>${form.namaInstitusi} (${form.kotaKabupaten || '-'})</td></tr>
-                <tr><th>Mata Pelajaran / Kelas</th><td>${mapel} / Kelas ${form.kelas} (${form.fase})</td></tr>
-                <tr><th>Materi Pokok / Topik</th><td>${form.materiPokok} — ${form.topikPembelajaran}</td></tr>
-                <tr><th>Nama Kelompok / Anggota</th><td>1. .............................. 2. .............................. 3. .............................. 4. ..............................</td></tr>
-              </table>
-              <p><strong>A. Tujuan Kegiatan:</strong> Melalui aktivitas ${form.lkpdJenis}, peserta didik mampu menganalisis konsep <em>${form.materiPokok}</em>, memecahkan studi kasus kontekstual, dan menyusun kesimpulan bermakna.</p>
-              <p><strong>B. Petunjuk Pengerjaan:</strong> (1) Awali dengan doa dan baca seluruh petunjuk dengan saksama; (2) Diskusikan setiap pertanyaan secara santun; (3) Tuliskan hasil analisis dengan bahasa yang runtut.</p>
-            `
-          },
-          {
-            id: 'lkpd-2',
-            title: 'C. Informasi Pendukung & Stimulus Studi Kasus (Literasi & Numerasi)',
-            content: `
-              <p><strong>Stimulus Kontekstual:</strong> Dalam kehidupan sehari-hari di lingkungan sekolah maupun masyarakat, penerapan <strong>${form.materiPokok}</strong> sering diuji oleh berbagai situasi nyata. Sebagai contoh, sebuah survei mini di kalangan remaja menunjukkan bahwa 72% pelajar pernah menjumpai dilema antara kemudahan sesaat dan komitmen terhadap prinsip <em>${form.submateri}</em>.</p>
-              <p><strong>Aktivitas Eksplorasi (Tahap Memahami):</strong></p>
-              <ol>
-                <li>Identifikasi 3 konsep utama yang mendasari <strong>${form.materiPokok}</strong> berdasarkan bahan bacaan!</li>
-                <li>Mengapa dilema pada studi kasus di atas sering terjadi di kalangan pelajar masa kini? Analisis akar penyebabnya (C4)!</li>
-              </ol>
-              <p><strong>Tantangan Pemecahan Masalah HOTS (Tahap Mengaplikasi):</strong></p>
-              <ol start="3">
-                <li>Rancanglah <strong>3 langkah solusi konkret (C6)</strong> yang dapat diterapkan di kelas/sekolah untuk mengatasi tantangan tersebut!</li>
-                <li>Buatlah satu poster mini / peta konsep di kotak berikut yang merangkum pesan utama kelompok kalian!</li>
-              </ol>
-              <div style="border: 2px dashed #94A3B8; height: 130px; border-radius: 8px; padding: 10px; color: #64748B; text-align: center; display: flex; align-items: center; justify-content: center;">
-                [Area Kerja Kreatif / Peta Konsep / Sketsa Solusi Kelompok]
-              </div>
-            `
-          },
-          {
-            id: 'lkpd-3',
-            title: 'D. Refleksi Diri & Rubrik Penilaian LKPD',
-            content: `
-              <p><strong>Refleksi Individu (Tahap Merefleksi):</strong><br/>
-              Hal paling berharga yang saya pelajari hari ini adalah: ....................................................................................<br/>
-              Tindakan nyata yang akan saya lakukan mulai hari ini adalah: ............................................................................</p>
-              ${isKurikulumCinta ? pancaTableHTML : ''}
-            `
-          }
-        ];
-      }
-
-      // 3. MATERI AJAR / BAHAN AJAR
-      if (type === 'materi-ajar' || type === 'bahan-ajar') {
-        return [
-          {
-            id: 'mat-1',
-            title: `Bahan Bacaan & Materi Ajar (${form.materiKedalaman} — ${form.materiFormat})`,
-            content: `
-              <p><strong>Satuan Pendidikan:</strong> ${form.namaInstitusi} | <strong>Mata Pelajaran:</strong> ${mapel} | <strong>Kelas:</strong> ${form.kelas}</p>
-              <p><strong>1. Konsep Inti ${form.materiPokok}:</strong><br/>
-              <strong>${form.materiPokok}</strong> merupakan pilar penting dalam pembelajaran ${mapel} yang membahas secara mendalam tentang <em>${form.submateri}</em>. Pemahaman yang utuh terhadap materi ini membantu peserta didik membangun kerangka berpikir sistematis, kritis, dan aplikatif.</p>
-              <p><strong>2. Uraian Materi Sistematis:</strong></p>
-              <ul>
-                <li><strong>Landasan Konseptual:</strong> Definisi, ruang lingkup, serta prinsip-prinsip fundamental dalam ${form.materiPokok}.</li>
-                <li><strong>Implementasi Kontekstual:</strong> Penerapan nyata dalam kehidupan pribadi, interaksi sosial, dan tantangan era digital.</li>
-                <li><strong>Dampak & Hikmah:</strong> Manfaat jangka pendek dan jangka panjang bagi terbentuknya karakter unggul dan masyarakat harmonis.</li>
-              </ul>
-              <p><strong>3. Studi Kasus & Ilustrasi Kontekstual:</strong><br/>
-              Bayangkan situasi di lingkungan sekitar kita ketika seseorang harus mengambil keputusan penting terkait <em>${form.topikPembelajaran}</em>. Dengan bekal pemahaman mendalam, peserta didik mampu menimbang aspek kebenaran, empati, dan tanggung jawab sebelum bertindak.</p>
-              <p><strong>4. Rangkuman & Latihan Pemahaman:</strong><br/>
-              (1) Jelaskan dengan bahasamu sendiri hubungan antara ${form.materiPokok} dan ${form.submateri}! (2) Berikan 2 contoh penerapan nyata di lingkungan sekolah/madrasah!</p>
-            `
-          }
-        ];
-      }
-
-      // 4. ATP / CP / TP / PROTA / PROMES
-      if (['atp', 'cp', 'tp', 'prota', 'promes'].includes(type)) {
-        return [
-          {
-            id: 'kur-1',
-            title: `Perangkat Perencanaan Kurikulum: ${DEVICE_TYPES.find(d => d.id === type)?.name || type.toUpperCase()}`,
-            content: `
-              <table>
-                <tr><th width="30%">Satuan Pendidikan</th><td>${form.namaInstitusi} (${form.kotaKabupaten || '-'})</td></tr>
-                <tr><th>Mata Pelajaran / Jenjang</th><td>${mapel} / ${form.jenjang} (${form.fase})</td></tr>
-                <tr><th>Kelas / Semester / TA</th><td>Kelas ${form.kelas} / ${form.semester} / ${form.tahunAjaran}</td></tr>
-                <tr><th>Kalender Pendidikan</th><td>Minggu Efektif: ${state.calendarData.mingguEfektif} Minggu (${state.calendarData.jamPerMinggu} JP/Minggu)</td></tr>
-              </table>
-              <table>
-                <thead>
-                  <tr>
-                    <th width="8%">No</th>
-                    <th width="25%">Materi Pokok / Elemen</th>
-                    <th width="32%">Tujuan Pembelajaran (TP)</th>
-                    <th width="15%">Alokasi Waktu</th>
-                    <th width="20%">Asesmen & Keterangan</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td><strong>${form.materiPokok}</strong></td>
-                    <td>Menganalisis konsep dasar ${form.materiPokok} dan mengidentifikasi prinsip utamanya secara kritis.</td>
-                    <td>4 JP (Minggu 1–2)</td>
-                    <td>Asesmen Diagnostik & Formatif</td>
-                  </tr>
-                  <tr>
-                    <td>2</td>
-                    <td><strong>${form.submateri}</strong></td>
-                    <td>Menerapkan prinsip ${form.submateri} dalam pemecahan studi kasus kontekstual.</td>
-                    <td>4 JP (Minggu 3–4)</td>
-                    <td>Unjuk Kerja LKPD & Diskusi</td>
-                  </tr>
-                  <tr>
-                    <td>3</td>
-                    <td><strong>${form.topikPembelajaran}</strong></td>
-                    <td>Merancang proyek kolaboratif dan merefleksikan nilai karakter dalam kehidupan nyata.</td>
-                    <td>4 JP (Minggu 5–6)</td>
-                    <td>Asesmen Sumatif & Rubrik Proyek</td>
-                  </tr>
-                </tbody>
-              </table>
-              <p><em>Catatan Kalender Pendidikan: ${state.calendarData.catatanLibur}</em></p>
-            `
-          }
-        ];
-      }
-
-      // 5. ASESMEN / KISI-KISI / BANK SOAL / RUBRIK
-      if (['asesmen', 'kisi-kisi', 'bank-soal', 'rubrik'].includes(type)) {
-        return [
-          {
-            id: 'asm-1',
-            title: `Kisi-Kisi & Instrumen ${form.asesmenJenis} (Taksonomi Bloom C1–C6)`,
-            content: `
-              <p><strong>Mata Pelajaran:</strong> ${mapel} | <strong>Kelas:</strong> ${form.kelas} | <strong>Materi:</strong> ${form.materiPokok} | <strong>Distribusi Kognitif:</strong> C1–C2 (${form.bloomDistribution.c1c2}%), C3 (${form.bloomDistribution.c3}%), C4–C6 HOTS (${form.bloomDistribution.c4c6}%)</p>
-              <table>
-                <thead>
-                  <tr>
-                    <th width="7%">No</th>
-                    <th width="25%">Tujuan Pembelajaran</th>
-                    <th width="30%">Indikator Soal</th>
-                    <th width="13%">Level</th>
-                    <th width="15%">Bentuk Soal</th>
-                    <th width="10%">Bobot</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr><td>1</td><td>Memahami konsep ${form.materiPokok}</td><td>Disajikan pernyataan, siswa menentukan prinsip dasar ${form.materiPokok}.</td><td>C2</td><td>Pilihan Ganda</td><td>15</td></tr>
-                  <tr><td>2</td><td>Menerapkan ${form.submateri}</td><td>Disajikan ilustrasi kasus, siswa menentukan sikap yang tepat.</td><td>C3</td><td>Pilihan Ganda Kompleks</td><td>20</td></tr>
-                  <tr><td>3</td><td>Menganalisis ${form.topikPembelajaran}</td><td>Disajikan studi kasus dilema digital, siswa menganalisis dampak perilaku (HOTS).</td><td>C4</td><td>Uraian Analisis</td><td>30</td></tr>
-                  <tr><td>4</td><td>Mencipta solusi berbasis nilai</td><td>Siswa merancang rencana aksi nyata penerapan materi di lingkungan sekolah (HOTS).</td><td>C6</td><td>Studi Kasus / Proyek</td><td>35</td></tr>
-                </tbody>
-              </table>
-            `
-          },
-          {
-            id: 'asm-2',
-            title: 'Naskah Soal HOTS, Kunci Jawaban & Pembahasan',
-            content: `
-              <p><strong>Soal 1 (Pilihan Ganda — C2):</strong><br/>
-              Inti utama dari penerapan <em>${form.materiPokok}</em> dalam kehidupan sehari-hari adalah...<br/>
-              A. Menghafal definisi tanpa praktik &nbsp;&nbsp; B. Menyelaraskan pemahaman, sikap, dan tindakan nyata yang bermanfaat &nbsp;&nbsp; C. Mengutamakan kepentingan pribadi &nbsp;&nbsp; D. Menghindari diskusi kelompok<br/>
-              <em>Kunci Jawaban: B — Pembahasan: Pembelajaran bermakna menuntut keselarasan antara pemahaman konsep dan tindakan nyata.</em></p>
-
-              <p><strong>Soal 2 (Uraian Studi Kasus HOTS — C4/C5):</strong><br/>
-              <em>Stimulus:</em> Di sebuah kelas, terjadi perbedaan pendapat tajam saat diskusi kelompok mengenai <strong>${form.topikPembelajaran}</strong> sehingga suasana menjadi kurang kondusif.<br/>
-              <em>Pertanyaan:</em> Analisislah dua penyebab utama konflik tersebut dan evaluasi solusi terbaik yang mencerminkan integritas serta empati!<br/>
-              <em>Pedoman Penskoran:</em> Skor 30 jika analisis penyebab logis (15) dan solusi konkret mencerminkan nilai karakter & pemecahan masalah efektif (15).</p>
-            `
-          }
-        ];
-      }
-
-      // 6. MEDIA / PROJEK / REFLEKSI / JURNAL MENGAJAR
-      return [
-        {
-          id: 'gen-other-1',
-          title: `Rancangan ${DEVICE_TYPES.find(d => d.id === type)?.name || 'Perangkat Pembelajaran'} — ${form.materiPokok}`,
-          content: `
-            <table>
-              <tr><th width="28%">Satuan Pendidikan</th><td>${form.namaInstitusi} (${form.kotaKabupaten || '-'})</td></tr>
-              <tr><th>Guru / Mata Pelajaran</th><td>${form.namaGuru} / ${mapel} (Kelas ${form.kelas})</td></tr>
-              <tr><th>Materi Pokok / Topik</th><td>${form.materiPokok} — ${form.topikPembelajaran}</td></tr>
-              <tr><th>Kurikulum & Pendekatan</th><td>${form.kurikulum}</td></tr>
-            </table>
-            <p><strong>1. Tujuan & Fokus Pelaksanaan:</strong><br/>
-            Mengoptimalkan keterlibatan aktif peserta didik melalui <em>${DEVICE_TYPES.find(d => d.id === type)?.name}</em> pada materi <strong>${form.materiPokok}</strong> agar terwujud pengalaman belajar yang berkesadaran, bermakna, dan menggembirakan.</p>
-            <p><strong>2. Rincian Desain / Langkah Pelaksanaan:</strong></p>
-            <ul>
-              <li><strong>Tahap Persiapan:</strong> Menyiapkan instrumen/media visual pendukung, memetakan kebutuhan diferensiasi siswa, serta memastikan kesiapan sarana (${form.saranaPrasarana}).</li>
-              <li><strong>Tahap Pelaksanaan:</strong> Memfasilitasi eksplorasi konsep <em>${form.submateri}</em>, diskusi kolaboratif, serta penguatan karakter positif.</li>
-              <li><strong>Tahap Evaluasi & Tindak Lanjut:</strong> Mencatat ketercapaian indikator belajar, hambatan yang ditemui di kelas, serta rencana pendampingan pertemuan berikutnya.</li>
-            </ul>
-            ${isKurikulumCinta ? pancaTableHTML : ''}
-          `
-        }
-      ];
-    }
-
-    // =========================================================================
     // AKSI & HANDLER GLOBAL (WINDOW)
     // =========================================================================
     window.navigateTo = (view) => {
@@ -1506,7 +2223,6 @@
       renderApp();
     };
 
-    // LOGIN HYBRID (ADMIN VIA FIREBASE AUTH / DEMO & GURU VIA FIRESTORE USERS)
     window.handleLogin = async (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
@@ -1610,7 +2326,6 @@
       }
     };
 
-    // PENDAFTARAN GURU BARU + KONFIRMASI PEMBAYARAN KE ADMIN
     window.handleRegisterGuru = async (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
@@ -1691,7 +2406,6 @@
       window.navigateTo('landing');
     };
 
-    // ADMIN: PROFIL ADMIN & PENGATURAN REKENING PEMBAYARAN
     window.saveAdminPaymentConfig = async (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
@@ -1714,7 +2428,6 @@
       renderApp();
     };
 
-    // ADMIN: PENGATURAN TEMA APLIKASI GLOBAL (BERLAKU UNTUK ADMIN & SELURUH AKUN GURU)
     window.setGlobalAppTheme = async (themeId) => {
       state.globalAppTheme = themeId;
       if (themeId === 'cyberpunk') {
@@ -1739,17 +2452,11 @@
       renderApp();
     };
 
-    // ADMIN & GURU: PEMBERITAHUAN / PENGUMUMAN DARI ADMIN
     window.toggleNotifDropdown = () => {
       state.notifDropdownOpen = !state.notifDropdownOpen;
       if (state.notifDropdownOpen) {
         state.readAnnouncementIds = state.announcements.map(a => a.id);
       }
-      renderApp();
-    };
-
-    window.markAllAnnouncementsRead = () => {
-      state.readAnnouncementIds = state.announcements.map(a => a.id);
       renderApp();
     };
 
@@ -1821,7 +2528,6 @@
       renderApp();
     };
 
-    // ADMIN: KONFIRMASI, AKTIFKAN, HAPUS, ATAU MASUK KE AKUN GURU
     window.approveGuruAccount = async (userId) => {
       const idx = state.usersList.findIndex(u => u.id === userId);
       if (idx === -1) {
@@ -1882,7 +2588,6 @@
       renderApp();
     };
 
-    // ADMIN: TAMBAH, EDIT, LIHAT PASSWORD, DAN RESET PASSWORD GURU
     window.openAdminUserModal = (mode, userId = null) => {
       if (mode === 'add') {
         state.adminUserModal = {
@@ -2024,7 +2729,6 @@
       renderApp();
     };
 
-    // UPDATE FORM GENERATOR & DATA INSTANSI
     window.updateGenForm = (key, val) => {
       state.genForm[key] = val;
       if (key === 'jenisPerangkat' || key === 'jenisInstitusi' || key === 'pancaCintaMode' || key === 'kurikulum' || key === 'naungan') {
@@ -2114,7 +2818,6 @@
       renderApp();
     };
 
-    // GENERATE DOKUMEN AI
     window.runGenerateDocument = async () => {
       if (!state.genForm.materiPokok.trim()) {
         showToast('Mohon isi Materi Pokok terlebih dahulu.', 'error');
@@ -2159,10 +2862,10 @@
         tahunAjaran: state.genForm.tahunAjaran,
         mataPelajaran: mapelFinal,
         materiPokok: state.genForm.materiPokok,
-        kurikulum: state.genForm.kurikulum,
-        templateStyle: state.genForm.templateStyle || (isMadrasahCheck(state.genForm) ? 'tpl-madrasah' : 'tpl-minimalist-lesson'),
+        templateStyle: state.genForm.templateStyle || 'tpl-modern-academic',
         designStyle: state.genForm.designStyle || 'style-geometris',
         paperSize: state.genForm.paperSize || 'a4',
+        paperOrientation: state.genForm.paperOrientation || (['atp', 'prota', 'promes', 'kisi-kisi'].includes(state.genForm.jenisPerangkat) ? 'landscape' : 'portrait'),
         tags: [state.genForm.kurikulum, state.genForm.naungan, state.genForm.jenjang],
         updatedAt: new Date().toISOString(),
         sections
@@ -2185,7 +2888,6 @@
       renderApp();
     };
 
-    // EDITOR & EXPORT ACTIONS
     window.openDocInEditor = (docId) => {
       const found = getAccessibleDocuments().find(d => d.id === docId);
       if (!found) return;
@@ -2259,11 +2961,18 @@
       renderApp();
     };
 
+    window.changeDocOrientation = (orient) => {
+      if (!state.activeDoc) return;
+      state.activeDoc.paperOrientation = orient;
+      state.genForm.paperOrientation = orient;
+      renderApp();
+    };
+
     window.addCustomSection = () => {
       if (!state.activeDoc) return;
       state.activeDoc.sections.push({
         id: 'sec-' + Date.now(),
-        title: 'Bagian Tambahan Baru (Klik untuk Mengubah Judul)',
+        title: 'BAGIAN TAMBAHAN BARU (KLIK UNTUK MENGUBAH JUDUL)',
         content: '<p>Tuliskan uraian materi, lampiran, atau catatan pembelajaran di sini...</p>'
       });
       renderApp();
@@ -2290,14 +2999,15 @@
       const el = document.getElementById('printable-document-area');
       if (!el || !state.activeDoc) return;
       const isF4 = (state.activeDoc.paperSize || 'a4') === 'f4';
-      showToast(`Menyiapkan file PDF ${isF4 ? 'F4 (Folio)' : 'A4'} siap cetak tanpa terpotong...`);
+      const isLandscape = (state.activeDoc.paperOrientation || 'portrait') === 'landscape';
+      showToast(`Menyiapkan file PDF ${isF4 ? 'F4 (Folio)' : 'A4'} (${isLandscape ? 'Landscape' : 'Portrait'}) siap cetak...`);
       const opt = {
-        margin: [14, 14, 14, 14],
+        margin: [25, 25, 25, 30],
         filename: `${state.activeDoc.judul.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-        pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.doc-callout', '.doc-signature-block'] },
-        jsPDF: { unit: 'mm', format: isF4 ? [215, 330] : 'a4', orientation: 'portrait' }
+        pagebreak: { mode: ['css', 'legacy'], before: ['.doc-page-break'], avoid: ['tr', '.doc-callout', '.doc-signature-block'] },
+        jsPDF: { unit: 'mm', format: isF4 ? [215, 330] : 'a4', orientation: isLandscape ? 'landscape' : 'portrait' }
       };
       if (window.html2pdf) {
         window.html2pdf().set(opt).from(el).save();
@@ -2310,27 +3020,32 @@
       const el = document.getElementById('printable-document-area');
       if (!el || !state.activeDoc) return;
       const isF4 = (state.activeDoc.paperSize || 'a4') === 'f4';
-      const pageSizeCss = isF4 ? '21.5cm 33.0cm' : '21.0cm 29.7cm';
+      const isLandscape = (state.activeDoc.paperOrientation || 'portrait') === 'landscape';
+      const pageSizeCss = isLandscape
+        ? (isF4 ? '33.0cm 21.5cm landscape' : '29.7cm 21.0cm landscape')
+        : (isF4 ? '21.5cm 33.0cm portrait' : '21.0cm 29.7cm portrait');
       const htmlContent = `
         <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
         <head><meta charset='utf-8'><title>${state.activeDoc.judul}</title>
         <style>
           @page WordSection1 {
             size: ${pageSizeCss};
-            margin: 1.8cm 1.8cm 1.8cm 1.8cm;
-            mso-header-margin: 1.0cm;
-            mso-footer-margin: 1.0cm;
+            margin: 2.5cm 2.5cm 2.5cm 3.0cm;
+            mso-header-margin: 1.2cm;
+            mso-footer-margin: 1.2cm;
           }
           div.WordSection1 { page: WordSection1; }
-          body { font-family: 'Open Sans', 'Calibri', 'Arial', sans-serif; font-size: 11pt; line-height: 1.45; color: #0F172A; }
-          table { width: 100%; border-collapse: collapse; margin: 8px 0 12px 0; }
+          body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11.5pt; line-height: 1.5; color: #0F172A; text-align: justify; }
+          table { width: 100%; border-collapse: collapse; margin: 12px 0 16px 0; font-size: 10.5pt; }
           tr { page-break-inside: avoid; }
-          th, td { border: 1px solid #94A3B8; padding: 6px 8px; vertical-align: top; text-align: left; }
-          th { background-color: #E2E8F0; font-weight: bold; }
-          h1 { font-size: 14pt; color: #0F766E; }
-          h2 { font-size: 13pt; }
-          h3 { font-size: 11.5pt; color: #0F766E; margin-top: 12px; }
-          .doc-callout { border-left: 4px solid #0F766E; background: #F0FDF4; padding: 8px 12px; margin: 8px 0; }
+          th, td { border: 1px solid #94A3B8; padding: 8px 11px; vertical-align: top; text-align: left; }
+          th { background-color: #1E3A8A; color: #FFFFFF; font-weight: bold; }
+          h1 { font-size: 17pt; color: #1E3A8A; text-align: center; font-weight: bold; }
+          h2 { font-size: 15pt; font-weight: bold; }
+          h3 { font-size: 14pt; color: #1E3A8A; border-bottom: 1.5px solid #D97706; padding-bottom: 5px; margin-top: 18px; text-align: left; font-weight: bold; page-break-after: avoid; }
+          h4 { font-size: 12pt; color: #0F766E; margin-top: 12px; text-align: left; font-weight: bold; page-break-after: avoid; }
+          .doc-page-break { page-break-before: always; }
+          .doc-callout { border-left: 4px solid #D97706; background: #F8FAFC; padding: 12px 15px; margin: 12px 0; }
           .no-print { display: none; }
         </style>
         </head><body><div class="WordSection1">${el.innerHTML}</div></body></html>
@@ -2339,24 +3054,28 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${state.activeDoc.judul.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${isF4 ? 'F4' : 'A4'}.doc`;
+      a.download = `${state.activeDoc.judul.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${isF4 ? 'F4' : 'A4'}_${isLandscape ? 'Landscape' : 'Portrait'}.doc`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast(`Dokumen Word ukuran ${isF4 ? 'F4 (Folio)' : 'A4'} berhasil diunduh!`);
+      showToast(`Dokumen Word ukuran ${isF4 ? 'F4 (Folio)' : 'A4'} (${isLandscape ? 'Landscape' : 'Portrait'}) berhasil diunduh!`);
     };
 
     window.printDocumentClean = () => {
       if (!state.activeDoc) return;
       const isF4 = (state.activeDoc.paperSize || 'a4') === 'f4';
+      const isLandscape = (state.activeDoc.paperOrientation || 'portrait') === 'landscape';
       let styleTag = document.getElementById('dynamic-print-page-size');
       if (!styleTag) {
         styleTag = document.createElement('style');
         styleTag.id = 'dynamic-print-page-size';
         document.head.appendChild(styleTag);
       }
-      styleTag.innerHTML = `@media print { @page { size: ${isF4 ? '215mm 330mm' : 'A4 portrait'}; margin: 15mm; } }`;
+      const sizeStr = isF4
+        ? (isLandscape ? '330mm 215mm' : '215mm 330mm')
+        : (isLandscape ? 'A4 landscape' : 'A4 portrait');
+      styleTag.innerHTML = `@media print { @page { size: ${sizeStr}; margin: 25mm 25mm 25mm 30mm; } }`;
       window.print();
     };
 
@@ -2457,7 +3176,7 @@
                   </h1>
 
                   <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
-                    <strong>KlikAjar</strong> membantu guru sekolah dan madrasah merancang Modul Ajar, LKPD, asesmen HOTS, bahan ajar, ATP, Prota, serta Promes yang siap edit, cetak A4, dan ekspor Word/PDF.
+                    <strong>KlikAjar</strong> membantu guru sekolah dan madrasah merancang Modul Ajar, LKPD, asesmen HOTS, bahan ajar, ATP, Prota, serta Promes yang terisi lengkap, siap edit, cetak A4/F4, dan ekspor Word/PDF.
                   </p>
 
                   <div class="flex flex-wrap items-center gap-3.5 pt-2">
@@ -2495,11 +3214,11 @@
                       <div class="grid grid-cols-3 gap-3">
                         <div class="p-3 rounded-xl bg-bgLight dark:bg-darkCard border border-slate-200 dark:border-slate-700">
                           <p class="text-[11px] text-slate-500">Modul Ajar</p>
-                          <p class="font-display font-extrabold text-sm text-emeraldDeep dark:text-teal-400 mt-0.5">32 Komponen</p>
+                          <p class="font-display font-extrabold text-sm text-emeraldDeep dark:text-teal-400 mt-0.5">Terisi Lengkap</p>
                         </div>
                         <div class="p-3 rounded-xl bg-bgLight dark:bg-darkCard border border-slate-200 dark:border-slate-700">
-                          <p class="text-[11px] text-slate-500">Kurikulum</p>
-                          <p class="font-display font-extrabold text-sm text-slate-800 dark:text-white mt-0.5">Deep Learning</p>
+                          <p class="text-[11px] text-slate-500">Standar Cetak</p>
+                          <p class="font-display font-extrabold text-sm text-slate-800 dark:text-white mt-0.5">A4 & F4 Resmi</p>
                         </div>
                         <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800">
                           <p class="text-[11px] text-amber-700 dark:text-amber-300">KBC Madrasah</p>
@@ -2594,7 +3313,7 @@
                 </details>
                 <details class="p-4 rounded-2xl bg-bgLight dark:bg-darkCard border border-slate-200 dark:border-slate-700">
                   <summary class="font-display font-bold cursor-pointer">Apakah dokumen bisa diunduh dalam format Word dan PDF?</summary>
-                  <p class="text-slate-600 dark:text-slate-300 mt-2">Ya. Seluruh perangkat dapat diedit langsung di editor A4 dan diekspor ke file Word (.doc) maupun PDF siap cetak.</p>
+                  <p class="text-slate-600 dark:text-slate-300 mt-2">Ya. Seluruh perangkat dapat diedit langsung di editor A4/F4 dan diekspor ke file Word (.doc) maupun PDF siap cetak.</p>
                 </details>
               </div>
             </div>
@@ -2740,7 +3459,6 @@
         `;
       }
 
-      // MODE LOGIN
       return `
         <div class="min-h-screen py-12 px-4 flex items-center justify-center bg-bgLight dark:bg-darkBg">
           <div class="max-w-md w-full bg-white dark:bg-darkCard rounded-3xl p-7 sm:p-8 border border-slate-200 dark:border-slate-700 shadow-xl space-y-6">
@@ -2812,7 +3530,7 @@
     function getMenuTitle(menuId) {
       if (menuId === 'dashboard') return 'Dashboard Studio Pembelajaran KlikAjar';
       if (menuId === 'generator') return 'Generator Perangkat Pembelajaran AI';
-      if (menuId === 'editor') return 'Editor Dokumen & Pratinjau Cetak A4';
+      if (menuId === 'editor') return 'Editor Dokumen & Pratinjau Cetak A4 / F4';
       if (menuId === 'documents') return 'Arsip Perangkat Pembelajaran';
       if (menuId === 'institution') return 'Data Instansi (Diknas / Kemenag) & Identitas Lembaga';
       if (menuId === 'calendar') return 'Kalender Pendidikan Satuan Pendidikan';
@@ -2838,7 +3556,7 @@
           items: [
             { id: 'dashboard', name: 'Dashboard', icon: 'layout-dashboard' },
             { id: 'generator', name: 'Generator Perangkat', icon: 'wand-2' },
-            { id: 'editor', name: 'Editor & Export A4', icon: 'file-edit' },
+            { id: 'editor', name: 'Editor & Export DOCX/PDF', icon: 'file-edit' },
             { id: 'documents', name: 'Perangkat Tersimpan', icon: 'folder-open' }
           ]
         },
@@ -2877,7 +3595,6 @@
 
       return `
         <div class="min-h-screen flex">
-          <!-- OVERLAY MOBILE DRAWER -->
           ${state.sidebarOpen ? `<div onclick="window.toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-40 lg:hidden"></div>` : ''}
 
           <!-- SIDEBAR -->
@@ -2932,7 +3649,6 @@
 
           <!-- MAIN CONTENT AREA -->
           <div class="flex-1 flex flex-col min-w-0">
-            <!-- TOP HEADER -->
             <header class="app-header no-print sticky top-0 z-30 h-16 glass-nav border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 flex items-center justify-between gap-4">
               <div class="flex items-center gap-3 min-w-0">
                 <button onclick="window.toggleSidebar()" class="lg:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-700">
@@ -2945,7 +3661,6 @@
               </div>
 
               <div class="flex items-center gap-2.5">
-                <!-- LONCENG PEMBERITAHUAN ADMIN UNTUK GURU -->
                 <div class="relative">
                   <button onclick="window.toggleNotifDropdown()" title="Pemberitahuan dari Admin" class="relative p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
                     <i data-lucide="bell" class="w-4 h-4"></i>
@@ -2999,7 +3714,6 @@
               </div>
             </header>
 
-            <!-- BODY CONTENT -->
             <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
               ${renderActiveWorkspaceContent()}
             </main>
@@ -3022,7 +3736,6 @@
 
         return `
           <div class="space-y-6">
-            <!-- WELCOME BANNER -->
             <div class="rounded-3xl p-6 sm:p-8 hero-gradient text-white shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div class="space-y-2 max-w-2xl">
                 <span class="inline-block px-3 py-1 rounded-full bg-white/15 text-xs font-bold">
@@ -3045,9 +3758,8 @@
               </div>
             </div>
 
-            <!-- PAPAN INFORMASI & PEMBERITAHUAN DARI ADMIN UNTUK GURU -->
             ${state.announcements.length > 0 ? `
-              <div class="bg-white dark:bg-darkCard rounded-2xl border border-amber-200 dark:border-amber-800/60 p-5 shadow-xs space-y-3">
+              <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-amber-200 dark:border-amber-800/60 p-5 shadow-xs space-y-3">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600 flex items-center justify-center">
@@ -3082,28 +3794,26 @@
               </div>
             ` : ''}
 
-            <!-- STATISTIK -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div class="p-5 rounded-2xl bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-700">
+              <div class="app-card p-5 rounded-2xl bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-700">
                 <p class="text-xs text-slate-500">Total Perangkat Tersimpan</p>
                 <p class="font-display text-2xl font-extrabold text-slate-900 dark:text-white mt-1">${docs.length}</p>
               </div>
-              <div class="p-5 rounded-2xl bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-700">
+              <div class="app-card p-5 rounded-2xl bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-700">
                 <p class="text-xs text-slate-500">Modul Ajar & RPP</p>
                 <p class="font-display text-2xl font-extrabold text-emeraldDeep dark:text-teal-400 mt-1">${totalModul}</p>
               </div>
-              <div class="p-5 rounded-2xl bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-700">
+              <div class="app-card p-5 rounded-2xl bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-700">
                 <p class="text-xs text-slate-500">LKPD Interaktif</p>
                 <p class="font-display text-2xl font-extrabold text-amber-500 mt-1">${totalLkpd}</p>
               </div>
-              <div class="p-5 rounded-2xl bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-700">
+              <div class="app-card p-5 rounded-2xl bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-700">
                 <p class="text-xs text-slate-500">Asesmen & Kisi-Kisi</p>
                 <p class="font-display text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">${totalAsesmen}</p>
               </div>
             </div>
 
-            <!-- QUICK ACTIONS -->
-            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
+            <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
               <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-4">Aksi Cepat Generator Perangkat</h3>
               <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                 ${['modul-ajar', 'lkpd', 'asesmen', 'materi-ajar', 'atp', 'rpp'].map(id => {
@@ -3120,8 +3830,7 @@
               </div>
             </div>
 
-            <!-- RECENT DOCUMENTS -->
-            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
+            <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-5 sm:p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">Dokumen Perangkat Terbaru (${isAdmin ? 'Semua Akun' : 'Milik Anda'})</h3>
                 <button onclick="window.setActiveMenu('documents')" class="text-xs font-bold text-emeraldDeep hover:underline">Lihat Semua →</button>
@@ -3157,11 +3866,11 @@
 
         return `
           <div class="max-w-5xl space-y-6">
-            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-xs">
+            <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-xs">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 pb-4">
                 <div>
                   <h2 class="font-display text-lg font-extrabold text-slate-900 dark:text-white">Studio Generator Perangkat Pembelajaran AI</h2>
-                  <p class="text-xs text-slate-500 mt-0.5">Lengkapi parameter pembelajaran di bawah ini. Data instansi & logo otomatis tersinkron dari menu Data Instansi.</p>
+                  <p class="text-xs text-slate-500 mt-0.5">Menghasilkan perangkat terisi lengkap, sistematis, dan siap cetak A4/F4 maupun ekspor DOCX/PDF.</p>
                 </div>
                 <button onclick="window.setActiveMenu('institution')" class="px-3.5 py-2 rounded-xl border border-emeraldDeep text-emeraldDeep dark:text-teal-400 text-xs font-bold hover:bg-emerald-50 dark:hover:bg-teal-950/40 transition self-start">
                   Edit Kop & Logo Instansi
@@ -3169,7 +3878,6 @@
               </div>
 
               <div class="space-y-6 mt-6">
-                <!-- PILIHAN KURIKULUM TERPISAH: KURIKULUM MERDEKA (DEEP LEARNING) VS KURIKULUM BERBASIS CINTA (PANCA CINTA) -->
                 <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 space-y-3">
                   <label class="block text-xs font-extrabold uppercase tracking-wider text-emeraldDeep dark:text-teal-400">
                     1. Pilih Kerangka Kurikulum Utama *
@@ -3197,7 +3905,6 @@
                   </div>
                 </div>
 
-                <!-- IDENTITAS INSTANSI (NAUNGAN DIKNAS / KEMENAG) & LEMBAGA -->
                 <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Jenis Perangkat Pembelajaran *</label>
@@ -3245,7 +3952,6 @@
                   </div>
                 </div>
 
-                <!-- JENJANG, FASE, KELAS, SEMESTER, TAHUN AJARAN -->
                 <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
                   <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Jenjang</label>
@@ -3276,7 +3982,6 @@
                   </div>
                 </div>
 
-                <!-- GURU & MATA PELAJARAN -->
                 <div class="grid sm:grid-cols-3 gap-4">
                   <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Nama Guru Penyusun</label>
@@ -3294,7 +3999,6 @@
                   </div>
                 </div>
 
-                <!-- MATERI POKOK, SUBMATERI, TOPIK, ALOKASI WAKTU -->
                 <div class="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Materi Pokok / Bab *</label>
@@ -3334,7 +4038,6 @@
                   </div>
                 </div>
 
-                <!-- PENGATURAN TAMPILAN CETAK, TEMA DOKUMEN, GAYA JENJANG & UKURAN KERTAS -->
                 <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 grid sm:grid-cols-3 gap-4">
                   <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Tema Dokumen & Palet Warna</label>
@@ -3357,7 +4060,6 @@
                   </div>
                 </div>
 
-                <!-- PANEL INTEGRASI PANCA CINTA (HANYA TAMPIL JIKA MEMILIH KURIKULUM BERBASIS CINTA) -->
                 ${f.kurikulum === 'Kurikulum Berbasis Cinta (Panca Cinta)' ? `
                   <div class="p-4 sm:p-5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 space-y-3">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -3386,7 +4088,6 @@
                   </div>
                 ` : ''}
 
-                <!-- TOMBOL GENERATE UTAMA -->
                 <div class="pt-2 flex flex-wrap items-center gap-3">
                   <button onclick="window.runGenerateDocument()" ${state.isGenerating ? 'disabled' : ''}
                     class="px-7 py-3.5 rounded-2xl bg-emeraldDeep hover:bg-teal-800 text-white font-display font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-900/20 flex items-center gap-2.5 transition disabled:opacity-60">
@@ -3400,11 +4101,11 @@
         `;
       }
 
-      // 3. EDITOR DOKUMEN & PRATINJAU CETAK A4
+      // 3. EDITOR DOKUMEN & PRATINJAU CETAK A4 / F4
       if (m === 'editor') {
         if (!state.activeDoc) {
           return `
-            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-10 text-center space-y-4">
+            <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-10 text-center space-y-4">
               <i data-lucide="file-text" class="w-12 h-12 text-slate-300 mx-auto"></i>
               <h3 class="font-display font-bold text-base">Belum Ada Dokumen Aktif di Editor</h3>
               <p class="text-xs text-slate-500 max-w-md mx-auto">Buat perangkat baru melalui Generator atau pilih salah satu dokumen dari arsip tersimpan.</p>
@@ -3429,16 +4130,20 @@
         const kepalaDoc = doc.namaKepala || state.institutionData.namaKepala;
         const nipKepalaDoc = doc.nipKepala || state.institutionData.nipKepala;
         const paperSize = doc.paperSize || 'a4';
+        const paperOrientation = doc.paperOrientation || 'portrait';
         const designStyle = doc.designStyle || 'style-geometris';
 
         return `
           <div class="space-y-4">
-            <!-- TOOLBAR EDITOR & EXPORT (A4 / F4, TEMA, GAYA JENJANG) -->
             <div class="no-print bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-4 flex flex-wrap items-center justify-between gap-3 sticky top-16 z-20 shadow-xs">
               <div class="flex flex-wrap items-center gap-2">
                 <select onchange="window.changeDocPaperSize(this.value)" title="Ukuran Kertas" class="px-3 py-2 rounded-xl border border-emerald-300 dark:border-teal-700 bg-emerald-50/60 dark:bg-slate-800 text-xs font-extrabold text-emeraldDeep dark:text-teal-300">
                   <option value="a4" ${paperSize === 'a4' ? 'selected' : ''}>Kertas: A4 (210×297mm)</option>
                   <option value="f4" ${paperSize === 'f4' ? 'selected' : ''}>Kertas: F4 / Folio (215×330mm)</option>
+                </select>
+                <select onchange="window.changeDocOrientation(this.value)" title="Orientasi Halaman (Gunakan Landscape untuk tabel lebar)" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800 text-xs font-bold">
+                  <option value="portrait" ${paperOrientation === 'portrait' ? 'selected' : ''}>Orientasi: Portrait</option>
+                  <option value="landscape" ${paperOrientation === 'landscape' ? 'selected' : ''}>Orientasi: Landscape (Tabel Lebar)</option>
                 </select>
                 <select onchange="window.changeDocTemplate(this.value)" title="Tema Dokumen" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800 text-xs font-bold">
                   ${DOC_TEMPLATES.map(t => `<option value="${t.id}" ${doc.templateStyle === t.id ? 'selected' : ''}>Tema: ${t.name}</option>`).join('')}
@@ -3456,7 +4161,7 @@
 
               <div class="flex flex-wrap items-center gap-2">
                 <button onclick="window.exportDocumentDOCX()" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5">
-                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Word (${paperSize.toUpperCase()})
+                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Word / DOCX (${paperSize.toUpperCase()})
                 </button>
                 <button onclick="window.exportDocumentPDF()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1.5">
                   <i data-lucide="file-down" class="w-3.5 h-3.5"></i> PDF (${paperSize.toUpperCase()})
@@ -3467,10 +4172,70 @@
               </div>
             </div>
 
-            <!-- KERTAS A4 / F4 INTERAKTIF (EDITABLE & ANTI-TERPOTONG) -->
             <div class="overflow-x-auto pb-8">
-              <div id="printable-document-area" class="doc-paper paper-${paperSize} ${doc.templateStyle || 'tpl-minimalist-lesson'} ${designStyle}">
-                <!-- KOP LEMBAGA & DUA LOGO (KEMENAG/KEMENDIKBUD & LOGO LEMBAGA) -->
+              <div id="printable-document-area" class="doc-paper paper-${paperSize} orient-${paperOrientation} ${doc.templateStyle || 'tpl-modern-academic'} ${designStyle}">
+                <!-- HALAMAN SAMPUL (COVER) ELEGAN, FORMAL & PROFESIONAL -->
+                <div class="doc-cover-page">
+                  <div style="width:100%;">
+                    <div class="flex items-center justify-center gap-6 mb-4">
+                      ${logoNaungan
+                        ? `<img src="${logoNaungan}" alt="Logo Instansi" class="h-16 w-16 object-contain" />`
+                        : `<div class="w-16 h-16 rounded-xl border border-slate-300 flex items-center justify-center text-[9pt] font-bold text-slate-500 text-center p-1">${naunganDoc === 'Kemenag' ? 'LOGO KEMENAG' : 'LOGO DIKNAS'}</div>`
+                      }
+                      ${logoLembaga
+                        ? `<img src="${logoLembaga}" alt="Logo Lembaga" class="h-16 w-16 object-contain" />`
+                        : `<div class="w-16 h-16 rounded-xl border border-slate-300 flex items-center justify-center text-[9pt] font-bold text-slate-500 text-center p-1">LOGO LEMBAGA</div>`
+                      }
+                    </div>
+                    <p class="text-[10.5pt] font-bold uppercase tracking-widest text-slate-600" style="text-align:center; margin-bottom:2px;">
+                      ${naunganDoc === 'Kemenag' ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : naunganDoc === 'Diknas' ? 'DINAS PENDIDIKAN / KEMENDIKBUDRISTEK' : 'SATUAN PENDIDIKAN'}
+                    </p>
+                    <p class="text-[13pt] font-extrabold uppercase text-slate-900" style="text-align:center; margin-bottom:0;">
+                      ${namaInstitusiDoc}
+                    </p>
+                    <p class="text-[9.5pt] text-slate-500" style="text-align:center; margin-top:2px;">
+                      NPSN: ${npsnDoc || '-'}${naunganDoc === 'Kemenag' && nsmDoc ? ' • NSM: ' + nsmDoc : ''} • ${alamatDoc || ''}, ${kotaDoc || ''}
+                    </p>
+                  </div>
+
+                  <div style="width:100%; margin: 16px 0;">
+                    <span class="doc-cover-badge">DOKUMEN PERANGKAT PEMBELAJARAN RESMI</span>
+                    <h1 contenteditable="true" onblur="window.updateDocTitle(this.innerText)" class="doc-cover-title outline-none focus:ring-2 focus:ring-emerald-400 rounded px-2">
+                      ${doc.judul}
+                    </h1>
+                    <p class="doc-cover-subtitle">
+                      ${doc.kurikulum} • Mata Pelajaran ${doc.mataPelajaran}
+                    </p>
+                  </div>
+
+                  <div class="doc-cover-meta-box">
+                    <table>
+                      <tr><td width="36%"><strong>Jenis Perangkat</strong></td><td width="4%">:</td><td width="60%">${doc.jenisLabel}</td></tr>
+                      <tr><td><strong>Jenjang / Fase / Kelas</strong></td><td>:</td><td>${doc.jenjang} / ${doc.fase} / Kelas ${doc.kelas}</td></tr>
+                      <tr><td><strong>Semester / Tahun Ajaran</strong></td><td>:</td><td>${doc.semester} / ${doc.tahunAjaran}</td></tr>
+                      <tr><td><strong>Materi Pokok</strong></td><td>:</td><td>${doc.materiPokok}</td></tr>
+                      <tr><td><strong>Guru Penyusun</strong></td><td>:</td><td>${doc.namaGuru || state.genForm.namaGuru}</td></tr>
+                      <tr><td><strong>NIP / NUPTK</strong></td><td>:</td><td>${doc.nipGuru || user?.nip || '-'}</td></tr>
+                    </table>
+                  </div>
+
+                  <div style="width:100%;">
+                    <p class="text-[11pt] font-bold text-slate-800 uppercase" style="text-align:center; margin-bottom:2px;">
+                      ${namaInstitusiDoc}
+                    </p>
+                    <p class="text-[10pt] text-slate-600" style="text-align:center; margin-bottom:0;">
+                      ${kotaDoc || '[Kota/Kabupaten]'} • Tahun Ajaran ${doc.tahunAjaran}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- RUNNING HEADER HALAMAN ISI -->
+                <div class="doc-running-header">
+                  <span><strong>${doc.jenisLabel.toUpperCase()}</strong> — ${doc.mataPelajaran} (${doc.jenjang} / Kelas ${doc.kelas})</span>
+                  <span>${namaInstitusiDoc} • ${doc.tahunAjaran}</span>
+                </div>
+
+                <!-- KOP SURAT & JUDUL HALAMAN PERTAMA ISI -->
                 <div class="doc-banner mb-5">
                   <div class="flex items-center justify-between gap-4">
                     <div class="w-16 h-16 shrink-0 flex items-center justify-center">
@@ -3481,21 +4246,21 @@
                     </div>
 
                     <div class="flex-1 text-center">
-                      <p class="text-[10px] uppercase tracking-wider font-bold opacity-85" style="margin-bottom:2px;">
+                      <p class="text-[10px] uppercase tracking-wider font-bold opacity-85" style="margin-bottom:2px; text-align:center;">
                         ${naunganDoc === 'Kemenag' ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : naunganDoc === 'Diknas' ? 'DINAS PENDIDIKAN / KEMENDIKBUDRISTEK' : 'SATUAN PENDIDIKAN'}
                       </p>
-                      <h2 contenteditable="true" class="doc-heading text-base font-extrabold uppercase tracking-tight leading-snug">
+                      <h2 contenteditable="true" class="doc-heading text-base font-extrabold uppercase tracking-tight leading-snug" style="text-align:center;">
                         ${namaInstitusiDoc}
                       </h2>
-                      <p class="text-[10px] opacity-90" style="margin-bottom:4px;">
+                      <p class="text-[10px] opacity-90" style="margin-bottom:4px; text-align:center;">
                         NPSN: ${npsnDoc || '-'}${naunganDoc === 'Kemenag' && nsmDoc ? ' • NSM: ' + nsmDoc : ''} • ${alamatDoc || ''}, ${kotaDoc || ''}
                       </p>
                       <div class="mt-2 pt-2 border-t border-current/20">
-                        <p class="text-[10px] uppercase tracking-widest font-bold opacity-80" style="margin-bottom:2px;">${doc.jenisLabel.toUpperCase()} — ${doc.kurikulum}</p>
-                        <h1 contenteditable="true" onblur="window.updateDocTitle(this.innerText)" class="doc-heading text-base font-extrabold mt-0.5 outline-none focus:ring-2 focus:ring-emerald-400 rounded px-1">
+                        <p class="text-[10px] uppercase tracking-widest font-bold opacity-80" style="margin-bottom:2px; text-align:center;">${doc.jenisLabel.toUpperCase()} — ${doc.kurikulum}</p>
+                        <h1 contenteditable="true" onblur="window.updateDocTitle(this.innerText)" class="doc-heading mt-0.5 outline-none focus:ring-2 focus:ring-emerald-400 rounded px-1">
                           ${doc.judul}
                         </h1>
-                        <p class="text-[11px] mt-0.5 opacity-90" style="margin-bottom:0;">
+                        <p class="text-[11px] mt-0.5 opacity-90" style="margin-bottom:0; text-align:center;">
                           ${doc.jenjang} • ${doc.fase} • Kelas ${doc.kelas} • Semester ${doc.semester} (${doc.tahunAjaran})
                         </p>
                       </div>
@@ -3510,13 +4275,13 @@
                   </div>
                 </div>
 
-                <!-- SEKSI DOKUMEN EDITABLE -->
+                <!-- KONTEN PERANGKAT PEMBELAJARAN -->
                 <div class="space-y-4">
                   ${doc.sections.map(sec => `
-                    <div class="doc-section-block group relative">
+                    <div class="doc-section-block group relative ${sec.pageBreakBefore ? 'doc-page-break' : ''}">
                       <div class="flex items-center justify-between gap-2 mb-1.5">
                         <h3 contenteditable="true" onblur="window.updateSectionTitle('${sec.id}', this.innerText)"
-                          class="doc-heading doc-section-title font-bold text-sm outline-none focus:bg-emerald-50 rounded px-1">
+                          class="doc-heading doc-section-title outline-none focus:bg-emerald-50 rounded px-1">
                           ${sec.title}
                         </h3>
                         <button onclick="window.removeSection('${sec.id}')" title="Hapus Bagian"
@@ -3532,22 +4297,28 @@
                   `).join('')}
                 </div>
 
-                <!-- TANDA TANGAN PENGESAHAN DENGAN KOTA/KABUPATEN & TANGGAL PENYUSUNAN -->
+                <!-- BLOK PENGESAHAN TANDA TANGAN RESMI -->
                 <div class="doc-signature-block mt-8 pt-5 border-t border-slate-200 grid grid-cols-2 gap-8 text-xs">
                   <div>
-                    <p style="margin-bottom:2px;">Mengetahui,</p>
-                    <p style="margin-bottom:2px;">Kepala Sekolah / Madrasah</p>
+                    <p style="margin-bottom:2px; text-align:left;">Mengetahui,</p>
+                    <p style="margin-bottom:2px; text-align:left;">Kepala Sekolah / Madrasah</p>
                     <div class="h-16"></div>
-                    <p class="font-bold underline" style="margin-bottom:2px;" contenteditable="true">${kepalaDoc || '......................................................'}</p>
-                    <p style="margin-bottom:0;" contenteditable="true">NIP. ${nipKepalaDoc || '...........................................'}</p>
+                    <p class="font-bold underline" style="margin-bottom:2px; text-align:left;" contenteditable="true">${kepalaDoc || '......................................................'}</p>
+                    <p style="margin-bottom:0; text-align:left;" contenteditable="true">NIP. ${nipKepalaDoc || '...........................................'}</p>
                   </div>
                   <div>
-                    <p style="margin-bottom:2px;" contenteditable="true">${kotaDoc || '....................'}, ${tglDoc || '....................'}</p>
-                    <p style="margin-bottom:2px;">Guru Mata Pelajaran</p>
+                    <p style="margin-bottom:2px; text-align:left;" contenteditable="true">${kotaDoc || '....................'}, ${tglDoc || '....................'}</p>
+                    <p style="margin-bottom:2px; text-align:left;">Guru Mata Pelajaran</p>
                     <div class="h-16"></div>
-                    <p class="font-bold underline" style="margin-bottom:2px;" contenteditable="true">${doc.namaGuru || state.genForm.namaGuru}</p>
-                    <p style="margin-bottom:0;" contenteditable="true">NIP. ${doc.nipGuru || user?.nip || '...........................................'}</p>
+                    <p class="font-bold underline" style="margin-bottom:2px; text-align:left;" contenteditable="true">${doc.namaGuru || state.genForm.namaGuru}</p>
+                    <p style="margin-bottom:0; text-align:left;" contenteditable="true">NIP. ${doc.nipGuru || user?.nip || '...........................................'}</p>
                   </div>
+                </div>
+
+                <!-- RUNNING FOOTER & NOMOR HALAMAN -->
+                <div class="doc-running-footer">
+                  <span>Perangkat Pembelajaran Resmi • ${namaInstitusiDoc} (${paperSize.toUpperCase()})</span>
+                  <span class="doc-page-number"></span>
                 </div>
               </div>
             </div>
@@ -3555,7 +4326,7 @@
         `;
       }
 
-      // 4. ARSIP PERANGKAT TERSIMPAN (TERISOLASI PER AKUN, ADMIN AKSES SEMUA)
+      // 4. ARSIP PERANGKAT TERSIMPAN
       if (m === 'documents') {
         const filtered = docs.filter(d => {
           const matchSearch = !state.searchQuery ||
@@ -3567,7 +4338,7 @@
 
         return `
           <div class="space-y-5">
-            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col sm:flex-row gap-3 justify-between">
+            <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col sm:flex-row gap-3 justify-between">
               <input type="text" value="${state.searchQuery}" oninput="state.searchQuery = this.value; window.renderApp();"
                 placeholder="Cari judul perangkat atau mata pelajaran..."
                 class="flex-1 px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800 text-xs" />
@@ -3579,13 +4350,13 @@
             </div>
 
             ${filtered.length === 0 ? `
-              <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-10 text-center text-xs text-slate-500">
+              <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-10 text-center text-xs text-slate-500">
                 Tidak ada dokumen yang sesuai filter saat ini.
               </div>
             ` : `
               <div class="grid md:grid-cols-2 gap-4">
                 ${filtered.map(d => `
-                  <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-5 flex flex-col justify-between gap-4">
+                  <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-5 flex flex-col justify-between gap-4">
                     <div>
                       <div class="flex items-center justify-between gap-2 mb-2">
                         <span class="px-2.5 py-0.5 rounded-full bg-mintSoft text-emeraldDeep text-[10px] font-bold">${d.jenisLabel}</span>
@@ -3608,15 +4379,15 @@
         `;
       }
 
-      // 4B. MENU DATA INSTANSI (NAUNGAN DIKNAS / KEMENAG) & DATA LEMBAGA + UPLOAD LOGO
+      // 4B. MENU DATA INSTANSI
       if (m === 'institution') {
         const inst = state.institutionData;
         return `
           <div class="max-w-4xl space-y-6">
-            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-xs">
+            <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-xs">
               <div class="border-b border-slate-200 dark:border-slate-700 pb-4 mb-6">
                 <h3 class="font-display text-lg font-extrabold text-slate-900 dark:text-white">Data Instansi Naungan & Identitas Madrasah / Sekolah</h3>
-                <p class="text-xs text-slate-500 mt-1">Data ini otomatis menjadi Kop Surat resmi pada seluruh dokumen perangkat pembelajaran (Modul Ajar, LKPD, Asesmen, ATP, Prota/Promes) dan terisi otomatis pada form generator.</p>
+                <p class="text-xs text-slate-500 mt-1">Data ini otomatis menjadi Kop Surat resmi pada seluruh dokumen perangkat pembelajaran dan terisi otomatis pada form generator.</p>
               </div>
 
               <form onsubmit="window.saveInstitutionData(event)" class="space-y-5 text-xs">
@@ -3695,9 +4466,8 @@
               </form>
             </div>
 
-            <!-- UPLOAD LOGO KEMENAG/KEMENDIKBUD & LOGO LEMBAGA -->
             <div class="grid md:grid-cols-2 gap-6">
-              <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-4">
+              <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-4">
                 <div class="flex items-center justify-between">
                   <div>
                     <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">Logo Kemenag / Kemendikbud (Kiri Kop)</h4>
@@ -3717,7 +4487,7 @@
                   class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-mintSoft file:text-emeraldDeep hover:file:bg-emerald-200 cursor-pointer" />
               </div>
 
-              <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-4">
+              <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-4">
                 <div class="flex items-center justify-between">
                   <div>
                     <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">Logo Sekolah / Madrasah (Kanan Kop)</h4>
@@ -3745,7 +4515,7 @@
       if (m === 'calendar') {
         const cal = state.calendarData;
         return `
-          <div class="max-w-3xl bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 space-y-5">
+          <div class="max-w-3xl app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 space-y-5">
             <div>
               <h3 class="font-display font-extrabold text-base">Kalender Pendidikan Satuan Pendidikan</h3>
               <p class="text-xs text-slate-500 mt-1">Atur jumlah minggu efektif dan jadwal semester sekolah/madrasah Anda. Data ini otomatis digunakan saat menyusun Prota & Promes.</p>
@@ -3788,7 +4558,7 @@
       if (m === 'templates') {
         return `
           <div class="space-y-6">
-            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
+            <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
               <h3 class="font-display font-extrabold text-base mb-1">Pilihan Tema Dokumen & Palet Warna</h3>
               <p class="text-xs text-slate-500 mb-5">Klik salah satu tema di bawah ini untuk langsung menerapkannya pada dokumen aktif di Editor A4 / F4.</p>
               <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -3808,7 +4578,7 @@
               </div>
             </div>
 
-            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
+            <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
               <h3 class="font-display font-extrabold text-base mb-1">Gaya Desain Berdasarkan Jenjang</h3>
               <p class="text-xs text-slate-500 mb-4">Sesuaikan gaya tata letak visual dokumen dengan jenjang peserta didik Anda.</p>
               <div class="grid md:grid-cols-3 gap-4">
@@ -3830,12 +4600,12 @@
         `;
       }
 
-      // 7. ADMIN: KONTROL SEMUA AKUN GURU & KONFIRMASI PEMBAYARAN (TAMBAH, EDIT, LIHAT/RESET PASSWORD, HAPUS)
+      // 7. ADMIN: KONTROL SEMUA AKUN GURU
       if (m === 'users' && isAdmin) {
         const modal = state.adminUserModal;
         return `
           <div class="space-y-5">
-            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
+            <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h3 class="font-display font-extrabold text-base">Manajemen Semua Akun Guru & Konfirmasi Pembayaran</h3>
@@ -3920,7 +4690,6 @@
               </div>
             </div>
 
-            <!-- MODAL TAMBAH / EDIT / RESET PASSWORD GURU -->
             ${modal ? `
               <div class="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4">
                 <div class="bg-white dark:bg-darkCard rounded-3xl max-w-lg w-full p-6 sm:p-7 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4">
@@ -4011,7 +4780,7 @@
       if (m === 'announcements' && isAdmin) {
         return `
           <div class="max-w-4xl space-y-6">
-            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-xs">
+            <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-xs">
               <div class="border-b border-slate-200 dark:border-slate-700 pb-4 mb-5">
                 <h3 class="font-display font-extrabold text-base text-slate-900 dark:text-white">Kirim Pemberitahuan / Informasi ke Seluruh Guru</h3>
                 <p class="text-xs text-slate-500 mt-1">Pemberitahuan yang diterbitkan akan langsung tampil pada Dashboard dan lonceng notifikasi seluruh akun Guru.</p>
@@ -4054,7 +4823,7 @@
               </form>
             </div>
 
-            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-4">
+            <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-4">
               <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">Daftar Pemberitahuan Aktif (${state.announcements.length})</h4>
               ${state.announcements.length === 0 ? `
                 <p class="text-xs text-slate-500 py-6 text-center">Belum ada pemberitahuan yang diterbitkan.</p>
@@ -4092,7 +4861,7 @@
       if (m === 'admin-profile' && isAdmin) {
         const pay = state.adminPaymentConfig;
         return `
-          <div class="max-w-3xl bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 space-y-5">
+          <div class="max-w-3xl app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 space-y-5">
             <div>
               <h3 class="font-display font-extrabold text-base">Profil Admin & Informasi Pembayaran (Tampil di Halaman Daftar)</h3>
               <p class="text-xs text-slate-500 mt-1">Data di bawah ini ditampilkan secara langsung kepada calon pendaftar akun Guru baru di halaman pendaftaran.</p>
@@ -4136,7 +4905,7 @@
         `;
       }
 
-      // 8B. ADMIN: TEMA APLIKASI GLOBAL (BERLAKU UNTUK ADMIN & SELURUH AKUN GURU)
+      // 8B. ADMIN: TEMA APLIKASI GLOBAL
       if (m === 'app-theme' && isAdmin) {
         return `
           <div class="max-w-5xl space-y-6">
@@ -4198,7 +4967,7 @@
       // 9. PROFIL GURU
       if (m === 'profile') {
         return `
-          <div class="max-w-2xl bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-5">
+          <div class="max-w-2xl app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-5">
             <h3 class="font-display font-extrabold text-base">Profil Guru Penyusun</h3>
             <form onsubmit="window.saveProfileSettings(event)" class="space-y-4 text-xs">
               <div>
@@ -4220,7 +4989,7 @@
 
       // 10. PENGATURAN AI
       return `
-        <div class="max-w-2xl bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-5">
+        <div class="max-w-2xl app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-5">
           <div>
             <h3 class="font-display font-extrabold text-base">Konfigurasi AI Provider & Preferensi Sistem</h3>
             <p class="text-xs text-slate-500 mt-1">API Key disimpan aman hanya di memori sesi browser Anda dan tidak pernah disimpan di kode publik.</p>
@@ -4283,7 +5052,6 @@
     window.state = state;
     window.renderApp = renderApp;
 
-    // Sinkronisasi real-time antar-tab jika Admin mengubah Tema Aplikasi Global
     window.addEventListener('storage', (e) => {
       if (e.key === 'klikajar_global_theme_v1' && e.newValue) {
         state.globalAppTheme = e.newValue;
@@ -4292,7 +5060,6 @@
       }
     });
 
-    // Pulihkan sesi sebelum render pertama agar tidak keluar saat halaman di-refresh
     restoreSessionState();
     applyGlobalAppThemeClass();
     initFirebaseIfProduction();
