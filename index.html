@@ -812,6 +812,14 @@
     // PERSISTENSI SESI AKTIF (AGAR TIDAK KELUAR SAAT REFRESH)
     // =========================================================================
     const SESSION_KEY = 'klikajar_active_session_v2';
+    const PREVIEW_USERS_KEY = 'klikajar_preview_users_v1';
+
+    function syncPreviewUsersStorage() {
+      if (!IS_PREVIEW) return;
+      try {
+        localStorage.setItem(PREVIEW_USERS_KEY, JSON.stringify(state.usersList));
+      } catch (e) {}
+    }
 
     function applyGlobalAppThemeClass() {
       const body = document.body;
@@ -859,6 +867,15 @@
         const savedTheme = localStorage.getItem('klikajar_global_theme_v1');
         if (savedTheme) {
           state.globalAppTheme = savedTheme;
+        }
+        if (IS_PREVIEW) {
+          const savedUsers = localStorage.getItem(PREVIEW_USERS_KEY);
+          if (savedUsers) {
+            const parsedUsers = JSON.parse(savedUsers);
+            if (Array.isArray(parsedUsers) && parsedUsers.length > 0) {
+              state.usersList = parsedUsers;
+            }
+          }
         }
         const raw = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
         if (raw) {
@@ -1800,24 +1817,40 @@
     // ADMIN: KONFIRMASI, AKTIFKAN, HAPUS, ATAU MASUK KE AKUN GURU
     window.approveGuruAccount = async (userId) => {
       const idx = state.usersList.findIndex(u => u.id === userId);
-      if (idx === -1) return;
-      state.usersList[idx].status = 'active';
+      if (idx === -1) {
+        showToast('Data akun guru tidak ditemukan.', 'error');
+        return;
+      }
+
       if (!IS_PREVIEW && fbDb && fbMod) {
         try {
-          await fbMod.updateDoc(fbMod.doc(fbDb, 'users', userId), { status: 'active' });
-        } catch (err) {}
+          await fbMod.updateDoc(fbMod.doc(fbDb, 'users', userId), {
+            status: 'active',
+            approvedAt: new Date().toISOString()
+          });
+        } catch (err) {
+          showToast('Gagal mengonfirmasi ke Firebase: ' + (err.message || 'Periksa Firestore Rules / Login Admin'), 'error');
+          return;
+        }
       }
+
+      state.usersList[idx].status = 'active';
+      syncPreviewUsersStorage();
       showToast(`Akun ${state.usersList[idx].namaLengkap} telah dikonfirmasi & diaktifkan!`);
       renderApp();
     };
 
     window.deleteGuruAccount = async (userId) => {
-      state.usersList = state.usersList.filter(u => u.id !== userId);
       if (!IS_PREVIEW && fbDb && fbMod) {
         try {
           await fbMod.deleteDoc(fbMod.doc(fbDb, 'users', userId));
-        } catch (err) {}
+        } catch (err) {
+          showToast('Gagal menghapus akun di Firebase: ' + (err.message || 'Periksa izin Admin'), 'error');
+          return;
+        }
       }
+      state.usersList = state.usersList.filter(u => u.id !== userId);
+      syncPreviewUsersStorage();
       showToast('Akun guru dihapus.');
       renderApp();
     };
@@ -1887,12 +1920,16 @@
         }
         const idx = state.usersList.findIndex(u => u.id === user.id);
         if (idx !== -1) {
-          state.usersList[idx].password = newPassword;
           if (!IS_PREVIEW && fbDb && fbMod) {
             try {
               await fbMod.updateDoc(fbMod.doc(fbDb, 'users', user.id), { password: newPassword });
-            } catch (err) {}
+            } catch (err) {
+              showToast('Gagal mereset password di Firebase: ' + (err.message || 'Periksa Firestore Rules'), 'error');
+              return;
+            }
           }
+          state.usersList[idx].password = newPassword;
+          syncPreviewUsersStorage();
           showToast(`Password akun ${state.usersList[idx].namaLengkap} berhasil direset!`);
         }
         state.adminUserModal = null;
@@ -1920,38 +1957,50 @@
       }
 
       if (mode === 'add') {
-        const duplicate = state.usersList.some(u => u.username.toLowerCase() === payload.username.toLowerCase());
+        const duplicate = state.usersList.some(u => (u.username || '').toLowerCase() === payload.username.toLowerCase());
         if (duplicate) {
           showToast('Username sudah digunakan akun lain.', 'error');
           return;
         }
-        const newUser = {
-          id: 'guru-' + Date.now(),
+        const newUserData = {
           ...payload,
           createdAt: new Date().toISOString().split('T')[0]
         };
         if (IS_PREVIEW) {
-          state.usersList.unshift(newUser);
+          state.usersList.unshift({
+            id: 'guru-' + Date.now(),
+            ...newUserData
+          });
+          syncPreviewUsersStorage();
         } else if (fbDb && fbMod) {
           try {
-            const ref = await fbMod.addDoc(fbMod.collection(fbDb, 'users'), newUser);
-            newUser.id = ref.id;
-            state.usersList.unshift(newUser);
+            const ref = await fbMod.addDoc(fbMod.collection(fbDb, 'users'), newUserData);
+            state.usersList.unshift({
+              id: ref.id,
+              ...newUserData
+            });
           } catch (err) {
-            showToast('Gagal menambah guru ke database.', 'error');
+            showToast('Gagal menambah guru ke Firebase: ' + (err.message || 'Pastikan Firestore Rules sudah di-publish & Anda login sebagai Admin'), 'error');
             return;
           }
+        } else {
+          showToast('Koneksi database Firebase belum siap.', 'error');
+          return;
         }
-        showToast(`Akun Guru ${newUser.namaLengkap} berhasil ditambahkan!`);
+        showToast(`Akun Guru ${newUserData.namaLengkap} berhasil ditambahkan!`);
       } else if (mode === 'edit') {
         const idx = state.usersList.findIndex(u => u.id === user.id);
         if (idx !== -1) {
-          state.usersList[idx] = { ...state.usersList[idx], ...payload };
           if (!IS_PREVIEW && fbDb && fbMod) {
             try {
               await fbMod.updateDoc(fbMod.doc(fbDb, 'users', user.id), payload);
-            } catch (err) {}
+            } catch (err) {
+              showToast('Gagal memperbarui data guru di Firebase: ' + (err.message || 'Periksa izin Admin'), 'error');
+              return;
+            }
           }
+          state.usersList[idx] = { ...state.usersList[idx], ...payload };
+          syncPreviewUsersStorage();
           showToast(`Data akun ${payload.namaLengkap} berhasil diperbarui!`);
         }
       }
