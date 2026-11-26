@@ -3774,97 +3774,97 @@
                   class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
               </div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama Kepala RA / Madrasah</label>
-                <input type="text" id="set-kepala" value="${escapeHtml(m.nama_kepala)}"
-                  placeholder="Nama lengkap & gelar Kepala Madrasah"
-                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
+          <form id="admin-profile-form" class="max-w-3xl mx-auto">
+            <!-- Data Pribadi Admin & Rekening Bank -->
+            <div class="neu-card rounded-3xl p-5 sm:p-6 space-y-5">
+              <div class="pb-3 border-b border-slate-200/70">
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-800">Data Pribadi Admin & Konfirmasi WhatsApp</h2>
+                <p class="text-xs text-slate-400">Nomor WhatsApp Admin akan ditampilkan di halaman Login & Pendaftaran untuk konfirmasi persetujuan akun.</p>
               </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5">NIP Kepala RA / Madrasah</label>
-                <input type="text" id="set-nip-kepala" value="${escapeHtml(m.nip_kepala)}"
-                  placeholder="NIP Kepala Madrasah"
-                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
-              </div>
-            </div>
 
-            <!-- 4 Kartu Upload Gambar: Logo Kemenag, Logo Madrasah, TTD Kepala, TTD Penyusun -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-              <!-- Logo Kemenag RI -->
-              <div class="neu-surface rounded-2xl p-4 text-center space-y-2.5">
-                <div class="text-xs font-extrabold text-slate-700">Logo Kemenag RI</div>
-                <div class="h-20 rounded-xl neu-inset flex items-center justify-center overflow-hidden p-2">
-                  ${m.logo_kemenag_url
-                    ? `<img src="${m.logo_kemenag_url}" alt="Logo Kemenag" class="max-h-full max-w-full object-contain" />`
-                    : `<span class="text-[11px] text-slate-400">Belum diunggah</span>`}
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama Lengkap Admin *</label>
+                  <input type="text" id="adm-nama" required value="${escapeHtml(adm.nama_admin || "")}"
+                    placeholder="Contoh: Ahmad Fauzi, M.Pd"
+                    class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
                 </div>
-                <div class="flex items-center justify-center gap-2">
-                  <label class="neu-btn px-3 py-1.5 rounded-xl text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
-                    Pilih File
-                    <input type="file" accept="image/*" onchange="window.__uploadMadrasahImage('logo_kemenag_url', event)" class="hidden" />
-                  </label>
-                  ${m.logo_kemenag_url ? `<button type="button" onclick="window.__clearMadrasahImage('logo_kemenag_url')" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Jabatan / Peran Admin</label>
+                  <input type="text" id="adm-jabatan" value="${escapeHtml(adm.jabatan_admin || "")}"
+                    placeholder="Contoh: Administrator / Koordinator"
+                    class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
                 </div>
               </div>
 
-              <!-- Logo RA / Madrasah -->
-              <div class="neu-surface rounded-2xl p-4 text-center space-y-2.5">
-                <div class="text-xs font-extrabold text-slate-700">Logo RA / Madrasah</div>
-                <div class="h-20 rounded-xl neu-inset flex items-center justify-center overflow-hidden p-2">
-                  ${m.logo_url
-                    ? `<img src="${m.logo_url}" alt="Logo Madrasah" class="max-h-full max-w-full object-contain" />`
-                    : `<span class="text-[11px] text-slate-400">Belum diunggah</span>`}
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Email Kontak Admin</label>
+                  <input type="email" id="adm-email" value="${escapeHtml(adm.email_admin || state.user?.username || "")}"
+                    placeholder="admin@madrasah.sch.id"
+                    class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
                 </div>
-                <div class="flex items-center justify-center gap-2">
-                  <label class="neu-btn px-3 py-1.5 rounded-xl text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
-                    Pilih File
-                    <input type="file" accept="image/*" onchange="window.__uploadMadrasahImage('logo_url', event)" class="hidden" />
-                  </label>
-                  ${m.logo_url ? `<button type="button" onclick="window.__clearMadrasahImage('logo_url')" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
-                </div>
-              </div>
-
-              <!-- TTD Kepala -->
-              <div class="neu-surface rounded-2xl p-4 text-center space-y-2.5">
-                <div class="text-xs font-extrabold text-slate-700">TTD Kepala Madrasah</div>
-                <div class="h-20 rounded-xl neu-inset flex items-center justify-center overflow-hidden p-2">
-                  ${m.ttd_kepala_url
-                    ? `<img src="${m.ttd_kepala_url}" alt="TTD Kepala" class="max-h-full max-w-full object-contain" />`
-                    : `<span class="text-[11px] text-slate-400">Belum diunggah</span>`}
-                </div>
-                <div class="flex items-center justify-center gap-2">
-                  <label class="neu-btn px-3 py-1.5 rounded-xl text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
-                    Pilih File
-                    <input type="file" accept="image/*" onchange="window.__uploadMadrasahImage('ttd_kepala_url', event)" class="hidden" />
-                  </label>
-                  ${m.ttd_kepala_url ? `<button type="button" onclick="window.__clearMadrasahImage('ttd_kepala_url')" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1.5">No. WhatsApp Admin (Tampil di Login) *</label>
+                  <input type="text" id="adm-whatsapp" required value="${escapeHtml(adm.whatsapp_admin || "")}"
+                    placeholder="Contoh: 081234567890 atau 6281234567890"
+                    class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-emerald-700" />
+                  ${waPreviewLink ? `
+                    <a href="${waPreviewLink}" target="_blank" rel="noopener noreferrer"
+                      class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 mt-1 hover:underline">
+                      <i data-lucide="external-link" class="w-3 h-3"></i> Uji Tautan WhatsApp Admin
+                    </a>
+                  ` : ``}
                 </div>
               </div>
 
-              <!-- TTD Penyusun / Guru -->
-              <div class="neu-surface rounded-2xl p-4 text-center space-y-2.5">
-                <div class="text-xs font-extrabold text-slate-700">TTD Penyusun / Guru</div>
-                <div class="h-20 rounded-xl neu-inset flex items-center justify-center overflow-hidden p-2">
-                  ${ttdPenyusunPreview
-                    ? `<img src="${ttdPenyusunPreview}" alt="TTD Penyusun" class="max-h-full max-w-full object-contain" />`
-                    : `<span class="text-[11px] text-slate-400">Belum diunggah</span>`}
+              <div class="pt-3 border-t border-slate-200/70">
+                <h3 class="text-sm font-extrabold text-slate-800 mb-1">Informasi Rekening Pembayaran Pelanggan</h3>
+                <p class="text-xs text-slate-400 mb-3">Ditampilkan pada halaman pendaftaran guru baru apabila terdapat biaya aktivasi / berlangganan.</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama Bank / E-Wallet</label>
+                    <input type="text" id="adm-bank-nama" value="${escapeHtml(adm.bank_nama || "")}"
+                      placeholder="Contoh: BSI / BRI / Mandiri / DANA"
+                      class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Nomor Rekening</label>
+                    <input type="text" id="adm-bank-rekening" value="${escapeHtml(adm.bank_rekening || "")}"
+                      placeholder="Contoh: 7123456789"
+                      class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-slate-800" />
+                  </div>
                 </div>
-                <div class="flex items-center justify-center gap-2">
-                  <label class="neu-btn px-3 py-1.5 rounded-xl text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
-                    Pilih File
-                    <input type="file" accept="image/*" onchange="window.__uploadTtdGuruQuick(event)" class="hidden" />
-                  </label>
-                  ${ttdPenyusunPreview ? `<button type="button" onclick="window.__clearTtdGuruQuick()" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3.5">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Atas Nama Rekening</label>
+                    <input type="text" id="adm-bank-an" value="${escapeHtml(adm.bank_atas_nama || "")}"
+                      placeholder="Nama pemilik rekening"
+                      class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Nominal / Paket Aktivasi (Opsional)</label>
+                    <input type="text" id="adm-biaya" value="${escapeHtml(adm.biaya_aktivasi || "")}"
+                      placeholder="Contoh: Rp 50.000 / Tahun"
+                      class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
+                  </div>
+                </div>
+
+                <div class="mt-3.5">
+                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Instruksi / Catatan Pembayaran</label>
+                  <textarea rows="2" id="adm-catatan"
+                    placeholder="Petunjuk konfirmasi bukti transfer ke WhatsApp Admin..."
+                    class="neu-input w-full rounded-xl px-3.5 py-2 text-xs text-slate-800">${escapeHtml(adm.catatan_pembayaran || "")}</textarea>
                 </div>
               </div>
-            </div>
 
-            <div class="pt-2 flex justify-end">
-              <button type="submit" class="brand-gradient text-white px-6 py-3 rounded-2xl text-xs font-extrabold inline-flex items-center gap-2">
-                <i data-lucide="save" class="w-4 h-4"></i> Simpan Pengaturan Madrasah
-              </button>
+              <div class="pt-2">
+                <button type="submit" class="w-full brand-gradient text-white py-3.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg">
+                  <i data-lucide="save" class="w-4 h-4"></i> Simpan Data Admin & Rekening
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -4311,7 +4311,7 @@
 
       const adminNavItems = [
         { id: "guru", label: "Akun Guru", icon: "users" },
-        { id: "admin_profile", label: "Profil & QRIS", icon: "wallet" },
+        { id: "admin_profile", label: "Profil Admin", icon: "wallet" },
         { id: "database", label: "Firestore", icon: "database" }
       ];
 
@@ -4569,21 +4569,6 @@
 
     window.__clearMadrasahImage = (fieldKey) => {
       state.madrasah[fieldKey] = "";
-      renderApp();
-    };
-
-    window.__uploadAdminQris = (event) => {
-      const file = event.target?.files?.[0];
-      processImageUpload(file, 420, 420, (dataUrl) => {
-        state.adminProfile.qris_url = dataUrl;
-        showToast("Gambar QRIS siap. Klik Simpan Data Admin untuk mempermanenkan.", "success");
-        renderApp();
-      });
-    };
-
-    window.__clearAdminQris = () => {
-      state.adminProfile.qris_url = "";
-      showToast("Gambar QRIS dihapus.", "info");
       renderApp();
     };
 
@@ -5098,8 +5083,7 @@
             bank_rekening: document.getElementById("adm-bank-rekening").value.trim(),
             bank_atas_nama: document.getElementById("adm-bank-an").value.trim(),
             biaya_aktivasi: document.getElementById("adm-biaya").value.trim(),
-            catatan_pembayaran: document.getElementById("adm-catatan").value.trim(),
-            qris_url: state.adminProfile.qris_url || ""
+            catatan_pembayaran: document.getElementById("adm-catatan").value.trim()
           };
           try {
             state.adminProfile = updatedAdmin;
@@ -5108,7 +5092,7 @@
             }
             if (IS_PREVIEW) {
               state.madrasah.admin_profile = updatedAdmin;
-              showToast("Data pribadi Admin, Rekening & QRIS berhasil diperbarui (Mode Preview)!", "success");
+              showToast("Data pribadi Admin & Rekening berhasil diperbarui (Mode Preview)!", "success");
               renderApp();
             } else {
               await setDoc(
@@ -5117,7 +5101,7 @@
                 { merge: true }
               );
               state.madrasah.admin_profile = updatedAdmin;
-              showToast("Data pribadi Admin, Rekening & QRIS berhasil disimpan ke Firestore!", "success");
+              showToast("Data pribadi Admin & Rekening berhasil disimpan ke Firestore!", "success");
               renderApp();
             }
           } catch (err) {
