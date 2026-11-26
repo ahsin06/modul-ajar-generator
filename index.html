@@ -558,6 +558,7 @@
         ttd_kepala_url: "",
         ttd_penyusun_url: ""
       },
+      madrasahByUser: {},
       adminProfile: {
         nama_admin: "Administrator KlikAjar",
         jabatan_admin: "Admin & Koordinator Kurikulum",
@@ -688,8 +689,44 @@
     function getAccessiblePerangkatList() {
       if (!state.user) return [];
       if (state.user.role === "ADMIN") return state.perangkatList;
-      const uname = (state.user.username || "").toLowerCase();
-      return state.perangkatList.filter((d) => (d.author_username || "").toLowerCase() === uname);
+      const uname = (state.user.username || "").trim().toLowerCase();
+      if (!uname) return [];
+      return state.perangkatList.filter((d) => (d.author_username || "").trim().toLowerCase() === uname);
+    }
+
+    function getMadrasahDocIdForCurrentUser() {
+      if (state.user?.role === "GURU" && state.user?.username) {
+        const cleanUname = String(state.user.username).trim().toLowerCase().replace(/[^a-z0-9._-]/g, "_");
+        return `madrasah_guru_${cleanUname}`;
+      }
+      return "profil_utama";
+    }
+
+    async function loadUserMadrasahProfile() {
+      if (!state.user) return;
+      const docId = getMadrasahDocIdForCurrentUser();
+      if (IS_PREVIEW) {
+        if (state.madrasahByUser[docId]) {
+          state.madrasah = { ...state.madrasah, ...state.madrasahByUser[docId] };
+          if (state.madrasahByUser[docId].ttd_penyusun_url !== undefined) {
+            state.userTtdUrl = state.madrasahByUser[docId].ttd_penyusun_url;
+          }
+        }
+        return;
+      }
+      try {
+        if (!db) initFirebaseAndListeners();
+        const snap = await getDoc(doc(db, "pengaturan_madrasah", docId));
+        if (snap.exists()) {
+          const data = snap.data();
+          state.madrasah = { ...state.madrasah, ...data };
+          if (data.ttd_penyusun_url !== undefined) {
+            state.userTtdUrl = data.ttd_penyusun_url;
+          }
+        }
+      } catch (err) {
+        console.warn("Gagal memuat profil madrasah pengguna:", err.message);
+      }
     }
 
     // =========================================================================
@@ -828,6 +865,7 @@
             state.genForm.jenis_guru = state.user.jenis_guru;
             state.genForm.peran_guru = [state.user.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mata Pelajaran"];
             if (!state.selectedTrack) state.selectedTrack = "KURMER";
+            loadUserMadrasahProfile();
             syncSessionToHash();
           } else if (saved.nama) {
             // Tetap pulihkan sesi guru yang baru dibuat selama preview sebelum list reset
@@ -845,6 +883,7 @@
             state.genForm.jenis_guru = state.user.jenis_guru;
             state.genForm.peran_guru = [state.user.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mata Pelajaran"];
             if (!state.selectedTrack) state.selectedTrack = "KURMER";
+            loadUserMadrasahProfile();
             syncSessionToHash();
           } else {
             clearSessionHash();
@@ -883,6 +922,7 @@
               state.genForm.jenis_guru = state.user.jenis_guru;
               state.genForm.peran_guru = [state.user.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mata Pelajaran"];
               if (!state.selectedTrack) state.selectedTrack = "KURMER";
+              await loadUserMadrasahProfile();
               syncSessionToHash();
             } else {
               clearSessionHash();
@@ -937,7 +977,10 @@
           unsubMadrasah = onSnapshot(doc(db, "pengaturan_madrasah", "profil_utama"), (snap) => {
             if (snap.exists()) {
               const data = snap.data();
-              state.madrasah = { ...state.madrasah, ...data };
+              // Hanya timpa state.madrasah dari profil_utama jika bukan Guru (Guru punya profil madrasahnya sendiri)
+              if (!state.user || state.user.role === "ADMIN") {
+                state.madrasah = { ...state.madrasah, ...data };
+              }
               if (data.admin_profile) {
                 state.adminProfile = { ...state.adminProfile, ...data.admin_profile };
               }
@@ -1071,11 +1114,14 @@
           jenis_guru: matchedGuru.jenis_guru || "Guru Mapel"
         };
         state.userNip = matchedGuru.nip || "";
+        state.userTtdUrl = "";
         state.genForm.nip_penyusun = matchedGuru.nip || "";
         state.genForm.jenjang = state.user.jenjang;
         state.genForm.jenis_guru = state.user.jenis_guru;
         state.genForm.peran_guru = [state.user.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mata Pelajaran"];
+        state.generatedDoc = null;
         state.activeMenu = "dashboard";
+        await loadUserMadrasahProfile();
         syncSessionToHash();
         showToast(`Selamat datang, ${state.user.nama}!`, "success");
       } catch (err) {
@@ -1122,7 +1168,9 @@
             nama: state.adminProfile?.nama_admin || "Administrator Madrasah",
             jenjang: "MA"
           };
+          state.generatedDoc = null;
           state.activeMenu = "dashboard";
+          await loadUserMadrasahProfile();
           syncSessionToHash();
           showToast("Berhasil masuk sebagai Administrator Madrasah!", "success");
         }
@@ -1141,6 +1189,8 @@
         }
       } catch (e) {}
       state.user = null;
+      state.userNip = "";
+      state.userTtdUrl = "";
       state.generatedDoc = null;
       state.activeMenu = "dashboard";
       clearSessionHash();
@@ -4752,7 +4802,13 @@
       if (madrasahForm) {
         madrasahForm.onsubmit = async (e) => {
           e.preventDefault();
+          const isGuru = state.user?.role === "GURU";
+          const ownerUsername = isGuru ? String(state.user.username || "").trim().toLowerCase() : "admin";
+          const targetDocId = getMadrasahDocIdForCurrentUser();
+
           const updated = {
+            owner_username: ownerUsername,
+            owner_nama: state.user?.nama || "Administrator",
             nama_madrasah: document.getElementById("set-nama-madrasah").value.trim(),
             nsm: document.getElementById("set-nsm").value.trim(),
             npsn: document.getElementById("set-npsn").value.trim(),
@@ -4763,21 +4819,40 @@
             logo_kemenag_url: state.madrasah.logo_kemenag_url || "",
             logo_url: state.madrasah.logo_url || "",
             ttd_kepala_url: state.madrasah.ttd_kepala_url || "",
-            ttd_penyusun_url: state.userTtdUrl || state.madrasah.ttd_penyusun_url || "",
-            admin_profile: state.adminProfile
+            ttd_penyusun_url: state.userTtdUrl || state.madrasah.ttd_penyusun_url || ""
           };
+          if (!isGuru) {
+            updated.admin_profile = state.adminProfile;
+          }
+
           try {
             if (IS_PREVIEW) {
-              state.madrasah = updated;
-              showToast("Profil, Logo Kemenag/Madrasah & TTD diperbarui (Mode Preview).", "success");
+              state.madrasah = { ...state.madrasah, ...updated };
+              state.madrasahByUser[targetDocId] = { ...updated };
+              showToast(
+                isGuru
+                  ? "Data madrasah & TTD pribadi akun Anda berhasil disimpan (Mode Preview)!"
+                  : "Profil madrasah utama berhasil diperbarui (Mode Preview).",
+                "success"
+              );
               renderApp();
             } else {
-              await setDoc(doc(db, "pengaturan_madrasah", "profil_utama"), updated, { merge: true });
-              state.madrasah = updated;
-              showToast("Profil, Logo Kemenag/Madrasah & TTD disimpan ke Firestore!", "success");
+              if (!db) initFirebaseAndListeners();
+              await setDoc(doc(db, "pengaturan_madrasah", targetDocId), {
+                ...updated,
+                updated_at: serverTimestamp()
+              }, { merge: true });
+              state.madrasah = { ...state.madrasah, ...updated };
+              showToast(
+                isGuru
+                  ? "Data madrasah & TTD pribadi Anda berhasil disimpan ke Cloud Firestore!"
+                  : "Profil madrasah utama berhasil disimpan ke Firestore!",
+                "success"
+              );
+              renderApp();
             }
           } catch (err) {
-            showToast("Gagal menyimpan profil: " + err.message, "error");
+            showToast("Gagal menyimpan profil madrasah: " + err.message, "error");
           }
         };
       }
