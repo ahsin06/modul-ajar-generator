@@ -630,6 +630,20 @@
       visiblePasswordIds: {},
       editingGuru: null,
       resetPasswordGuruId: null,
+      regBuktiPembayaranUrl: "",
+      adminProfile: {
+        nama_admin: IS_PREVIEW ? "Ahmad Fauzi, M.Pd" : "",
+        jabatan_admin: IS_PREVIEW ? "Administrator KlikAjar" : "",
+        email_admin: IS_PREVIEW ? "admin@madrasah.sch.id" : "",
+        whatsapp_admin: IS_PREVIEW ? "081234567890" : "",
+        bank_nama: IS_PREVIEW ? "BSI (Bank Syariah Indonesia)" : "",
+        bank_rekening: IS_PREVIEW ? "7123456789" : "",
+        bank_atas_nama: IS_PREVIEW ? "Ahmad Fauzi" : "",
+        biaya_aktivasi: IS_PREVIEW ? "Rp 50.000 / Tahun" : "",
+        catatan_pembayaran: IS_PREVIEW
+          ? "Silakan transfer biaya aktivasi akun ke rekening di atas, unggah bukti transfer pada formulir pendaftaran, lalu konfirmasi ke WhatsApp Admin."
+          : ""
+      },
       madrasah: {
         nama_madrasah: IS_PREVIEW ? "MADRASAH TERPADU AL-HIKMAH" : "",
         nsm: IS_PREVIEW ? "111235780001" : "",
@@ -719,6 +733,18 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+    }
+
+    function formatWaLink(rawPhone, messageText = "") {
+      let digits = String(rawPhone || "").replace(/\D/g, "");
+      if (!digits) return "";
+      if (digits.startsWith("0")) {
+        digits = "62" + digits.slice(1);
+      } else if (!digits.startsWith("62")) {
+        digits = "62" + digits;
+      }
+      const queryMsg = messageText ? `?text=${encodeURIComponent(messageText)}` : "";
+      return `https://wa.me/${digits}${queryMsg}`;
     }
 
     function showToast(message, type = "info") {
@@ -996,7 +1022,11 @@
         (snap) => {
           state.firestoreLastSync = new Date().toLocaleTimeString("id-ID");
           if (snap.exists()) {
-            state.madrasah = { ...state.madrasah, ...snap.data() };
+            const data = snap.data();
+            state.madrasah = { ...state.madrasah, ...data };
+            if (data.admin_profile) {
+              state.adminProfile = { ...state.adminProfile, ...data.admin_profile };
+            }
             renderApp();
           }
         },
@@ -1058,8 +1088,13 @@
         ]);
 
         if (madrasahSnap.exists()) {
-          state.madrasah = { ...state.madrasah, ...madrasahSnap.data() };
+          const mData = madrasahSnap.data();
+          state.madrasah = { ...state.madrasah, ...mData };
+          if (mData.admin_profile) {
+            state.adminProfile = { ...state.adminProfile, ...mData.admin_profile };
+          }
         }
+
         const gList = [];
         guruSnap.forEach((d) => gList.push({ id: d.id, ...d.data() }));
         state.guruList = gList;
@@ -1069,39 +1104,21 @@
         state.perangkatList = pList;
 
         state.firestoreLastSync = new Date().toLocaleTimeString("id-ID");
-        showToast(`Sinkronisasi Firestore berhasil (${pList.length} perangkat, ${gList.length} guru).`, "success");
+        showToast("Data Firestore berhasil disinkronkan!", "success");
         renderApp();
       } catch (err) {
-        showToast("Gagal memuat data Firestore: " + err.message, "error");
+        showToast("Gagal menyinkronkan Firestore: " + err.message, "error");
       }
     }
 
-    if (!IS_PREVIEW) {
-      initFirebaseAndListeners();
-    }
-
     // =========================================================================
-    // AUTENTIKASI HYBRID + PENDAFTARAN AKUN GURU BARU (WAJIB DAFTAR)
+    // AUTENTIKASI HYBRID (LOGIN GURU, LOGIN ADMIN, & LOGOUT)
     // =========================================================================
-    async function handleGuruRegister(formData) {
-      const nama = (formData.nama_lengkap || "").trim();
-      const nip = (formData.nip || "").trim();
-      const username = (formData.username || "").trim().toLowerCase();
-      const password = (formData.password || "").trim();
-      const jenjang = formData.jenjang || "MI";
-      const jenisGuru = formData.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mapel";
-      const mapel = (formData.mapel_utama || "").trim();
-
-      if (!nama || !username || !password) {
-        showToast("Nama Lengkap, Username, dan Kata Sandi wajib diisi.", "error");
-        return;
-      }
-      if (username.length < 4 || /\s/.test(username)) {
-        showToast("Username minimal 4 karakter dan tidak boleh mengandung spasi.", "error");
-        return;
-      }
-      if (password.length < 4) {
-        showToast("Kata sandi minimal 4 karakter.", "error");
+    async function handleGuruLogin(usernameInput, passwordInput) {
+      const username = (usernameInput || "").trim().toLowerCase();
+      const password = (passwordInput || "").trim();
+      if (!username || !password) {
+        showToast("Masukkan username dan kata sandi.", "error");
         return;
       }
 
@@ -1109,147 +1126,63 @@
       renderApp();
 
       try {
+        let matchedGuru = null;
         if (IS_PREVIEW) {
-          const exists = state.guruList.some((g) => g.username.toLowerCase() === username);
-          if (exists) {
-            throw new Error("Username sudah terdaftar. Silakan gunakan username lain.");
-          }
-          state.guruList.unshift({
-            id: "guru-" + Date.now(),
-            username,
-            password,
-            nama_lengkap: nama,
-            nip,
-            jenjang,
-            jenis_guru: jenisGuru,
-            mapel_utama: mapel,
-            status_akun: "PENDING",
-            status_aktif: false
-          });
-          state.loginTab = "GURU";
-          showToast("Pendaftaran berhasil! Akun Anda berstatus MENUNGGU PERSETUJUAN (Approve) Admin.", "success");
-        } else {
-          if (!db) initFirebaseAndListeners();
-          const qCheck = query(collection(db, "guru_users"), where("username", "==", username));
-          const snapCheck = await getDocs(qCheck);
-          if (!snapCheck.empty) {
-            throw new Error("Username sudah digunakan oleh akun lain. Silakan pilih username berbeda.");
-          }
-          await addDoc(collection(db, "guru_users"), {
-            username,
-            password,
-            nama_lengkap: nama,
-            nip,
-            jenjang,
-            jenis_guru: jenisGuru,
-            mapel_utama: mapel,
-            status_akun: "PENDING",
-            status_aktif: false,
-            created_at: serverTimestamp()
-          });
-          state.loginTab = "GURU";
-          showToast("Pendaftaran berhasil dikirim! Silakan tunggu Admin menyetujui (Approve) akun Anda.", "success");
-        }
-      } catch (err) {
-        showToast(err.message || "Gagal mendaftarkan akun.", "error");
-      } finally {
-        state.authLoading = false;
-        renderApp();
-      }
-    }
-
-    async function handleGuruLogin(username, password) {
-      const u = (username || "").trim();
-      const p = (password || "").trim();
-      if (!u || !p) {
-        showToast("Harap isi Username/NIP dan Kata Sandi.", "error");
-        return;
-      }
-
-      state.authLoading = true;
-      renderApp();
-
-      try {
-        if (IS_PREVIEW) {
-          const found = state.guruList.find(
-            (g) => g.username.toLowerCase() === u.toLowerCase() && g.password === p
+          matchedGuru = state.guruList.find(
+            (g) => (g.username || "").toLowerCase() === username && g.password === password
           );
-          if (!found) {
-            throw new Error("Akun belum terdaftar atau kata sandi salah. Silakan daftar akun terlebih dahulu.");
-          }
-          if (found.status_akun === "PENDING") {
-            throw new Error("Akun Anda masih MENUNGGU PERSETUJUAN (Approve) dari Administrator Madrasah.");
-          }
-          if (found.status_aktif === false) {
-            throw new Error("Akun guru ini sedang dinonaktifkan oleh Admin.");
-          }
-          state.user = {
-            role: "GURU",
-            username: found.username,
-            nama: found.nama_lengkap,
-            nip: found.nip || "",
-            jenjang: found.jenjang || "MI",
-            jenis_guru: found.jenis_guru || "Guru Mapel"
-          };
-          state.userNip = found.nip || "";
-          state.genForm.nip_penyusun = found.nip || "";
-          state.activeMenu = "dashboard";
-          state.genForm.jenjang = state.user.jenjang;
-          state.genForm.jenis_guru = state.user.jenis_guru;
-          state.genForm.peran_guru = [state.user.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mata Pelajaran"];
-          syncSessionToHash();
-          showToast(`Selamat datang, ${found.nama_lengkap}!`, "success");
         } else {
           if (!db) initFirebaseAndListeners();
-          const q = query(collection(db, "guru_users"), where("username", "==", u));
+          const q = query(collection(db, "guru_users"), where("username", "==", username));
           const snap = await getDocs(q);
-          let matched = null;
           snap.forEach((docSnap) => {
             const data = docSnap.data();
-            if (data.password === p) {
-              matched = { id: docSnap.id, ...data };
+            if (data.password === password) {
+              matchedGuru = { id: docSnap.id, ...data };
             }
           });
-          if (!matched) {
-            throw new Error("Akun belum terdaftar atau kata sandi tidak sesuai. Silakan daftar terlebih dahulu.");
-          }
-          if (matched.status_akun === "PENDING") {
-            throw new Error("Pendaftaran Anda sedang diproses. Mohon tunggu persetujuan (Approve) dari Admin.");
-          }
-          if (matched.status_aktif === false) {
-            throw new Error("Akun Anda sedang dinonaktifkan oleh Administrator Madrasah.");
-          }
-          state.user = {
-            role: "GURU",
-            username: matched.username,
-            nama: matched.nama_lengkap,
-            nip: matched.nip || "",
-            jenjang: matched.jenjang || "MI",
-            jenis_guru: matched.jenis_guru || "Guru Mapel"
-          };
-          state.userNip = matched.nip || "";
-          state.genForm.nip_penyusun = matched.nip || "";
-          state.activeMenu = "dashboard";
-          state.genForm.jenjang = state.user.jenjang;
-          state.genForm.jenis_guru = state.user.jenis_guru;
-          state.genForm.peran_guru = [state.user.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mata Pelajaran"];
-          syncSessionToHash();
-          startFirestoreRealtimeSync();
-          showToast(`Berhasil masuk sebagai ${matched.nama_lengkap}`, "success");
         }
+
+        if (!matchedGuru) {
+          throw new Error("Username atau kata sandi tidak cocok.");
+        }
+        if (matchedGuru.status_akun === "PENDING") {
+          throw new Error("Akun Anda masih berstatus PENDING. Silakan tunggu persetujuan (Approve) dari Admin.");
+        }
+        if (matchedGuru.status_aktif === false) {
+          throw new Error("Akun Anda sedang dinonaktifkan oleh Admin.");
+        }
+
+        state.user = {
+          role: "GURU",
+          username: matchedGuru.username,
+          nama: matchedGuru.nama_lengkap,
+          nip: matchedGuru.nip || "",
+          jenjang: matchedGuru.jenjang || "MI",
+          jenis_guru: matchedGuru.jenis_guru || "Guru Mapel"
+        };
+        state.userNip = matchedGuru.nip || "";
+        state.genForm.nip_penyusun = matchedGuru.nip || "";
+        state.genForm.jenjang = state.user.jenjang;
+        state.genForm.jenis_guru = state.user.jenis_guru;
+        state.genForm.peran_guru = [state.user.jenis_guru === "Guru Kelas" ? "Guru Kelas" : "Guru Mata Pelajaran"];
+        state.activeMenu = "dashboard";
+        syncSessionToHash();
+        if (!IS_PREVIEW) startFirestoreRealtimeSync();
+        showToast(`Selamat datang, ${state.user.nama}!`, "success");
       } catch (err) {
-        showToast(err.message || "Gagal masuk.", "error");
+        showToast(err.message || "Gagal masuk sebagai Guru.", "error");
       } finally {
         state.authLoading = false;
         renderApp();
       }
     }
 
-    async function handleAdminLogin(email, password) {
-      const em = (email || "").trim();
-      const ps = (password || "").trim();
-      if (!em || !ps) {
-        showToast("Harap isi Email dan Password Admin.", "error");
+    async function handleAdminLogin(emailInput, passwordInput) {
+      const email = (emailInput || "").trim();
+      const password = (passwordInput || "").trim();
+      if (!email || !password) {
+        showToast("Masukkan email dan password Admin.", "error");
         return;
       }
 
@@ -1258,35 +1191,35 @@
 
       try {
         if (IS_PREVIEW) {
-          if (em.toLowerCase() === "admin@madrasah.sch.id" && ps === "admin123") {
+          if (email === "admin@madrasah.sch.id" && password === "admin123") {
             state.user = {
               role: "ADMIN",
-              username: em,
-              nama: "Administrator Madrasah",
+              username: email,
+              nama: state.adminProfile.nama_admin || "Administrator Madrasah",
               jenjang: "MA"
             };
             state.activeMenu = "dashboard";
             syncSessionToHash();
-            showToast("Berhasil masuk sebagai Admin (Mode Preview).", "success");
+            showToast("Login Admin berhasil (Mode Preview)!", "success");
           } else {
-            throw new Error("Email atau password demo salah (admin@madrasah.sch.id / admin123).");
+            throw new Error("Email atau password Admin demo tidak sesuai.");
           }
         } else {
           if (!auth) initFirebaseAndListeners();
-          const cred = await signInWithEmailAndPassword(auth, em, ps);
+          const cred = await signInWithEmailAndPassword(auth, email, password);
           state.user = {
             role: "ADMIN",
-            username: cred.user.email || em,
-            nama: cred.user.displayName || "Admin Madrasah",
+            username: cred.user.email || email,
+            nama: state.adminProfile.nama_admin || cred.user.displayName || "Admin Madrasah",
             jenjang: "MA"
           };
           state.activeMenu = "dashboard";
           syncSessionToHash();
           startFirestoreRealtimeSync();
-          showToast("Login Admin Firebase berhasil!", "success");
+          showToast("Login Admin berhasil!", "success");
         }
       } catch (err) {
-        showToast(err.message || "Autentikasi Admin gagal.", "error");
+        showToast("Login Admin gagal: " + (err.message || "Periksa email & sandi."), "error");
       } finally {
         state.authLoading = false;
         renderApp();
@@ -1298,11 +1231,9 @@
         if (!IS_PREVIEW && auth && state.user?.role === "ADMIN") {
           await signOut(auth);
         }
-      } catch (e) {
-        // abaikan
-      }
+      } catch (e) {}
       state.user = null;
-      state.selectedTrack = null;
+      state.generatedDoc = null;
       state.activeMenu = "dashboard";
       clearSessionHash();
       showToast("Anda telah keluar dari sesi.", "info");
@@ -1310,13 +1241,11 @@
     }
 
     // =========================================================================
-    // ENGINE PENYUSUN PERANGKAT PEMBELAJARAN & SLIDE PPT (KUALITAS MAKSIMAL)
+    // GENERATOR ENGINE PERANGKAT PEMBELAJARAN & DECK SLIDE PPT (8 SLIDE)
     // =========================================================================
     function buildSlideDeckFromDoc(docData) {
-      const isKBC = docData.jalur_kurikulum === "KBC";
-      const pilarNames = (docData.panca_cinta?.pilar_ids || [])
-        .map((pid) => PILAR_PANCA_CINTA.find((p) => p.id === pid)?.judul || pid);
-
+      const poinMateri = docData.materi_ajar?.poin_utama || [];
+      const tpList = docData.tujuan_pembelajaran || [];
       return [
         {
           nomor: 1,
@@ -1324,78 +1253,77 @@
           judul: docData.topik_materi,
           subjudul: `${docData.mata_pelajaran} • ${docData.fase_kelas} (${docData.jenjang})`,
           poin: [
-            `Pendekatan: ${isKBC ? "Kurikulum Berbasis Cinta (Panca Cinta)" : "Kurikulum Merdeka (Deep Learning)"}`,
+            `Pendekatan: ${docData.jalur_kurikulum === "KBC" ? "Kurikulum Berbasis Cinta (Panca Cinta)" : "Kurikulum Merdeka (Deep Learning)"}`,
             `Model Pembelajaran: ${docData.model_pembelajaran}`,
             `Penyusun: ${docData.author_nama} | Alokasi: ${docData.alokasi_waktu}`
           ]
         },
         {
           nomor: 2,
-          tipe: "TUJUAN",
-          judul: "Capaian & Tujuan Pembelajaran",
-          subjudul: `${docData.jenis_dokumen} • Semester ${docData.semester}`,
-          poin: [
-            `CP: ${docData.capaian_pembelajaran}`,
-            ...(docData.tujuan_pembelajaran || []).slice(0, 2)
-          ]
-        },
-        {
-          nomor: 3,
           tipe: "PEMANTIK",
-          judul: "Pemahaman Bermakna & Pertanyaan Pemantik",
-          subjudul: "Membangun Rasa Ingin Tahu & Kesadaran",
+          judul: "Tujuan & Pertanyaan Pemantik",
+          subjudul: "Apersepsi & Orientasi Belajar",
           poin: [
-            `Pemahaman Bermakna: ${docData.pemahaman_bermakna || ""}`,
+            ...(tpList.slice(0, 2)),
             ...(docData.pertanyaan_pemantik || []).slice(0, 2)
           ]
         },
         {
-          nomor: 4,
+          nomor: 3,
           tipe: "KONSEP",
-          judul: "Ringkasan Konsep & Contoh Kontekstual",
-          subjudul: "Konsep Inti Pembelajaran",
+          judul: "Pemahaman Bermakna & Konsep Inti",
+          subjudul: "Tahap Memahami (Mindful Learning)",
           poin: [
-            docData.materi_ajar?.ringkasan_konsep || "",
-            `Contoh Kontekstual: ${docData.materi_ajar?.contoh_kontekstual || ""}`
-          ]
+            docData.pemahaman_bermakna || "",
+            docData.materi_ajar?.ringkasan_konsep || ""
+          ].filter(Boolean)
+        },
+        {
+          nomor: 4,
+          tipe: "MATERI_1",
+          judul: "Pokok-Pokok Materi Pembelajaran (Bagian 1)",
+          subjudul: "Eksplorasi Konsep & Dalil / Landasan",
+          poin: poinMateri.slice(0, 3).length ? poinMateri.slice(0, 3) : ["Pengenalan konsep dasar materi pembelajaran."]
         },
         {
           nomor: 5,
-          tipe: "MATERI",
-          judul: "Pokok-Pokok Materi Ajar Utama",
-          subjudul: docData.topik_materi,
-          poin: docData.materi_ajar?.poin_utama || []
+          tipe: "MATERI_2",
+          judul: "Pendalaman & Contoh Kontekstual",
+          subjudul: "Tahap Mengaplikasi (Meaningful Learning)",
+          poin: [
+            ...(poinMateri.slice(3, 5)),
+            docData.materi_ajar?.contoh_kontekstual ? `Contoh Nyata: ${docData.materi_ajar.contoh_kontekstual}` : ""
+          ].filter(Boolean)
         },
         {
           nomor: 6,
-          tipe: "SINTAKS",
-          judul: `Alur Belajar (${docData.model_pembelajaran})`,
-          subjudul: "Memahami • Mengaplikasi • Merefleksi",
+          tipe: "AKTIVITAS",
+          judul: `Aktivitas Belajar (${docData.model_pembelajaran})`,
+          subjudul: "Kolaborasi & Diskusi Kelompok",
           poin: [
-            `1. Memahami: ${(docData.deep_learning?.langkah_memahami || "").split("\n")[0]}`,
-            `2. Mengaplikasi: ${(docData.deep_learning?.langkah_mengaplikasi || "").split("\n")[0]}`,
-            `3. Merefleksi: ${(docData.deep_learning?.langkah_merefleksi || "").split("\n")[0]}`
+            docData.deep_learning?.langkah_mengaplikasi || "Diskusi studi kasus dan pemecahan masalah secara kolaboratif.",
+            docData.asesmen?.lkpd || "Pengerjaan Lembar Kerja Peserta Didik (LKPD)."
           ]
         },
         {
           nomor: 7,
-          tipe: "NILAI",
-          judul: isKBC ? "Internalisasi Pilar Panca Cinta" : "Integrasi Nilai & Karakter Cinta",
-          subjudul: pilarNames.slice(0, 2).join(" & ") || "Penguatan Karakter Madrasah",
+          tipe: "PANCA_CINTA",
+          judul: "Internalisasi Nilai Karakter & Panca Cinta",
+          subjudul: docData.panca_cinta?.pilar_judul || "Penguatan Karakter Madrasah",
           poin: [
             docData.panca_cinta?.fokus_nilai || "",
-            `Aksi Nyata: ${docData.panca_cinta?.aktivitas_cinta || ""}`
-          ]
+            docData.panca_cinta?.aktivitas_cinta || ""
+          ].filter(Boolean)
         },
         {
           nomor: 8,
           tipe: "REFLEKSI",
-          judul: "Asesmen & Refleksi Peserta Didik",
-          subjudul: "Evaluasi Pemahaman & Sikap",
+          judul: "Refleksi Hati, Kesimpulan & Penutup",
+          subjudul: "Tahap Merefleksi (Joyful & Mindful)",
           poin: [
-            `Asesmen Formatif: ${docData.asesmen?.formatif || ""}`,
-            `Asesmen Sumatif: ${docData.asesmen?.sumatif || ""}`,
-            `Tugas Refleksi / LKPD: ${docData.asesmen?.lkpd || ""}`
+            "Apa hal paling bermakna yang kamu pelajari hari ini?",
+            "Bagaimana komitmenmu menerapkan ilmu ini dalam kehidupan sehari-hari?",
+            "Terima kasih & Doa Penutup Majelis."
           ]
         }
       ];
@@ -1403,14 +1331,9 @@
 
     async function generateSmartDocument() {
       const f = state.genForm;
-      if (!f.topik_materi || !f.topik_materi.trim()) {
-        showToast("Harap isi Topik / Materi Pokok terlebih dahulu.", "error");
-        return;
-      }
-
-      const isGuruKelas = f.jenis_guru === "Guru Kelas";
-      if (isGuruKelas && (!f.muatan_terpadu || f.muatan_terpadu.length === 0)) {
-        showToast("Pilih minimal 1 muatan pelajaran terpadu untuk mode Guru Kelas.", "error");
+      const topik = (f.topik_materi || "").trim();
+      if (!topik) {
+        showToast("Silakan isi Topik / Materi Pokok Pembelajaran terlebih dahulu.", "error");
         return;
       }
 
@@ -1418,120 +1341,67 @@
       renderApp();
 
       try {
-        const isKBC = state.selectedTrack === "KBC";
-        const topik = f.topik_materi.trim();
-        const muatanList = isGuruKelas ? [...(f.muatan_terpadu || [])] : [];
+        const isGuruKelas = f.jenis_guru === "Guru Kelas";
+        const muatanList = isGuruKelas ? (f.muatan_terpadu || []) : [];
         const mapelOrTemaDisplay = isGuruKelas
-          ? `Pembelajaran Terpadu (${muatanList.join(", ")})`
-          : f.mata_pelajaran;
-        const peranGuruNormalized = isGuruKelas ? ["Guru Kelas"] : ["Guru Mata Pelajaran"];
+          ? `Tematik Terpadu (${muatanList.join(", ") || "Muatan Kelas"})`
+          : (f.mata_pelajaran || "Mata Pelajaran");
+
+        const peranGuruNormalized = isGuruKelas
+          ? ["Guru Kelas"]
+          : (f.peran_guru && f.peran_guru.length ? f.peran_guru : ["Guru Mata Pelajaran"]);
+
         const syntax = MODEL_SYNTAX_MAP[f.model_pembelajaran] || MODEL_SYNTAX_MAP["Problem-Based Learning (PBL)"];
         const selectedPilars = PILAR_PANCA_CINTA.filter((p) => (f.pilar_cinta || []).includes(p.id));
-        const pilarTitles = selectedPilars.map((p) => p.judul).join("; ");
+        const pilarTitles = selectedPilars.map((p) => p.judul).join("; ") || PILAR_PANCA_CINTA[0].judul;
 
         const customPoints = (f.materi_tambahan || "")
           .split("\n")
-          .map((line) => line.replace(/^[-•*\d.)\s]+/, "").trim())
+          .map((line) => line.trim())
           .filter(Boolean);
 
-        let ringkasanKonsep = isGuruKelas
-          ? `Pembelajaran tematik/terpadu oleh Guru Kelas pada topik "${topik}" (memadukan muatan ${muatanList.join(", ")}) dirancang untuk membangun pemahaman mendalam (Deep Learning) yang berkesadaran (Mindful), bermakna (Meaningful), dan menggembirakan (Joyful), sekaligus menanamkan nilai-nilai kasih sayang bagi peserta didik ${f.jenjang} (${f.fase_kelas}).`
-          : `Pembelajaran mata pelajaran ${f.mata_pelajaran} pada topik "${topik}" dirancang untuk membangun pemahaman mendalam (Deep Learning) yang berkesadaran (Mindful), bermakna (Meaningful), dan menggembirakan (Joyful), sekaligus menanamkan nilai-nilai kasih sayang serta akhlak mulia bagi peserta didik jenjang ${f.jenjang} (${f.fase_kelas}).`;
-
-        let poinUtama = customPoints.length > 0 ? customPoints : isGuruKelas ? [
-          `Keterpaduan konsep "${topik}" lintas muatan pelajaran (${muatanList.join(", ")}).`,
-          `Pemahaman dasar dan praktik literasi-numerasi kontekstual terkait "${topik}".`,
-          `Pembiasaan sikap saling menyayangi, kerja sama, dan tanggung jawab di kelas.`,
-          `Penerapan langsung hikmah "${topik}" dalam aktivitas harian peserta didik di madrasah dan rumah.`
-        ] : [
-          `Pengertian, hakikat, dan ruang lingkup konsep dasar ${topik}.`,
-          `Dalil naqli, landasan nilai, serta keteladanan utama yang berkaitan dengan ${topik}.`,
-          `Analisis penerapan praktis ${topik} dalam kehidupan di madrasah, keluarga, dan masyarakat.`,
-          `Hikmah, manfaat spiritual-sosial, dan dampak positif membiasakan nilai-nilai ${topik}.`
-        ];
-
-        let uraianMendalam = isGuruKelas
-          ? `1. Pendekatan Holistik Guru Kelas: Materi "${topik}" disajikan secara tematik-terpadu yang menghubungkan muatan ${muatanList.join(", ")} sehingga peserta didik memahami konsep secara utuh dan tidak terpisah-pisah.\n2. Keterkaitan dengan Kehidupan Nyata: Melalui model ${f.model_pembelajaran}, peserta didik diajak mengamati lingkungan kelas dan keluarga, berdiskusi, serta berkarya bersama teman.\n3. Penguatan Karakter & Kasih Sayang: Setiap kegiatan diintegrasikan dengan nilai-nilai Panca Cinta untuk menumbuhkan empati, kemandirian, dan kecintaan belajar.`
-          : `1. Landasan Konseptual & Nilai: Materi "${topik}" dalam mata pelajaran ${f.mata_pelajaran} mengajarkan peserta didik untuk tidak sekadar menghafal definisi, melainkan memahami makna esensial dan relevansinya dalam membangun kepribadian berakhlak mulia.\n2. Keterkaitan dengan Kehidupan Nyata: Melalui pendekatan ${f.model_pembelajaran}, peserta didik diajak mengamati fenomena di lingkungan sekitar yang berkaitan dengan ${topik}, menganalisis sebab-akibat, dan merumuskan tindakan nyata penuh tanggung jawab.\n3. Penguatan Karakter & Kasih Sayang: Setiap sub-materi diintegrasikan dengan nilai-nilai Panca Cinta agar ilmu yang diperoleh melahirkan kelembutan hati, empati, dan kemanfaatan bagi sesama.`;
-
-        let contohKontekstual = `Peserta didik mengamati peristiwa nyata di lingkungan madrasah dan keluarga yang berkaitan dengan "${topik}", lalu mendiskusikan langkah solusi dan sikap terbaik yang mencerminkan kasih sayang serta tanggung jawab.`;
-
-        let tujuanPembelajaran = isGuruKelas ? [
-          `Melalui kegiatan eksplorasi terpadu lintas muatan (${muatanList.join(", ")}) (Memahami), peserta didik mampu menjelaskan konsep inti pada topik "${topik}" dengan penuh kesadaran.`,
-          `Melalui penerapan model ${f.model_pembelajaran} bersama Guru Kelas (Mengaplikasi), peserta didik mampu menyelesaikan lembar aktivitas dan karya kontekstual terkait "${topik}" secara kolaboratif.`,
-          `Melalui kegiatan refleksi hati dan pembiasaan kelas (Merefleksi), peserta didik menunjukkan sikap kasih sayang, santun, dan tanggung jawab dalam keseharian.`
-        ] : [
-          `Melalui kegiatan eksplorasi dan diskusi kelompok (Memahami), peserta didik mampu menganalisis konsep inti serta nilai-nilai utama pada materi "${topik}" dengan tepat dan penuh kesadaran.`,
-          `Melalui penerapan model ${f.model_pembelajaran} (Mengaplikasi), peserta didik mampu menyajikan pemecahan masalah atau karya kontekstual terkait "${topik}" secara kolaboratif dan kreatif.`,
-          `Melalui kegiatan refleksi hati dan muhasabah (Merefleksi), peserta didik mampu menyimpulkan hikmah pembelajaran serta menunjukkan komitmen perilaku positif dalam kehidupan sehari-hari.`
-        ];
-
-        let pemahamanBermakna = `Penguasaan materi "${topik}" membekali peserta didik dengan cara berpikir kritis dan kepekaan hati untuk mengamalkan nilai-nilai kebaikan, kasih sayang, dan tanggung jawab dalam kehidupan bermasyarakat.`;
-
-        let pertanyaanPemantik = [
-          `Apa hal paling menarik atau penting yang kalian ketahui tentang "${topik}" dalam kehidupan sehari-hari?`,
-          `Mengapa pemahaman yang benar mengenai "${topik}" dapat membawa kebaikan bagi diri sendiri, orang lain, dan lingkungan?`,
-          `Bagaimana cara kita menerapkan nilai-nilai dari "${topik}" di lingkungan madrasah mulai hari ini?`
-        ];
-
-        let glosarium = [
-          { istilah: topik, arti: `Pokok bahasan utama dalam mata pelajaran ${f.mata_pelajaran} yang dikaji secara mendalam dan kontekstual.` },
-          { istilah: "Deep Learning", arti: "Pendekatan pembelajaran mendalam yang berfokus pada kesadaran (Mindful), kebermaknaan (Meaningful), dan kegembiraan (Joyful)." },
-          { istilah: "Panca Cinta", arti: "Lima pilar cinta dalam Kurikulum Berbasis Cinta (Cinta Allah/Rasul, Cinta Ilmu, Cinta Diri/Sesama, Cinta Lingkungan, Cinta Tanah Air)." }
-        ];
+        const poinUtama = customPoints.length > 0
+          ? customPoints
+          : [
+              `Pengertian dan ruang lingkup konsep dasar "${topik}" sesuai tingkat perkembangan peserta didik ${f.jenjang}.`,
+              `Landasan nilai, dalil, atau prinsip ilmiah yang mendasari "${topik}".`,
+              `Penerapan perilaku dan keterampilan "${topik}" di lingkungan madrasah, keluarga, dan masyarakat.`,
+              `Hikmah dan manfaat mempelajari "${topik}" bagi pembentukan akhlak mulia dan kecerdasan peserta didik.`
+            ];
 
         const cpText = (f.capaian_pembelajaran || "").trim() ||
-          (CP_REFERENSI_BANK[f.jenjang]?.[0]?.cp || `Peserta didik mampu memahami, menganalisis, dan mengamalkan nilai-nilai utama pada materi ${topik} dengan penuh kesadaran dan tanggung jawab.`);
+          `Peserta didik mampu memahami, menganalisis, dan mengaktualisasikan nilai-nilai serta konsep utama pada topik "${topik}" dalam muatan ${mapelOrTemaDisplay} (${f.fase_kelas}) dengan penuh kesadaran, nalar kritis, dan kasih sayang.`;
+
+        const tujuanPembelajaran = [
+          `Melalui kegiatan pengamatan dan literasi (Memahami), peserta didik mampu menjelaskan konsep inti "${topik}" dengan bahasa sendiri secara tepat.`,
+          `Melalui aktivitas ${f.model_pembelajaran} (Mengaplikasi), peserta didik mampu menganalisis dan mempraktikkan penerapan "${topik}" secara kolaboratif.`,
+          `Melalui kegiatan refleksi terpandu (Merefleksi), peserta didik menunjukkan sikap positif, empati, dan tanggung jawab dalam kehidupan sehari-hari.`
+        ];
+
+        const pemahamanBermakna = `Memahami dan mengamalkan "${topik}" membantu peserta didik menjadi pribadi yang beriman, bernalar kritis, serta menebarkan kasih sayang kepada sesama dan lingkungan.`;
+
+        const pertanyaanPemantik = [
+          `Apa yang sudah kalian ketahui tentang "${topik}" dalam kehidupan sehari-hari?`,
+          `Mengapa kita perlu mempelajari dan mengamalkan nilai-nilai dari "${topik}"?`,
+          `Bagaimana cara kita menerapkan "${topik}" di kelas dan di rumah mulai hari ini?`
+        ];
 
         const fokusNilaiCinta = (f.fokus_nilai_cinta || "").trim() ||
-          (selectedPilars.length > 0
-            ? selectedPilars.map((p) => p.indikator).join(" ")
-            : "Menumbuhkan kecintaan kepada Allah SWT, Rasul-Nya, ilmu pengetahuan, sesama manusia, dan lingkungan sekitar.");
+          (selectedPilars.map((p) => p.indikator).join(" ") || PILAR_PANCA_CINTA[0].indikator);
 
-        const aktivitasCinta = selectedPilars.length > 0
-          ? selectedPilars.map((p) => p.aktivitas).join(" ")
-          : "Pembiasaan salam, empati dalam kerja kelompok, dan refleksi syukur di akhir pembelajaran.";
+        const aktivitasCinta = selectedPilars[0]?.aktivitas || PILAR_PANCA_CINTA[0].aktivitas;
 
-        // Opsional: Pengayaan Narasi Mendalam via Gemini API jika guru mengisi API Key
-        if (state.geminiApiKey && state.geminiApiKey.trim().length > 15) {
-          try {
-            const promptText = `Susun konten perangkat pembelajaran mendalam dalam Bahasa Indonesia untuk guru madrasah jenjang ${f.jenjang} (${f.fase_kelas}), mapel ${f.mata_pelajaran}, topik "${topik}", model ${f.model_pembelajaran}, pendekatan ${isKBC ? "Kurikulum Berbasis Cinta (Panca Cinta)" : "Kurikulum Merdeka Deep Learning"}. Balas HANYA JSON valid dengan struktur:
-            {
-              "ringkasan": "2-3 kalimat ringkasan konsep mendalam",
-              "uraian_mendalam": "3 paragraf singkat uraian materi ajar terstruktur dipisah newline",
-              "poin": ["4 poin materi ajar utama yang padat dan jelas"],
-              "contoh": "1-2 kalimat contoh kontekstual nyata",
-              "tujuan": ["3 tujuan pembelajaran terukur mencakup memahami, mengaplikasi, merefleksi"],
-              "pemahaman_bermakna": "1-2 kalimat pemahaman bermakna",
-              "pemantik": ["3 pertanyaan pemantik kritis dan reflektif"]
-            }`;
-            const resp = await fetch(
-              `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(state.geminiApiKey.trim())}`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  contents: [{ parts: [{ text: promptText }] }]
-                })
-              }
-            );
-            if (resp.ok) {
-              const jsonRes = await resp.json();
-              const rawText = jsonRes?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-              const cleaned = rawText.replace(/```json|```/g, "").trim();
-              const parsed = JSON.parse(cleaned);
-              if (parsed.ringkasan) ringkasanKonsep = parsed.ringkasan;
-              if (parsed.uraian_mendalam) uraianMendalam = parsed.uraian_mendalam;
-              if (Array.isArray(parsed.poin) && parsed.poin.length > 0) poinUtama = parsed.poin;
-              if (parsed.contoh) contohKontekstual = parsed.contoh;
-              if (Array.isArray(parsed.tujuan) && parsed.tujuan.length > 0) tujuanPembelajaran = parsed.tujuan;
-              if (parsed.pemahaman_bermakna) pemahamanBermakna = parsed.pemahaman_bermakna;
-              if (Array.isArray(parsed.pemantik) && parsed.pemantik.length > 0) pertanyaanPemantik = parsed.pemantik;
-            }
-          } catch (aiErr) {
-            console.warn("Fallback ke engine internal:", aiErr.message);
-          }
-        }
+        const ringkasanKonsep = `Materi "${topik}" pada ${mapelOrTemaDisplay} (${f.fase_kelas}) dirancang untuk membangun pemahaman konseptual yang utuh sekaligus menumbuhkan karakter mulia melalui pendekatan ${f.model_pembelajaran}.`;
+
+        const uraianMendalam = `1. Konsep Dasar: ${ringkasanKonsep}\n2. Elaborasi Materi: ${poinUtama.join(" ")}\n3. Kontekstualisasi Madrasah: Peserta didik diajak menghubungkan setiap konsep dengan pengalaman nyata di madrasah, rumah, dan lingkungan sekitar.`;
+
+        const glosarium = [
+          { istilah: topik, arti: `Tema atau pokok bahasan utama yang dipelajari pada ${mapelOrTemaDisplay}.` },
+          { istilah: f.model_pembelajaran, arti: "Model pembelajaran aktif yang memandu tahapan kegiatan inti peserta didik." },
+          { istilah: "Panca Cinta", arti: "Lima pilar nilai kasih sayang (Allah & Rasul, Ilmu, Diri & Sesama, Lingkungan, Tanah Air)." }
+        ];
+
+        const contohKontekstual = `Peserta didik mengamati situasi nyata di lingkungan madrasah yang berkaitan dengan "${topik}", mendiskusikan solusinya bersama kelompok, dan mempraktikkannya secara langsung.`;
 
         const newDoc = {
           id: "doc-" + Date.now(),
@@ -1557,11 +1427,11 @@
           tujuan_pembelajaran: tujuanPembelajaran,
           pemahaman_bermakna: pemahamanBermakna,
           pertanyaan_pemantik: pertanyaanPemantik,
-          sarana_prasarana: `Buku Teks Utama ${f.mata_pelajaran} (${f.fase_kelas}) Kemenag RI, Slide Presentasi Interaktif (PPT 16:9), Lembar Kerja Peserta Didik (LKPD), Kartu Studi Kasus, Papan Refleksi.`,
+          sarana_prasarana: `Buku Teks Utama ${mapelOrTemaDisplay} (${f.fase_kelas}) Kemenag RI, Slide Presentasi Interaktif (PPT 16:9), Lembar Kerja Peserta Didik (LKPD), Kartu Studi Kasus, Papan Refleksi.`,
           diferensiasi: {
-            konten: `Menyajikan bahan bacaan ringkas, ilustrasi visual, dan penjelasan lisan sesuai profil belajar peserta didik.`,
+            konten: "Menyajikan bahan bacaan ringkas, ilustrasi visual, dan penjelasan lisan sesuai profil belajar peserta didik.",
             proses: `Pendampingan bertahap dalam kelompok kecil (${f.model_pembelajaran}) sesuai tingkat kesiapan belajar.`,
-            produk: `Peserta didik diberi kebebasan menyajikan hasil pemahaman dalam bentuk laporan tertulis, peta konsep, atau presentasi lisan.`
+            produk: "Peserta didik diberi kebebasan menyajikan hasil pemahaman dalam bentuk laporan tertulis, peta konsep, atau presentasi lisan."
           },
           deep_learning: {
             prinsip: [...(f.prinsip_dl || ["Mindful", "Meaningful", "Joyful"])],
@@ -1584,7 +1454,7 @@
             contoh_kontekstual: contohKontekstual
           },
           bahan_ajar: [
-            `Buku Teks Utama ${f.mata_pelajaran} (${f.fase_kelas}) Kemenag RI`,
+            `Buku Teks Utama ${mapelOrTemaDisplay} (${f.fase_kelas}) Kemenag RI`,
             `Handout / Modul Ringkasan Materi: ${topik}`,
             `Slide Presentasi Pembelajaran Interaktif (PPT 16:9)`,
             `Lembar Kerja Peserta Didik (LKPD) & Instrumen Rubrik Asesmen`
@@ -1615,694 +1485,605 @@
       }
     }
 
-    async function saveDocumentToStore(docData) {
-      if (!docData) return;
-      try {
-        const payload = { ...docData };
-        delete payload.id;
-
-        // Pastikan kepemilikan berkas selalu terkunci ke akun yang sedang login
-        // agar tidak pernah mencampurkan atau menimpa berkas milik guru lain
-        if (state.user?.role === "GURU") {
-          payload.author_username = state.user.username;
-          payload.author_nama = state.user.nama;
-        }
-        if (typeof payload.is_archived !== "boolean") {
-          payload.is_archived = false;
-        }
-
-        if (IS_PREVIEW) {
-          const savedItem = { ...payload, id: "doc-" + Date.now() };
-          state.perangkatList.unshift(savedItem);
-          state.generatedDoc = savedItem;
-          showToast("Perangkat pembelajaran berhasil disimpan ke ruang berkas Anda!", "success");
-          renderApp();
-        } else {
-          if (!db) initFirebaseAndListeners();
-          const ref = await addDoc(collection(db, "perangkat_ajar"), {
-            ...payload,
-            created_at: serverTimestamp()
-          });
-          state.generatedDoc = { ...payload, id: ref.id };
-          showToast("Perangkat pembelajaran berhasil disimpan ke Cloud Firestore!", "success");
-          renderApp();
-        }
-      } catch (err) {
-        showToast("Gagal menyimpan perangkat ke Firestore: " + err.message, "error");
-      }
-    }
-
-    async function toggleArchiveDocument(docId, nextArchiveState) {
-      const target = state.perangkatList.find((d) => d.id === docId);
-      if (!target) return;
-      if (state.user?.role === "GURU" && (target.author_username || "").toLowerCase() !== (state.user.username || "").toLowerCase()) {
-        showToast("Anda hanya dapat mengarsipkan berkas milik Anda sendiri.", "error");
-        return;
-      }
-
-      try {
-        if (IS_PREVIEW) {
-          target.is_archived = nextArchiveState;
-          showToast(
-            nextArchiveState ? "Berkas dipindahkan ke folder Arsip." : "Berkas dipulihkan ke daftar Aktif.",
-            "success"
-          );
-          renderApp();
-        } else {
-          if (!db) initFirebaseAndListeners();
-          await updateDoc(doc(db, "perangkat_ajar", docId), { is_archived: nextArchiveState });
-          showToast(
-            nextArchiveState ? "Berkas berhasil diarsipkan." : "Berkas dipulihkan dari arsip.",
-            "success"
-          );
-        }
-      } catch (err) {
-        showToast("Gagal mengubah status arsip berkas: " + err.message, "error");
-      }
-    }
-
-    async function deleteDocumentFromStore(docId) {
-      if (!docId) return;
-      const target = state.perangkatList.find((d) => d.id === docId);
-      if (target && state.user?.role === "GURU" && (target.author_username || "").toLowerCase() !== (state.user.username || "").toLowerCase()) {
-        showToast("Anda tidak memiliki izin menghapus berkas milik guru lain.", "error");
-        return;
-      }
-      try {
-        if (IS_PREVIEW) {
-          state.perangkatList = state.perangkatList.filter((d) => d.id !== docId);
-          if (state.generatedDoc?.id === docId) state.generatedDoc = null;
-          state.confirmDeleteDocId = null;
-          showToast("Dokumen dihapus dari daftar Anda (Mode Preview).", "info");
-          renderApp();
-        } else {
-          if (!db) initFirebaseAndListeners();
-          await deleteDoc(doc(db, "perangkat_ajar", docId));
-          if (state.generatedDoc?.id === docId) state.generatedDoc = null;
-          state.confirmDeleteDocId = null;
-          showToast("Dokumen dihapus dari Firestore.", "info");
-        }
-      } catch (err) {
-        showToast("Gagal menghapus dokumen: " + err.message, "error");
-      }
-    }
-
     // =========================================================================
-    // PEMBANGUN DOKUMEN RESMI & EKSPOR WORD (.DOC) / PDF / PPTX
+    // BUILDER DOKUMEN RESMI (KOP SURAT KEMENAG/MADRASAH, ISI & BLOK TTD)
     // =========================================================================
     function buildOfficialDocumentHTML(docData) {
-      if (!docData) return "";
-      const m = state.madrasah;
-      const isKBC = docData.jalur_kurikulum === "KBC";
-      const modelLayout = docData.model_penyusunan || "STANDAR";
-      const isGuruKelasDoc = docData.jenis_guru === "Guru Kelas" || (docData.peran_guru || []).includes("Guru Kelas");
-      const kelasShort = (docData.fase_kelas || "").split("—")[1]?.trim() || docData.fase_kelas || "";
-      const peranLabel = isGuruKelasDoc
-        ? `Guru Kelas (${kelasShort})`
+      const m = state.madrasah || {};
+      const model = docData.model_penyusunan || "STANDAR";
+      const isGuruKelas = docData.jenis_guru === "Guru Kelas" || (docData.peran_guru || []).includes("Guru Kelas");
+      const jabatanPenyusun = isGuruKelas
+        ? `Guru Kelas (${(docData.fase_kelas || "").split("—")[1]?.trim() || docData.fase_kelas})`
         : `Guru Mata Pelajaran`;
       const ttdPenyusunSrc = docData.ttd_guru_url || state.userTtdUrl || m.ttd_penyusun_url || "";
-      const nipPenyusunText = (docData.nip_penyusun || state.userNip || "").trim();
+      const nipPenyusun = docData.nip_penyusun || "";
+      const todayStr = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
 
-      const pilarNames = (docData.panca_cinta?.pilar_ids || [])
-        .map((pid) => PILAR_PANCA_CINTA.find((p) => p.id === pid)?.judul || pid)
-        .join(", ");
-
-      const nsmNpsnParts = [];
-      if (m.nsm) nsmNpsnParts.push(`NSM: ${escapeHtml(m.nsm)}`);
-      if (m.npsn) nsmNpsnParts.push(`NPSN: ${escapeHtml(m.npsn)}`);
-      const nsmNpsnLine = nsmNpsnParts.join("  |  ");
-
-      const kopHeader = `
-        <table style="width:100%; border-collapse:collapse; border-bottom:3px double #111827; margin-bottom:12px; padding-bottom:6px;">
+      const kopSuratHTML = `
+        <table style="width: 100%; border-collapse: collapse; border-bottom: 3px double #111827; margin-bottom: 14px; padding-bottom: 8px;">
           <tr>
-            <td style="width:72px; text-align:left; vertical-align:middle; padding-bottom:6px;">
-              ${m.logo_kemenag_url ? `<img src="${m.logo_kemenag_url}" alt="Logo Kemenag" style="width:62px; height:62px; object-fit:contain;" />` : ``}
+            <td style="width: 72px; text-align: left; vertical-align: middle; border: none; padding: 2px;">
+              ${m.logo_kemenag_url ? `<img src="${m.logo_kemenag_url}" alt="Logo Kemenag" style="width: 64px; height: 64px; object-fit: contain;" />` : ``}
             </td>
-            <td style="text-align:center; vertical-align:middle; padding-bottom:6px;">
-              <div style="font-size:11pt; font-weight:bold; letter-spacing:0.4px;">KEMENTERIAN AGAMA REPUBLIK INDONESIA</div>
-              <div style="font-size:13pt; font-weight:bold; text-transform:uppercase; margin-top:2px;">
-                ${escapeHtml(m.nama_madrasah || "SATUAN PENDIDIKAN MADRASAH")}
-              </div>
-              ${nsmNpsnLine ? `<div style="font-size:9.5pt; font-weight:bold; margin-top:1px;">${nsmNpsnLine}</div>` : ``}
-              <div style="font-size:9.5pt; margin-top:1px;">${escapeHtml(m.alamat || "Alamat Satuan Pendidikan Madrasah")}</div>
+            <td style="text-align: center; vertical-align: middle; border: none; padding: 2px 8px;">
+              <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase;">KEMENTERIAN AGAMA REPUBLIK INDONESIA</div>
+              <div style="font-size: 14pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px;">${escapeHtml(m.nama_madrasah || "MADRASAH TERPADU")}</div>
+              <div style="font-size: 9.5pt;">NSM: ${escapeHtml(m.nsm || "-")} &bull; NPSN: ${escapeHtml(m.npsn || "-")}</div>
+              <div style="font-size: 9.5pt;">${escapeHtml(m.alamat || "Alamat Satuan Pendidikan Madrasah")}</div>
             </td>
-            <td style="width:72px; text-align:right; vertical-align:middle; padding-bottom:6px;">
-              ${m.logo_url ? `<img src="${m.logo_url}" alt="Logo Madrasah" style="width:62px; height:62px; object-fit:contain;" />` : ``}
+            <td style="width: 72px; text-align: right; vertical-align: middle; border: none; padding: 2px;">
+              ${m.logo_url ? `<img src="${m.logo_url}" alt="Logo Madrasah" style="width: 64px; height: 64px; object-fit: contain;" />` : ``}
             </td>
           </tr>
         </table>
 
-        <div style="text-align:center; margin-bottom:12px;">
-          <div style="font-size:12pt; font-weight:bold; text-transform:uppercase; text-decoration:underline;">
-            ${escapeHtml(docData.jenis_dokumen)}
+        <div style="text-align: center; margin-bottom: 12px;">
+          <div style="font-size: 12.5pt; font-weight: bold; text-transform: uppercase; text-decoration: underline;">
+            ${escapeHtml(docData.jenis_dokumen || "MODUL AJAR")}
           </div>
-          <div style="font-size:10pt; font-weight:bold; margin-top:3px;">
-            ${isKBC ? "KURIKULUM BERBASIS CINTA (PANCA CINTA) & DEEP LEARNING" : "KURIKULUM MERDEKA (DEEP LEARNING) & INSERSI PANCA CINTA"}
+          <div style="font-size: 10pt; font-weight: bold; margin-top: 2px;">
+            ${docData.jalur_kurikulum === "KBC" ? "PENDEKATAN KURIKULUM BERBASIS CINTA (PANCA CINTA)" : "PENDEKATAN KURIKULUM MERDEKA (DEEP LEARNING)"}
           </div>
-          <div style="font-size:9.5pt; margin-top:1px;">Tahun Pelajaran ${escapeHtml(m.tahun_pelajaran || "2026/2027")}</div>
+          <div style="font-size: 10pt;">Tahun Pelajaran ${escapeHtml(m.tahun_pelajaran || "2026/2027")}</div>
         </div>
       `;
 
-      const identitasTable = `
+      const identitasTableHTML = `
         <div class="doc-section-title">A. Identitas Perangkat Pembelajaran</div>
         <table class="doc-table">
           <tr>
-            <td style="width:22%; font-weight:bold;">Satuan Pendidikan</td>
-            <td style="width:28%;">${escapeHtml(m.nama_madrasah || "-")}</td>
-            <td style="width:22%; font-weight:bold;">Jenjang / Fase</td>
-            <td style="width:28%;">${escapeHtml(docData.jenjang)} / ${escapeHtml(docData.fase_kelas)}</td>
+            <th style="width: 24%;">Satuan Pendidikan</th>
+            <td style="width: 26%;">${escapeHtml(m.nama_madrasah || "-")}</td>
+            <th style="width: 24%;">Jenjang / Fase</th>
+            <td style="width: 26%;">${escapeHtml(docData.jenjang)} / ${escapeHtml(docData.fase_kelas)}</td>
           </tr>
           <tr>
-            <td style="font-weight:bold;">${isGuruKelasDoc ? "Muatan Terpadu" : "Mata Pelajaran"}</td>
+            <th>${isGuruKelas ? "Muatan Terpadu" : "Mata Pelajaran"}</th>
             <td>${escapeHtml(docData.mata_pelajaran)}</td>
-            <td style="font-weight:bold;">Semester / Alokasi</td>
+            <th>Semester / Alokasi</th>
             <td>${escapeHtml(docData.semester)} / ${escapeHtml(docData.alokasi_waktu)}</td>
           </tr>
           <tr>
-            <td style="font-weight:bold;">Topik / Materi Pokok</td>
-            <td colspan="3"><strong>${escapeHtml(docData.topik_materi)}</strong></td>
+            <th>Model Pembelajaran</th>
+            <td>${escapeHtml(docData.model_pembelajaran || "-")}</td>
+            <th>Penyusun</th>
+            <td>${escapeHtml(docData.author_nama)}</td>
           </tr>
           <tr>
-            <td style="font-weight:bold;">Model Pembelajaran</td>
-            <td>${escapeHtml(docData.model_pembelajaran)}</td>
-            <td style="font-weight:bold;">Penyusun</td>
-            <td>${escapeHtml(docData.author_nama)} (${escapeHtml(peranLabel)})</td>
+            <th>Topik / Materi Pokok</th>
+            <td colspan="3"><strong>${escapeHtml(docData.topik_materi)}</strong></td>
           </tr>
         </table>
       `;
 
-      const signatureSection = `
+      const ttdBlockHTML = `
         <div class="signature-block">
-          <table style="width:100%; border-collapse:collapse; margin-top:16px; font-size:10.5pt;">
+          <table style="width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 10.5pt;">
             <tr>
-              <td style="width:50%; text-align:center; vertical-align:top; padding:4px 12px;">
+              <td style="width: 50%; text-align: center; vertical-align: top; border: none; padding: 4px;">
                 <div>Mengetahui,</div>
-                <div style="font-weight:bold;">Kepala ${escapeHtml(m.nama_madrasah || "Madrasah")}</div>
-                <div style="height:64px; text-align:center; margin:4px 0;">
-                  ${m.ttd_kepala_url
-                    ? `<img src="${m.ttd_kepala_url}" alt="TTD Kepala" style="max-height:60px; max-width:170px; object-fit:contain; display:inline-block;" />`
-                    : `<br/><br/><br/>`}
+                <div>Kepala ${escapeHtml(docData.jenjang || "Madrasah")}</div>
+                <div style="height: 62px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
+                  ${m.ttd_kepala_url ? `<img src="${m.ttd_kepala_url}" alt="TTD Kepala" style="max-height: 58px; max-width: 160px; object-fit: contain;" />` : ``}
                 </div>
-                <div style="font-weight:bold; text-decoration:underline;">${escapeHtml(m.nama_kepala || "...........................................")}</div>
-                <div>NIP. ${escapeHtml(m.nip_kepala || "...........................................")}</div>
+                <div style="font-weight: bold; text-decoration: underline;">${escapeHtml(m.nama_kepala || "........................................")}</div>
+                <div>NIP. ${escapeHtml(m.nip_kepala || "-")}</div>
               </td>
-              <td style="width:50%; text-align:center; vertical-align:top; padding:4px 12px;">
-                <div>Penyusun Perangkat,</div>
-                <div style="font-weight:bold;">${escapeHtml(peranLabel)}</div>
-                <div style="height:64px; text-align:center; margin:4px 0;">
-                  ${ttdPenyusunSrc
-                    ? `<img src="${ttdPenyusunSrc}" alt="TTD Penyusun" style="max-height:60px; max-width:170px; object-fit:contain; display:inline-block;" />`
-                    : `<br/><br/><br/>`}
+              <td style="width: 50%; text-align: center; vertical-align: top; border: none; padding: 4px;">
+                <div>${todayStr}</div>
+                <div>${escapeHtml(jabatanPenyusun)}</div>
+                <div style="height: 62px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
+                  ${ttdPenyusunSrc ? `<img src="${ttdPenyusunSrc}" alt="TTD Penyusun" style="max-height: 58px; max-width: 160px; object-fit: contain;" />` : ``}
                 </div>
-                <div style="font-weight:bold; text-decoration:underline;">${escapeHtml(docData.author_nama || "...........................................")}</div>
-                <div>${nipPenyusunText ? `NIP. ${escapeHtml(nipPenyusunText)}` : `ID: ${escapeHtml(docData.author_username || "-")}`}</div>
+                <div style="font-weight: bold; text-decoration: underline;">${escapeHtml(docData.author_nama || "........................................")}</div>
+                <div>${nipPenyusun ? `NIP/NUPTK. ${escapeHtml(nipPenyusun)}` : "NIP. -"}</div>
               </td>
             </tr>
           </table>
         </div>
       `;
 
-      const poinMateriHtml = (docData.materi_ajar?.poin_utama || [])
-        .map((pt) => `<li style="margin-bottom:3px;">${escapeHtml(pt)}</li>`)
-        .join("");
-
-      const tujuanHtml = (docData.tujuan_pembelajaran || [])
-        .map((tp) => `<li style="margin-bottom:3px;">${escapeHtml(tp)}</li>`)
-        .join("");
-
-      const pemantikHtml = (docData.pertanyaan_pemantik || [])
-        .map((pm) => `<li style="margin-bottom:2px;">${escapeHtml(pm)}</li>`)
-        .join("");
-
-      const glosariumHtml = (docData.materi_ajar?.glosarium || [])
-        .map((g) => `<li style="margin-bottom:2px;"><strong>${escapeHtml(g.istilah)}:</strong> ${escapeHtml(g.arti)}</li>`)
-        .join("");
-
-      const bahanAjarHtml = (docData.bahan_ajar || [])
-        .map((bh) => `<li style="margin-bottom:2px;">${escapeHtml(bh)}</li>`)
-        .join("");
-
-      if (modelLayout === "RINGKAS") {
+      if (model === "RINGKAS") {
         return `
-          ${kopHeader}
-          ${identitasTable}
-          <div class="doc-section-title">B. Capaian, Integrasi Nilai & Materi Inti</div>
+          ${kopSuratHTML}
+          ${identitasTableHTML}
+          <div class="doc-section-title">B. Capaian & Tujuan Pembelajaran</div>
           <table class="doc-table">
+            <tr><th style="width: 28%;">Capaian Pembelajaran</th><td>${escapeHtml(docData.capaian_pembelajaran)}</td></tr>
             <tr>
-              <th style="width:28%;">Capaian Pembelajaran</th>
-              <td>${escapeHtml(docData.capaian_pembelajaran)}</td>
-            </tr>
-            <tr>
-              <th>Deep Learning & Dimensi</th>
+              <th>Tujuan Pembelajaran</th>
               <td>
-                <strong>Prinsip:</strong> ${escapeHtml((docData.deep_learning?.prinsip || []).join(", "))}<br/>
-                <strong>Dimensi Lulusan:</strong> ${escapeHtml((docData.deep_learning?.dimensi_lulusan || []).join(", "))}
+                <ol style="margin: 0; padding-left: 18px;">
+                  ${(docData.tujuan_pembelajaran || []).map((tp) => `<li>${escapeHtml(tp)}</li>`).join("")}
+                </ol>
               </td>
             </tr>
-            <tr>
-              <th>Integrasi Panca Cinta</th>
-              <td>
-                <strong>Pilar:</strong> ${escapeHtml(pilarNames)}<br/>
-                ${escapeHtml(docData.panca_cinta?.fokus_nilai || "")}
-              </td>
-            </tr>
-            <tr>
-              <th>Ringkasan Materi Ajar</th>
-              <td>
-                <div style="margin-bottom:4px;">${escapeHtml(docData.materi_ajar?.ringkasan_konsep || "")}</div>
-                <ul style="margin:0 0 0 18px; padding:0;">${poinMateriHtml}</ul>
-              </td>
-            </tr>
+            <tr><th>Nilai Panca Cinta</th><td><strong>${escapeHtml(docData.panca_cinta?.pilar_judul || "")}</strong> — ${escapeHtml(docData.panca_cinta?.fokus_nilai || "")}</td></tr>
           </table>
 
-          <div class="doc-section-title">C. Langkah Pembelajaran & Asesmen</div>
+          <div class="doc-section-title">C. Ringkasan Langkah Pembelajaran (${escapeHtml(docData.model_pembelajaran || "")})</div>
           <table class="doc-table">
-            <tr>
-              <th style="width:28%;">1. Memahami (Awal)</th>
-              <td style="white-space:pre-line;">${escapeHtml(docData.deep_learning?.langkah_memahami || "")}</td>
-            </tr>
-            <tr>
-              <th>2. Mengaplikasi (Inti)</th>
-              <td style="white-space:pre-line;">${escapeHtml(docData.deep_learning?.langkah_mengaplikasi || "")}</td>
-            </tr>
-            <tr>
-              <th>3. Merefleksi (Penutup)</th>
-              <td style="white-space:pre-line;">${escapeHtml(docData.deep_learning?.langkah_merefleksi || "")}</td>
-            </tr>
-            <tr>
-              <th>Asesmen & LKPD</th>
-              <td>
-                <strong>Formatif:</strong> ${escapeHtml(docData.asesmen?.formatif || "")}<br/>
-                <strong>Sumatif:</strong> ${escapeHtml(docData.asesmen?.sumatif || "")}<br/>
-                <strong>Refleksi/LKPD:</strong> ${escapeHtml(docData.asesmen?.lkpd || "")}
-              </td>
-            </tr>
+            <tr><th style="width: 28%;">1. Memahami (Mindful)</th><td style="white-space: pre-line;">${escapeHtml(docData.deep_learning?.langkah_memahami || "")}</td></tr>
+            <tr><th>2. Mengaplikasi (Meaningful)</th><td style="white-space: pre-line;">${escapeHtml(docData.deep_learning?.langkah_mengaplikasi || "")}</td></tr>
+            <tr><th>3. Merefleksi (Joyful)</th><td style="white-space: pre-line;">${escapeHtml(docData.deep_learning?.langkah_merefleksi || "")}</td></tr>
           </table>
-          ${signatureSection}
+
+          <div class="doc-section-title">D. Asesmen & Refleksi</div>
+          <table class="doc-table">
+            <tr><th style="width: 28%;">Asesmen Formatif & Sumatif</th><td>${escapeHtml(docData.asesmen?.formatif || "")} ${escapeHtml(docData.asesmen?.sumatif || "")}</td></tr>
+            <tr><th>LKPD / Refleksi Hati</th><td>${escapeHtml(docData.asesmen?.lkpd || "")}</td></tr>
+          </table>
+          ${ttdBlockHTML}
         `;
       }
 
-      if (modelLayout === "MATRIKS") {
+      if (model === "MATRIKS") {
         return `
-          ${kopHeader}
-          ${identitasTable}
-          <div class="doc-section-title">B. Matriks Perencanaan Pembelajaran Terpadu</div>
+          ${kopSuratHTML}
+          ${identitasTableHTML}
+          <div class="doc-section-title">B. Matriks Perencanaan Pembelajaran</div>
           <table class="doc-table">
             <thead>
               <tr>
-                <th style="width:20%;">Komponen</th>
-                <th style="width:40%;">Rincian Pedagogis & Materi</th>
-                <th style="width:40%;">Integrasi Nilai & Asesmen</th>
+                <th style="width: 22%;">Komponen</th>
+                <th style="width: 44%;">Uraian Perencanaan</th>
+                <th style="width: 34%;">Integrasi Deep Learning & Panca Cinta</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td><strong>Capaian & Tujuan</strong></td>
                 <td>
-                  <strong>CP:</strong> ${escapeHtml(docData.capaian_pembelajaran)}
-                  ${tujuanHtml ? `<ol style="margin:4px 0 0 16px; padding:0;">${tujuanHtml}</ol>` : ``}
+                  <div><strong>CP:</strong> ${escapeHtml(docData.capaian_pembelajaran)}</div>
+                  <div style="margin-top: 4px;"><strong>TP:</strong></div>
+                  <ul style="margin: 0; padding-left: 16px;">
+                    ${(docData.tujuan_pembelajaran || []).map((tp) => `<li>${escapeHtml(tp)}</li>`).join("")}
+                  </ul>
                 </td>
                 <td>
-                  <strong>Prinsip Deep Learning:</strong> ${escapeHtml((docData.deep_learning?.prinsip || []).join(", "))}<br/>
-                  <strong>Dimensi Lulusan:</strong> ${escapeHtml((docData.deep_learning?.dimensi_lulusan || []).join(", "))}
+                  <div><strong>Prinsip:</strong> ${(docData.deep_learning?.prinsip || []).join(", ")}</div>
+                  <div style="margin-top: 4px;"><strong>Dimensi Lulusan:</strong> ${(docData.deep_learning?.dimensi_lulusan || []).join(", ")}</div>
+                  <div style="margin-top: 4px;"><strong>Pilar Cinta:</strong> ${escapeHtml(docData.panca_cinta?.pilar_judul || "")}</div>
                 </td>
               </tr>
               <tr>
-                <td><strong>Panca Cinta & Materi</strong></td>
+                <td><strong>Materi & Bahan Ajar</strong></td>
                 <td>
                   <div>${escapeHtml(docData.materi_ajar?.ringkasan_konsep || "")}</div>
-                  <ul style="margin:4px 0 0 16px; padding:0;">${poinMateriHtml}</ul>
+                  <ul style="margin: 4px 0 0 0; padding-left: 16px;">
+                    ${(docData.materi_ajar?.poin_utama || []).map((pt) => `<li>${escapeHtml(pt)}</li>`).join("")}
+                  </ul>
                 </td>
                 <td>
-                  <strong>Pilar:</strong> ${escapeHtml(pilarNames)}<br/>
-                  <strong>Nilai:</strong> ${escapeHtml(docData.panca_cinta?.fokus_nilai || "")}<br/>
-                  <strong>Aksi:</strong> ${escapeHtml(docData.panca_cinta?.aktivitas_cinta || "")}
+                  <strong>Bahan Ajar:</strong>
+                  <ul style="margin: 0; padding-left: 16px;">
+                    ${(docData.bahan_ajar || []).map((ba) => `<li>${escapeHtml(ba)}</li>`).join("")}
+                  </ul>
                 </td>
               </tr>
               <tr>
-                <td><strong>1. Memahami</strong></td>
-                <td style="white-space:pre-line;">${escapeHtml(docData.deep_learning?.langkah_memahami || "")}</td>
-                <td><strong>Diagnostik:</strong> ${escapeHtml(docData.asesmen?.diagnostik || "-")}</td>
-              </tr>
-              <tr>
-                <td><strong>2. Mengaplikasi</strong></td>
-                <td style="white-space:pre-line;">${escapeHtml(docData.deep_learning?.langkah_mengaplikasi || "")}</td>
-                <td><strong>Formatif:</strong> ${escapeHtml(docData.asesmen?.formatif || "")}</td>
-              </tr>
-              <tr>
-                <td><strong>3. Merefleksi</strong></td>
-                <td style="white-space:pre-line;">${escapeHtml(docData.deep_learning?.langkah_merefleksi || "")}</td>
+                <td><strong>Sintaks Pembelajaran</strong></td>
+                <td style="white-space: pre-line;"><strong>Memahami:</strong>\n${escapeHtml(docData.deep_learning?.langkah_memahami || "")}\n\n<strong>Mengaplikasi:</strong>\n${escapeHtml(docData.deep_learning?.langkah_mengaplikasi || "")}\n\n<strong>Merefleksi:</strong>\n${escapeHtml(docData.deep_learning?.langkah_merefleksi || "")}</td>
                 <td>
-                  <strong>Sumatif:</strong> ${escapeHtml(docData.asesmen?.sumatif || "")}<br/>
-                  <strong>LKPD:</strong> ${escapeHtml(docData.asesmen?.lkpd || "")}
+                  <div><strong>Aktivitas Kasih Sayang:</strong> ${escapeHtml(docData.panca_cinta?.aktivitas_cinta || "")}</div>
+                  <div style="margin-top: 6px;"><strong>Diferensiasi Produk:</strong> ${escapeHtml(docData.diferensiasi?.produk || "")}</div>
                 </td>
+              </tr>
+              <tr>
+                <td><strong>Asesmen & LKPD</strong></td>
+                <td>
+                  <div><strong>Formatif:</strong> ${escapeHtml(docData.asesmen?.formatif || "")}</div>
+                  <div style="margin-top: 4px;"><strong>Sumatif:</strong> ${escapeHtml(docData.asesmen?.sumatif || "")}</div>
+                </td>
+                <td>${escapeHtml(docData.asesmen?.lkpd || "")}</td>
               </tr>
             </tbody>
           </table>
-          ${signatureSection}
+          ${ttdBlockHTML}
         `;
       }
 
-      // Default: Model STANDAR (Lengkap & Komprehensif)
+      // MODEL STANDAR / LENGKAP
       return `
-        ${kopHeader}
-        ${identitasTable}
+        ${kopSuratHTML}
+        ${identitasTableHTML}
 
-        <div class="doc-section-title">B. Capaian, Tujuan Pembelajaran & Komponen Deep Learning</div>
+        <div class="doc-section-title">B. Kompetensi Awal, Profil Lulusan & Panca Cinta</div>
         <table class="doc-table">
           <tr>
-            <th style="width:26%;">Capaian Pembelajaran (CP)</th>
-            <td>${escapeHtml(docData.capaian_pembelajaran)}</td>
-          </tr>
-          ${tujuanHtml ? `
-          <tr>
-            <th>Tujuan Pembelajaran (TP)</th>
-            <td><ol style="margin:0 0 0 18px; padding:0;">${tujuanHtml}</ol></td>
-          </tr>` : ``}
-          ${docData.pemahaman_bermakna ? `
-          <tr>
-            <th>Pemahaman Bermakna</th>
-            <td>${escapeHtml(docData.pemahaman_bermakna)}</td>
-          </tr>` : ``}
-          ${pemantikHtml ? `
-          <tr>
-            <th>Pertanyaan Pemantik</th>
-            <td><ul style="margin:0 0 0 18px; padding:0;">${pemantikHtml}</ul></td>
-          </tr>` : ``}
-          <tr>
-            <th>Prinsip Deep Learning</th>
-            <td>${escapeHtml((docData.deep_learning?.prinsip || []).join(" • "))}</td>
+            <th style="width: 28%;">Prinsip Deep Learning</th>
+            <td>${(docData.deep_learning?.prinsip || []).join(" • ")}</td>
           </tr>
           <tr>
-            <th>8 Dimensi Profil Lulusan</th>
-            <td>${escapeHtml((docData.deep_learning?.dimensi_lulusan || []).join(", "))}</td>
+            <th>Dimensi Profil Lulusan</th>
+            <td>${(docData.deep_learning?.dimensi_lulusan || []).join(", ")}</td>
           </tr>
-          ${docData.sarana_prasarana ? `
+          <tr>
+            <th>Pilar Panca Cinta</th>
+            <td>
+              <div><strong>${escapeHtml(docData.panca_cinta?.pilar_judul || "")}</strong></div>
+              <div style="margin-top: 2px;">${escapeHtml(docData.panca_cinta?.fokus_nilai || "")}</div>
+            </td>
+          </tr>
           <tr>
             <th>Sarana & Prasarana</th>
-            <td>${escapeHtml(docData.sarana_prasarana)}</td>
-          </tr>` : ``}
+            <td>${escapeHtml(docData.sarana_prasarana || "-")}</td>
+          </tr>
         </table>
 
-        <div class="doc-section-title">C. Integrasi Kurikulum Berbasis Cinta (Panca Cinta)</div>
+        <div class="doc-section-title">C. Komponen Inti Pembelajaran</div>
         <table class="doc-table">
           <tr>
-            <th style="width:26%;">Pilar Panca Cinta Utama</th>
-            <td><strong>${escapeHtml(pilarNames)}</strong></td>
+            <th style="width: 28%;">Capaian Pembelajaran (CP)</th>
+            <td>${escapeHtml(docData.capaian_pembelajaran)}</td>
           </tr>
           <tr>
-            <th>Internalisasi Nilai Cinta</th>
-            <td>${escapeHtml(docData.panca_cinta?.fokus_nilai || "")}</td>
+            <th>Tujuan Pembelajaran (TP)</th>
+            <td>
+              <ol style="margin: 0; padding-left: 18px;">
+                ${(docData.tujuan_pembelajaran || []).map((tp) => `<li>${escapeHtml(tp)}</li>`).join("")}
+              </ol>
+            </td>
           </tr>
           <tr>
-            <th>Aksi Nyata / Pembiasaan</th>
-            <td>${escapeHtml(docData.panca_cinta?.aktivitas_cinta || "")}</td>
+            <th>Pemahaman Bermakna</th>
+            <td>${escapeHtml(docData.pemahaman_bermakna || "-")}</td>
+          </tr>
+          <tr>
+            <th>Pertanyaan Pemantik</th>
+            <td>
+              <ul style="margin: 0; padding-left: 18px;">
+                ${(docData.pertanyaan_pemantik || []).map((q) => `<li>${escapeHtml(q)}</li>`).join("")}
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <th>Pembelajaran Berdiferensiasi</th>
+            <td>
+              <div><strong>Konten:</strong> ${escapeHtml(docData.diferensiasi?.konten || "-")}</div>
+              <div><strong>Proses:</strong> ${escapeHtml(docData.diferensiasi?.proses || "-")}</div>
+              <div><strong>Produk:</strong> ${escapeHtml(docData.diferensiasi?.produk || "-")}</div>
+            </td>
           </tr>
         </table>
 
-        <div class="doc-section-title">D. Pengalaman Belajar (${escapeHtml(docData.model_pembelajaran)})</div>
+        <div class="doc-section-title">D. Langkah-Langkah Kegiatan Pembelajaran (${escapeHtml(docData.model_pembelajaran || "")})</div>
         <table class="doc-table">
           <thead>
             <tr>
-              <th style="width:24%;">Tahapan Belajar</th>
-              <th>Deskripsi Kegiatan Pembelajaran</th>
+              <th style="width: 26%;">Tahapan Pembelajaran</th>
+              <th>Deskripsi Aktivitas Guru & Peserta Didik</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>1. Memahami</strong><br/><span style="font-size:9pt;">(Pendahuluan & Berkesadaran / Mindful)</span></td>
-              <td style="white-space:pre-line;">${escapeHtml(docData.deep_learning?.langkah_memahami || "")}</td>
+              <td><strong>1. Tahap Memahami</strong><br/><em>(Mindful / Berkesadaran)</em></td>
+              <td style="white-space: pre-line;">${escapeHtml(docData.deep_learning?.langkah_memahami || "")}</td>
             </tr>
             <tr>
-              <td><strong>2. Mengaplikasi</strong><br/><span style="font-size:9pt;">(Kegiatan Inti — Bermakna & Menggembirakan)</span></td>
-              <td style="white-space:pre-line;">${escapeHtml(docData.deep_learning?.langkah_mengaplikasi || "")}</td>
+              <td><strong>2. Tahap Mengaplikasi</strong><br/><em>(Meaningful / Bermakna)</em></td>
+              <td style="white-space: pre-line;">${escapeHtml(docData.deep_learning?.langkah_mengaplikasi || "")}</td>
             </tr>
             <tr>
-              <td><strong>3. Merefleksi</strong><br/><span style="font-size:9pt;">(Penutup — Evaluasi & Muhasabah Hati)</span></td>
-              <td style="white-space:pre-line;">${escapeHtml(docData.deep_learning?.langkah_merefleksi || "")}</td>
+              <td><strong>3. Tahap Merefleksi</strong><br/><em>(Joyful / Menggembirakan)</em></td>
+              <td style="white-space: pre-line;">${escapeHtml(docData.deep_learning?.langkah_merefleksi || "")}</td>
             </tr>
-            ${docData.diferensiasi ? `
             <tr>
-              <td><strong>Strategi Diferensiasi</strong><br/><span style="font-size:9pt;">(Konten, Proses & Produk)</span></td>
-              <td>
-                <strong>Konten:</strong> ${escapeHtml(docData.diferensiasi.konten || "-")}<br/>
-                <strong>Proses:</strong> ${escapeHtml(docData.diferensiasi.proses || "-")}<br/>
-                <strong>Produk:</strong> ${escapeHtml(docData.diferensiasi.produk || "-")}
-              </td>
-            </tr>` : ``}
+              <td><strong>Aksi Nyata Panca Cinta</strong></td>
+              <td>${escapeHtml(docData.panca_cinta?.aktivitas_cinta || "")}</td>
+            </tr>
           </tbody>
         </table>
 
-        <div class="doc-section-title">E. Uraian Materi Ajar & Bahan Ajar</div>
+        <div class="doc-section-title">E. Materi Ajar, Glosarium & Bahan Ajar</div>
         <table class="doc-table">
           <tr>
-            <th style="width:26%;">Ringkasan Konsep</th>
+            <th style="width: 28%;">Ringkasan Konsep</th>
             <td>${escapeHtml(docData.materi_ajar?.ringkasan_konsep || "")}</td>
           </tr>
           <tr>
-            <th>Pokok-Pokok Materi Utama</th>
-            <td><ul style="margin:0 0 0 18px; padding:0;">${poinMateriHtml}</ul></td>
+            <th>Pokok-Pokok Materi Ajar</th>
+            <td>
+              <ul style="margin: 0; padding-left: 18px;">
+                ${(docData.materi_ajar?.poin_utama || []).map((pt) => `<li>${escapeHtml(pt)}</li>`).join("")}
+              </ul>
+            </td>
           </tr>
-          ${docData.materi_ajar?.uraian_mendalam ? `
-          <tr>
-            <th>Uraian Materi Mendalam</th>
-            <td style="white-space:pre-line;">${escapeHtml(docData.materi_ajar.uraian_mendalam)}</td>
-          </tr>` : ``}
           <tr>
             <th>Contoh Kontekstual</th>
             <td>${escapeHtml(docData.materi_ajar?.contoh_kontekstual || "")}</td>
           </tr>
-          ${glosariumHtml ? `
           <tr>
             <th>Glosarium Kata Kunci</th>
-            <td><ul style="margin:0 0 0 18px; padding:0;">${glosariumHtml}</ul></td>
-          </tr>` : ``}
+            <td>
+              ${(docData.materi_ajar?.glosarium || []).map((g) => `<div><strong>${escapeHtml(g.istilah)}:</strong> ${escapeHtml(g.arti)}</div>`).join("")}
+            </td>
+          </tr>
           <tr>
-            <th>Bahan & Sumber Ajar</th>
-            <td><ul style="margin:0 0 0 18px; padding:0;">${bahanAjarHtml}</ul></td>
+            <th>Daftar Bahan Ajar</th>
+            <td>
+              <ul style="margin: 0; padding-left: 18px;">
+                ${(docData.bahan_ajar || []).map((ba) => `<li>${escapeHtml(ba)}</li>`).join("")}
+              </ul>
+            </td>
           </tr>
         </table>
 
-        <div class="doc-section-title">F. Asesmen Pembelajaran, LKPD & Tindak Lanjut</div>
+        <div class="doc-section-title">F. Asesmen, LKPD & Tindak Lanjut</div>
         <table class="doc-table">
-          ${docData.asesmen?.diagnostik ? `
-          <tr>
-            <th style="width:26%;">Asesmen Awal (Diagnostik)</th>
-            <td>${escapeHtml(docData.asesmen.diagnostik)}</td>
-          </tr>` : ``}
-          <tr>
-            <th style="width:26%;">Asesmen Formatif (Proses)</th>
-            <td>${escapeHtml(docData.asesmen?.formatif || "")}</td>
-          </tr>
-          <tr>
-            <th>Asesmen Sumatif (Akhir)</th>
-            <td>${escapeHtml(docData.asesmen?.sumatif || "")}</td>
-          </tr>
-          ${docData.asesmen?.rubrik_ringkas ? `
-          <tr>
-            <th>Rubrik Kriteria Penilaian</th>
-            <td>${escapeHtml(docData.asesmen.rubrik_ringkas)}</td>
-          </tr>` : ``}
-          <tr>
-            <th>LKPD & Refleksi Hati</th>
-            <td>${escapeHtml(docData.asesmen?.lkpd || "")}</td>
-          </tr>
-          ${docData.asesmen?.pengayaan_remedial ? `
-          <tr>
-            <th>Pengayaan & Remedial</th>
-            <td>${escapeHtml(docData.asesmen.pengayaan_remedial)}</td>
-          </tr>` : ``}
+          <tr><th style="width: 28%;">Asesmen Diagnostik</th><td>${escapeHtml(docData.asesmen?.diagnostik || "-")}</td></tr>
+          <tr><th>Asesmen Formatif</th><td>${escapeHtml(docData.asesmen?.formatif || "-")}</td></tr>
+          <tr><th>Asesmen Sumatif</th><td>${escapeHtml(docData.asesmen?.sumatif || "-")}</td></tr>
+          <tr><th>Rubrik Penilaian Ringkas</th><td>${escapeHtml(docData.asesmen?.rubrik_ringkas || "-")}</td></tr>
+          <tr><th>Lembar Kerja (LKPD)</th><td>${escapeHtml(docData.asesmen?.lkpd || "-")}</td></tr>
+          <tr><th>Pengayaan & Remedial</th><td>${escapeHtml(docData.asesmen?.pengayaan_remedial || "-")}</td></tr>
         </table>
 
-        ${signatureSection}
+        ${ttdBlockHTML}
       `;
     }
 
+    // =========================================================================
+    // FUNGSI EKSPOR DOKUMEN (WORD .DOC, CETAK PDF, & SLIDE PPTX)
+    // =========================================================================
     function exportDocumentToWord() {
-      if (!state.generatedDoc) {
-        showToast("Belum ada dokumen untuk diekspor.", "error");
-        return;
-      }
-      const isF4 = state.paperSize === "F4";
+      const docData = state.generatedDoc;
+      if (!docData) return;
+
+      const bodyHtml = buildOfficialDocumentHTML(docData);
       const isLandscape = state.paperOrientation === "landscape";
+      const pageSizeCss = state.paperSize === "F4"
+        ? (isLandscape ? "330mm 215mm" : "215mm 330mm")
+        : (isLandscape ? "297mm 210mm" : "210mm 297mm");
 
-      let widthCm = isF4 ? "21.5cm" : "21.0cm";
-      let heightCm = isF4 ? "33.0cm" : "29.7cm";
-      if (isLandscape) {
-        const tmp = widthCm;
-        widthCm = heightCm;
-        heightCm = tmp;
-      }
-
-      const contentHtml = buildOfficialDocumentHTML(state.generatedDoc);
-      const fullWordHtml = `
-        <html xmlns:o='urn:schemas-microsoft-com:office:office'
-              xmlns:w='urn:schemas-microsoft-com:office:word'
-              xmlns='http://www.w3.org/TR/REC-html40'>
+      const wordHtml = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office"
+              xmlns:w="urn:schemas-microsoft-com:office:word"
+              xmlns="http://www.w3.org/TR/REC-html40">
         <head>
           <meta charset="utf-8" />
-          <title>${escapeHtml(state.generatedDoc.topik_materi)}</title>
+          <title>${escapeHtml(docData.topik_materi)}</title>
           <style>
-            @page Section1 {
-              size: ${widthCm} ${heightCm};
-              mso-page-orientation: ${isLandscape ? "landscape" : "portrait"};
-              margin: 1.5cm 1.8cm 1.5cm 1.8cm;
-            }
-            div.Section1 { page: Section1; }
-            body {
-              font-family: 'Times New Roman', Times, serif;
-              font-size: 11pt;
-              line-height: 1.4;
-              color: #111827;
-            }
-            .doc-section-title {
-              font-weight: bold;
-              font-size: 11pt;
-              margin-top: 12px;
-              margin-bottom: 4px;
-              text-transform: uppercase;
-            }
-            .doc-table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 10px;
-              font-size: 10.5pt;
-            }
-            .doc-table th, .doc-table td {
-              border: 1px solid #1F2937;
-              padding: 5px 7px;
-              vertical-align: top;
-              text-align: left;
-            }
-            .doc-table th {
-              background-color: #F3F4F6;
-              font-weight: bold;
-            }
+            @page { size: ${pageSizeCss}; margin: 15mm 18mm; }
+            body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.45; color: #111827; }
+            .doc-section-title { font-weight: bold; font-size: 11pt; margin-top: 12px; margin-bottom: 5px; text-transform: uppercase; }
+            .doc-table { width: 100%; border-collapse: collapse; margin-top: 4px; margin-bottom: 10px; font-size: 10.5pt; }
+            .doc-table th, .doc-table td { border: 1px solid #1F2937; padding: 6px 8px; vertical-align: top; text-align: left; }
+            .doc-table th { background-color: #F3F4F6; font-weight: bold; }
           </style>
         </head>
-        <body>
-          <div class="Section1">
-            ${contentHtml}
-          </div>
-        </body>
+        <body>${bodyHtml}</body>
         </html>
       `;
 
-      const blob = new Blob(["\ufeff", fullWordHtml], { type: "application/msword" });
+      const blob = new Blob(["\ufeff", wordHtml], { type: "application/msword" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      const safeName = (state.generatedDoc.topik_materi || "Perangkat_Ajar")
-        .replace(/[^a-zA-Z0-9_-]+/g, "_")
-        .slice(0, 45);
-      a.href = url;
-      a.download = `${state.generatedDoc.jenjang}_${safeName}_${state.paperSize}_${state.paperOrientation}.doc`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const link = document.createElement("a");
+      const safeTitle = (docData.topik_materi || "Perangkat_Ajar").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 45);
+      link.href = url;
+      link.download = `${docData.jenis_dokumen || "Modul"}_${safeTitle}.doc`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      showToast(`File Word (.doc) ukuran ${state.paperSize} (${state.paperOrientation}) berhasil diunduh!`, "success");
+      showToast("File Microsoft Word (.doc) berhasil diunduh!", "success");
     }
 
     function printDocumentToPDF() {
-      if (!state.generatedDoc) {
-        showToast("Belum ada dokumen untuk dicetak.", "error");
-        return;
-      }
-      const isF4 = state.paperSize === "F4";
+      const styleEl = document.getElementById("dynamic-print-style");
       const isLandscape = state.paperOrientation === "landscape";
-      const pageSizeCss = isF4
+      const pageSizeCss = state.paperSize === "F4"
         ? (isLandscape ? "330mm 215mm" : "215mm 330mm")
-        : `A4 ${isLandscape ? "landscape" : "portrait"}`;
+        : (isLandscape ? "A4 landscape" : "A4 portrait");
 
-      const printStyleEl = document.getElementById("dynamic-print-style");
-      if (printStyleEl) {
-        printStyleEl.textContent = `
-          @media print {
-            @page {
-              size: ${pageSizeCss};
-              margin: 13mm 15mm;
-            }
-          }
-        `;
+      if (styleEl) {
+        styleEl.textContent = `@page { size: ${pageSizeCss}; margin: 12mm 15mm; }`;
       }
-      setTimeout(() => {
-        window.print();
-      }, 120);
+      window.print();
     }
 
-    async function exportPresentationToPPTX() {
-      if (!state.generatedDoc) {
-        showToast("Belum ada slide untuk diunduh.", "error");
-        return;
-      }
-      if (typeof window.PptxGenJS === "undefined") {
-        showToast("Library PptxGenJS sedang dimuat. Silakan coba beberapa detik lagi.", "error");
+    function exportPresentationToPPTX() {
+      const docData = state.generatedDoc;
+      if (!docData) return;
+      if (!window.PptxGenJS) {
+        showToast("Library PPTX sedang dimuat, coba sesaat lagi.", "error");
         return;
       }
 
       try {
-        const docData = state.generatedDoc;
-        const slides = docData.slides || buildSlideDeckFromDoc(docData);
-        const isKBC = docData.jalur_kurikulum === "KBC";
-        const primaryHex = isKBC ? "0D9488" : "5B5CE6";
-
         const pptx = new window.PptxGenJS();
         pptx.layout = "LAYOUT_16x9";
         pptx.author = docData.author_nama || "KlikAjar";
-        pptx.title = docData.topik_materi;
+        pptx.title = docData.topik_materi || "Presentasi Pembelajaran";
 
-        slides.forEach((s, idx) => {
+        const isKBC = docData.jalur_kurikulum === "KBC";
+        const primaryColor = isKBC ? "0D9488" : "5B5CE6";
+        const slides = docData.slides || buildSlideDeckFromDoc(docData);
+
+        slides.forEach((sl, index) => {
           const slide = pptx.addSlide();
-          if (idx === 0) {
-            slide.background = { color: primaryHex };
-            slide.addText(
-              `${docData.jenjang} • ${docData.fase_kelas} • ${docData.mata_pelajaran}`,
-              { x: 0.7, y: 0.9, w: 8.6, h: 0.4, fontSize: 13, bold: true, color: "E0E7FF" }
-            );
-            slide.addText(s.judul, {
-              x: 0.7, y: 1.5, w: 8.6, h: 1.6, fontSize: 28, bold: true, color: "FFFFFF"
+          if (index === 0) {
+            slide.background = { color: primaryColor };
+            slide.addText(sl.subjudul || "", {
+              x: 0.7, y: 0.9, w: 8.6, h: 0.4,
+              fontSize: 13, bold: true, color: "E0E7FF"
             });
-            slide.addText(s.subjudul, {
-              x: 0.7, y: 3.2, w: 8.6, h: 0.5, fontSize: 15, color: "F1F5F9"
+            slide.addText(sl.judul || "", {
+              x: 0.7, y: 1.4, w: 8.6, h: 1.5,
+              fontSize: 28, bold: true, color: "FFFFFF"
             });
-            const bulletLines = (s.poin || []).map((p) => ({
-              text: p,
-              options: { bullet: true, color: "FFFFFF", fontSize: 13, breakLine: true }
-            }));
-            slide.addText(bulletLines, { x: 0.7, y: 3.9, w: 8.6, h: 1.4 });
+            const bulletItems = (sl.poin || []).map((p) => ({ text: p, options: { bullet: true, color: "F8FAFC", fontSize: 14 } }));
+            if (bulletItems.length) {
+              slide.addText(bulletItems, { x: 0.7, y: 3.1, w: 8.6, h: 1.8 });
+            }
           } else {
-            slide.background = { color: "F4F6FA" };
-            slide.addShape(pptx.ShapeType.rect, {
-              x: 0, y: 0, w: "100%", h: 0.14, fill: { color: primaryHex }
+            slide.background = { color: "F8FAFC" };
+            slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 10, h: 0.14, fill: { color: primaryColor } });
+            slide.addText(`Slide ${sl.nomor} • ${sl.subjudul || ""}`, {
+              x: 0.6, y: 0.35, w: 8.8, h: 0.35,
+              fontSize: 11, bold: true, color: primaryColor
             });
-            slide.addText(`Slide ${s.nomor} • ${s.subjudul}`, {
-              x: 0.6, y: 0.35, w: 8.8, h: 0.35, fontSize: 11, bold: true, color: primaryHex
+            slide.addText(sl.judul || "", {
+              x: 0.6, y: 0.72, w: 8.8, h: 0.65,
+              fontSize: 22, bold: true, color: "1E293B"
             });
-            slide.addText(s.judul, {
-              x: 0.6, y: 0.7, w: 8.8, h: 0.65, fontSize: 22, bold: true, color: "1E293B"
-            });
-            const bulletItems = (s.poin || []).map((p) => ({
-              text: p,
-              options: { bullet: true, color: "334155", fontSize: 15, breakLine: true, paraSpaceAfter: 10 }
+            const bulletItems = (sl.poin || []).map((p) => ({
+              text: String(p).replace(/\n/g, " "),
+              options: { bullet: true, color: "334155", fontSize: 14, breakLine: true }
             }));
-            slide.addText(bulletItems, {
-              x: 0.7, y: 1.55, w: 8.6, h: 3.6, valign: "top"
+            if (bulletItems.length) {
+              slide.addText(bulletItems, { x: 0.6, y: 1.55, w: 8.8, h: 3.4, valign: "top" });
+            }
+            slide.addText(`${state.madrasah.nama_madrasah || "KlikAjar"} — ${docData.mata_pelajaran}`, {
+              x: 0.6, y: 5.15, w: 8.8, h: 0.3,
+              fontSize: 10, color: "94A3B8"
             });
-            slide.addText(
-              `${state.madrasah.nama_madrasah || "KlikAjar"} — ${docData.topik_materi}`,
-              { x: 0.6, y: 5.2, w: 8.8, h: 0.3, fontSize: 9.5, color: "94A3B8" }
-            );
           }
         });
 
-        const safeName = (docData.topik_materi || "Slide_Materi")
-          .replace(/[^a-zA-Z0-9_-]+/g, "_")
-          .slice(0, 40);
-        await pptx.writeFile({ fileName: `PPT_${docData.jenjang}_${safeName}.pptx` });
-        showToast("Slide presentasi (.pptx) berhasil diunduh!", "success");
+        const safeTitle = (docData.topik_materi || "Slide_Materi").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 45);
+        pptx.writeFile({ fileName: `PPT_${safeTitle}.pptx` });
+        showToast("File PowerPoint (.pptx) berhasil diunduh!", "success");
       } catch (err) {
         showToast("Gagal membuat file PPTX: " + err.message, "error");
       }
+    }
+
+    // =========================================================================
+    // VIEW 6: PENGATURAN PROFIL MADRASAH, LOGO KEMENAG/MADRASAH & TTD
+    // =========================================================================
+    function renderMadrasahSettingsView() {
+      const m = state.madrasah || {};
+      const ttdPenyusunActive = state.userTtdUrl || m.ttd_penyusun_url || "";
+
+      return `
+        <div class="max-w-4xl mx-auto space-y-6">
+          <form id="madrasah-settings-form" class="neu-card rounded-3xl p-5 sm:p-6 space-y-5">
+            <div class="pb-3 border-b border-slate-200/70">
+              <h2 class="text-base sm:text-lg font-extrabold text-slate-800">Profil Satuan Pendidikan, Kop Surat & Tanda Tangan</h2>
+              <p class="text-xs text-slate-400">Data ini tampil otomatis pada Kop Surat dan pengesahan dokumen Word/PDF.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama RA / Madrasah *</label>
+                <input type="text" id="set-nama-madrasah" required value="${escapeHtml(m.nama_madrasah || "")}"
+                  placeholder="Contoh: MADRASAH TERPADU AL-HIKMAH"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">Tahun Pelajaran</label>
+                <input type="text" id="set-tapel" value="${escapeHtml(m.tahun_pelajaran || "2026/2027")}"
+                  placeholder="2026/2027"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">NSM (Nomor Statistik Madrasah)</label>
+                <input type="text" id="set-nsm" value="${escapeHtml(m.nsm || "")}"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">NPSN</label>
+                <input type="text" id="set-npsn" value="${escapeHtml(m.npsn || "")}"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1.5">Alamat Lengkap Madrasah</label>
+              <input type="text" id="set-alamat" value="${escapeHtml(m.alamat || "")}"
+                class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama Kepala RA / Madrasah</label>
+                <input type="text" id="set-kepala" value="${escapeHtml(m.nama_kepala || "")}"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">NIP Kepala RA / Madrasah</label>
+                <input type="text" id="set-nip-kepala" value="${escapeHtml(m.nip_kepala || "")}"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
+              </div>
+            </div>
+
+            <!-- 4 Kartu Upload Logo Kemenag, Logo Madrasah, TTD Kepala & TTD Penyusun -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-2">
+              <div class="neu-surface rounded-2xl p-3.5 text-center space-y-2">
+                <div class="text-xs font-extrabold text-slate-700">Logo Kemenag RI</div>
+                <div class="h-20 neu-inset rounded-xl flex items-center justify-center p-2">
+                  ${m.logo_kemenag_url
+                    ? `<img src="${m.logo_kemenag_url}" alt="Logo Kemenag" class="max-h-16 object-contain" />`
+                    : `<span class="text-[11px] text-slate-400">Belum ada</span>`}
+                </div>
+                <div class="flex items-center justify-center gap-1.5">
+                  <label class="neu-btn px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
+                    Upload
+                    <input type="file" accept="image/*" onchange="window.__uploadMadrasahImage('logo_kemenag_url', event)" class="hidden" />
+                  </label>
+                  ${m.logo_kemenag_url ? `<button type="button" onclick="window.__clearMadrasahImage('logo_kemenag_url')" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
+                </div>
+              </div>
+
+              <div class="neu-surface rounded-2xl p-3.5 text-center space-y-2">
+                <div class="text-xs font-extrabold text-slate-700">Logo RA / Madrasah</div>
+                <div class="h-20 neu-inset rounded-xl flex items-center justify-center p-2">
+                  ${m.logo_url
+                    ? `<img src="${m.logo_url}" alt="Logo Madrasah" class="max-h-16 object-contain" />`
+                    : `<span class="text-[11px] text-slate-400">Belum ada</span>`}
+                </div>
+                <div class="flex items-center justify-center gap-1.5">
+                  <label class="neu-btn px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
+                    Upload
+                    <input type="file" accept="image/*" onchange="window.__uploadMadrasahImage('logo_url', event)" class="hidden" />
+                  </label>
+                  ${m.logo_url ? `<button type="button" onclick="window.__clearMadrasahImage('logo_url')" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
+                </div>
+              </div>
+
+              <div class="neu-surface rounded-2xl p-3.5 text-center space-y-2">
+                <div class="text-xs font-extrabold text-slate-700">TTD Kepala</div>
+                <div class="h-20 neu-inset rounded-xl flex items-center justify-center p-2">
+                  ${m.ttd_kepala_url
+                    ? `<img src="${m.ttd_kepala_url}" alt="TTD Kepala" class="max-h-16 object-contain" />`
+                    : `<span class="text-[11px] text-slate-400">Belum ada</span>`}
+                </div>
+                <div class="flex items-center justify-center gap-1.5">
+                  <label class="neu-btn px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
+                    Upload
+                    <input type="file" accept="image/*" onchange="window.__uploadMadrasahImage('ttd_kepala_url', event)" class="hidden" />
+                  </label>
+                  ${m.ttd_kepala_url ? `<button type="button" onclick="window.__clearMadrasahImage('ttd_kepala_url')" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
+                </div>
+              </div>
+
+              <div class="neu-surface rounded-2xl p-3.5 text-center space-y-2">
+                <div class="text-xs font-extrabold text-slate-700">TTD Penyusun / Guru</div>
+                <div class="h-20 neu-inset rounded-xl flex items-center justify-center p-2">
+                  ${ttdPenyusunActive
+                    ? `<img src="${ttdPenyusunActive}" alt="TTD Penyusun" class="max-h-16 object-contain" />`
+                    : `<span class="text-[11px] text-slate-400">Belum ada</span>`}
+                </div>
+                <div class="flex items-center justify-center gap-1.5">
+                  <label class="neu-btn px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#5B5CE6] cursor-pointer">
+                    Upload
+                    <input type="file" accept="image/*" onchange="window.__uploadTtdGuruQuick(event)" class="hidden" />
+                  </label>
+                  ${ttdPenyusunActive ? `<button type="button" onclick="window.__clearTtdGuruQuick()" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ``}
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="w-full brand-gradient text-white py-3.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg">
+              <i data-lucide="save" class="w-4 h-4"></i> Simpan Pengaturan Madrasah
+            </button>
+          </form>
+        </div>
+      `;
     }
 
     // =========================================================================
@@ -2391,6 +2172,14 @@
     function renderLoginScreen() {
       const isKBC = state.selectedTrack === "KBC";
       const tab = state.loginTab; // "GURU" | "DAFTAR_GURU" | "ADMIN"
+      const adm = state.adminProfile || {};
+      const waLink = adm.whatsapp_admin
+        ? formatWaLink(
+            adm.whatsapp_admin,
+            "Assalamu'alaikum Admin KlikAjar, saya ingin konfirmasi persetujuan (Approve) pendaftaran akun Guru baru."
+          )
+        : "";
+      const hasBankInfo = Boolean(adm.bank_nama || adm.bank_rekening || adm.bank_atas_nama || adm.catatan_pembayaran);
 
       return `
         <div class="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 bg-[#EEF1F6]">
@@ -2460,6 +2249,21 @@
                 </button>
               </div>
 
+              ${adm.whatsapp_admin ? `
+                <div class="neu-inset rounded-2xl p-3.5 flex items-center justify-between gap-2.5">
+                  <div class="min-w-0">
+                    <div class="text-[11px] font-extrabold text-slate-700">Konfirmasi Persetujuan Akun</div>
+                    <div class="text-[11px] text-slate-500 truncate">
+                      Admin${adm.nama_admin ? ` (${escapeHtml(adm.nama_admin)})` : ""}: <strong>${escapeHtml(adm.whatsapp_admin)}</strong>
+                    </div>
+                  </div>
+                  <a href="${waLink}" target="_blank" rel="noopener noreferrer"
+                    class="kbc-gradient text-white px-3 py-2 rounded-xl text-[11px] font-extrabold inline-flex items-center gap-1.5 shrink-0">
+                    <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Chat WA
+                  </a>
+                </div>
+              ` : ``}
+
               ${IS_PREVIEW ? `
                 <div class="neu-inset rounded-2xl p-3.5 text-[11px] text-slate-600 space-y-1">
                   <div class="font-extrabold text-amber-700 flex items-center gap-1.5">
@@ -2472,8 +2276,45 @@
               <form id="guru-register-form" class="space-y-3.5">
                 <div class="neu-inset rounded-xl p-3 text-[11px] text-slate-600 flex items-start gap-2">
                   <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
-                  <span>Setiap guru wajib mendaftar terlebih dahulu. Setelah mendaftar, akun akan aktif setelah disetujui (<strong>Approve</strong>) oleh Admin Madrasah.</span>
+                  <span>Setiap guru wajib mendaftar terlebih dahulu. Setelah mendaftar, akun akan aktif setelah disetujui (<strong>Approve</strong>) oleh Admin.</span>
                 </div>
+
+                <!-- Informasi Rekening Bank, Keterangan & WhatsApp Admin -->
+                ${(hasBankInfo || adm.whatsapp_admin) ? `
+                  <div class="neu-surface rounded-2xl p-3.5 border-l-4 border-emerald-500 space-y-2 text-[11px]">
+                    <div class="font-extrabold text-emerald-700 flex items-center gap-1.5">
+                      <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Informasi Pembayaran & Konfirmasi Admin
+                    </div>
+
+                    ${(adm.bank_nama || adm.bank_rekening || adm.bank_atas_nama) ? `
+                      <div class="bg-white/80 rounded-xl p-2.5 space-y-0.5 text-slate-700 border border-slate-200/70">
+                        ${adm.bank_nama ? `<div>Bank / E-Wallet: <strong>${escapeHtml(adm.bank_nama)}</strong></div>` : ``}
+                        ${adm.bank_rekening ? `<div>No. Rekening: <strong class="font-mono text-xs text-slate-900">${escapeHtml(adm.bank_rekening)}</strong></div>` : ``}
+                        ${adm.bank_atas_nama ? `<div>Atas Nama: <strong>${escapeHtml(adm.bank_atas_nama)}</strong></div>` : ``}
+                        ${adm.biaya_aktivasi ? `<div>Nominal / Paket: <strong class="text-emerald-700">${escapeHtml(adm.biaya_aktivasi)}</strong></div>` : ``}
+                      </div>
+                    ` : ``}
+
+                    ${adm.catatan_pembayaran ? `
+                      <div class="text-slate-600 leading-relaxed bg-amber-50/80 border border-amber-200/70 rounded-xl p-2.5">
+                        <strong>Keterangan:</strong> ${escapeHtml(adm.catatan_pembayaran)}
+                      </div>
+                    ` : ``}
+
+                    ${adm.whatsapp_admin ? `
+                      <div class="flex items-center justify-between gap-2 pt-1">
+                        <div class="text-slate-600">
+                          WA Admin${adm.nama_admin ? ` (${escapeHtml(adm.nama_admin)})` : ""}: <strong>${escapeHtml(adm.whatsapp_admin)}</strong>
+                        </div>
+                        <a href="${waLink}" target="_blank" rel="noopener noreferrer"
+                          class="kbc-gradient text-white px-2.5 py-1.5 rounded-lg text-[10px] font-extrabold inline-flex items-center gap-1 shrink-0">
+                          <i data-lucide="message-circle" class="w-3 h-3"></i> Konfirmasi WA
+                        </a>
+                      </div>
+                    ` : ``}
+                  </div>
+                ` : ``}
+
                 <div>
                   <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap & Gelar *</label>
                   <input type="text" id="reg-guru-nama" required placeholder="Contoh: Ustadz Muhammad Rizki, S.Pd"
@@ -2521,6 +2362,30 @@
                       class="neu-input w-full rounded-xl px-3 py-2.5 text-xs text-slate-800" />
                   </div>
                 </div>
+
+                <!-- Kolom Upload Bukti Pembayaran -->
+                <div class="neu-inset rounded-2xl p-3.5 space-y-2">
+                  <label class="block text-xs font-bold text-slate-700">Upload Bukti Pembayaran / Transfer</label>
+                  <div class="flex flex-wrap items-center gap-2.5">
+                    <label class="neu-btn px-3.5 py-2 rounded-xl text-xs font-extrabold text-[#5B5CE6] cursor-pointer inline-flex items-center gap-1.5">
+                      <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                      <span>${state.regBuktiPembayaranUrl ? "Ganti Bukti Transfer" : "Pilih Foto Bukti Transfer"}</span>
+                      <input type="file" accept="image/*" onchange="window.__uploadRegBuktiPembayaran(event)" class="hidden" />
+                    </label>
+                    ${state.regBuktiPembayaranUrl ? `
+                      <button type="button" onclick="window.__clearRegBuktiPembayaran()"
+                        class="text-[11px] font-bold text-rose-500">Hapus</button>
+                    ` : `<span class="text-[11px] text-slate-400">Format JPG / PNG</span>`}
+                  </div>
+                  ${state.regBuktiPembayaranUrl ? `
+                    <div class="pt-1">
+                      <img src="${state.regBuktiPembayaranUrl}" alt="Preview Bukti Pembayaran"
+                        class="max-h-36 rounded-xl border border-slate-200 bg-white p-1 object-contain" />
+                      <div class="text-[10px] font-bold text-emerald-600 mt-1">Bukti pembayaran siap dikirim bersama pendaftaran</div>
+                    </div>
+                  ` : ``}
+                </div>
+
                 <button type="submit" ${state.authLoading ? "disabled" : ""}
                   class="w-full kbc-gradient text-white py-3.5 rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2">
                   <i data-lucide="user-plus" class="w-4 h-4"></i>
@@ -3655,7 +3520,7 @@
                           </div>
 
                           <!-- Baris Lihat Password -->
-                          <div class="flex items-center gap-2 pt-0.5">
+                          <div class="flex flex-wrap items-center gap-2 pt-0.5">
                             <span class="text-[11px] text-slate-500">Password:</span>
                             <code class="bg-slate-200/80 px-2 py-0.5 rounded text-[11px] font-mono font-bold text-slate-800">
                               ${isPassShown ? escapeHtml(g.password) : "••••••••"}
@@ -3665,7 +3530,20 @@
                               <i data-lucide="${isPassShown ? 'eye-off' : 'eye'}" class="w-3 h-3"></i>
                               ${isPassShown ? "Sembunyikan" : "Lihat Password"}
                             </button>
+                            ${g.bukti_pembayaran_url ? `
+                              <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-[10px] font-extrabold">
+                                Bukti Bayar Terlampir
+                              </span>
+                            ` : ``}
                           </div>
+                          ${g.bukti_pembayaran_url ? `
+                            <div class="pt-1.5">
+                              <div class="text-[10px] font-bold text-slate-500 mb-1">Bukti Pembayaran Pendaftar:</div>
+                              <img src="${g.bukti_pembayaran_url}" alt="Bukti Pembayaran ${escapeHtml(g.nama_lengkap)}"
+                                class="max-h-36 rounded-xl border border-slate-200 bg-white p-1 object-contain" />
+                            </div>
+                          ` : ``}
+                        </div>
                         </div>
 
                         <!-- Tombol Aksi Lengkap Admin -->
@@ -3725,147 +3603,115 @@
     }
 
     // =========================================================================
-    // VIEW 6: PROFIL MADRASAH & PENGATURAN KOP SURAT / LOGO / TTD
+    // VIEW 8: PROFIL PRIBADI ADMIN & PENGATURAN REKENING PEMBAYARAN (KHUSUS ADMIN)
     // =========================================================================
-    function renderMadrasahSettingsView() {
-      const m = state.madrasah;
-      const ttdPenyusunPreview = state.userTtdUrl || m.ttd_penyusun_url || "";
+    function renderAdminProfileView() {
+      if (state.user?.role !== "ADMIN") {
+        return `
+          <div class="neu-card rounded-3xl p-8 text-center">
+            <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-500 flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="lock" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-sm font-extrabold text-slate-800">Akses Terbatas (Khusus Admin)</h3>
+            <p class="text-xs text-slate-500 mt-1">Halaman data pribadi Admin dan rekening pembayaran hanya dapat diakses oleh akun Administrator.</p>
+          </div>
+        `;
+      }
+
+      const adm = state.adminProfile || {};
+      const waPreviewLink = adm.whatsapp_admin
+        ? formatWaLink(adm.whatsapp_admin, "Halo Admin, saya ingin konfirmasi persetujuan akun KlikAjar.")
+        : "";
 
       return `
-        <div class="neu-card rounded-3xl p-5 sm:p-6 max-w-5xl mx-auto">
-          <div class="pb-4 mb-5 border-b border-slate-200/70">
-            <h2 class="text-base sm:text-lg font-extrabold text-slate-800">Profil Satuan Pendidikan & Pengesahan Kop Surat</h2>
-            <p class="text-xs text-slate-400">Identitas, Logo Kemenag/Madrasah, serta tanda tangan otomatis diterapkan pada output Word (.doc) dan PDF.</p>
-          </div>
+        <div class="max-w-3xl mx-auto space-y-6">
+          <form id="admin-profile-form" class="neu-card rounded-3xl p-5 sm:p-6 space-y-5">
+            <div class="pb-3 border-b border-slate-200/70">
+              <h2 class="text-base sm:text-lg font-extrabold text-slate-800">Data Pribadi Admin & Konfirmasi WhatsApp</h2>
+              <p class="text-xs text-slate-400">Nomor WhatsApp Admin akan ditampilkan di halaman Login & Pendaftaran untuk konfirmasi persetujuan akun.</p>
+            </div>
 
-          <form id="madrasah-settings-form" class="space-y-5">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama RA / Madrasah</label>
-                <input type="text" id="set-nama-madrasah" required value="${escapeHtml(m.nama_madrasah)}"
-                  placeholder="Contoh: MADRASAH TSANAWIYAH NEGERI 1 ..."
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama Lengkap Admin *</label>
+                <input type="text" id="adm-nama" required value="${escapeHtml(adm.nama_admin || "")}"
+                  placeholder="Contoh: Ahmad Fauzi, M.Pd"
                   class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5">Tahun Pelajaran</label>
-                <input type="text" id="set-tapel" value="${escapeHtml(m.tahun_pelajaran)}"
-                  placeholder="2026/2027"
-                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">Jabatan / Peran Admin</label>
+                <input type="text" id="adm-jabatan" value="${escapeHtml(adm.jabatan_admin || "")}"
+                  placeholder="Contoh: Administrator / Koordinator"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5">NSM (Nomor Statistik Madrasah)</label>
-                <input type="text" id="set-nsm" value="${escapeHtml(m.nsm)}"
-                  placeholder="Contoh: 111235780001"
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">Email Kontak Admin</label>
+                <input type="email" id="adm-email" value="${escapeHtml(adm.email_admin || state.user?.username || "")}"
+                  placeholder="admin@madrasah.sch.id"
                   class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5">NPSN</label>
-                <input type="text" id="set-npsn" value="${escapeHtml(m.npsn)}"
-                  placeholder="Contoh: 20584912"
-                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1.5">Alamat Lengkap Madrasah</label>
-                <input type="text" id="set-alamat" value="${escapeHtml(m.alamat)}"
-                  placeholder="Jl. Pendidikan No. 1..."
-                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">No. WhatsApp Admin (Tampil di Login) *</label>
+                <input type="text" id="adm-whatsapp" required value="${escapeHtml(adm.whatsapp_admin || "")}"
+                  placeholder="Contoh: 081234567890 atau 6281234567890"
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-emerald-700" />
+                ${waPreviewLink ? `
+                  <a href="${waPreviewLink}" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 mt-1 hover:underline">
+                    <i data-lucide="external-link" class="w-3 h-3"></i> Uji Tautan WhatsApp Admin
+                  </a>
+                ` : ``}
               </div>
             </div>
-          <form id="admin-profile-form" class="max-w-3xl mx-auto">
-            <!-- Data Pribadi Admin & Rekening Bank -->
-            <div class="neu-card rounded-3xl p-5 sm:p-6 space-y-5">
-              <div class="pb-3 border-b border-slate-200/70">
-                <h2 class="text-base sm:text-lg font-extrabold text-slate-800">Data Pribadi Admin & Konfirmasi WhatsApp</h2>
-                <p class="text-xs text-slate-400">Nomor WhatsApp Admin akan ditampilkan di halaman Login & Pendaftaran untuk konfirmasi persetujuan akun.</p>
-              </div>
+
+            <div class="pt-3 border-t border-slate-200/70">
+              <h3 class="text-sm font-extrabold text-slate-800 mb-1">Informasi Rekening Pembayaran & Keterangan</h3>
+              <p class="text-xs text-slate-400 mb-3">Tampil di halaman pendaftaran guru baru sebagai tujuan pembayaran dan keterangan konfirmasi.</p>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama Lengkap Admin *</label>
-                  <input type="text" id="adm-nama" required value="${escapeHtml(adm.nama_admin || "")}"
-                    placeholder="Contoh: Ahmad Fauzi, M.Pd"
+                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama Bank / E-Wallet</label>
+                  <input type="text" id="adm-bank-nama" value="${escapeHtml(adm.bank_nama || "")}"
+                    placeholder="Contoh: BSI / BRI / Mandiri / DANA"
                     class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Jabatan / Peran Admin</label>
-                  <input type="text" id="adm-jabatan" value="${escapeHtml(adm.jabatan_admin || "")}"
-                    placeholder="Contoh: Administrator / Koordinator"
+                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Nomor Rekening</label>
+                  <input type="text" id="adm-bank-rekening" value="${escapeHtml(adm.bank_rekening || "")}"
+                    placeholder="Contoh: 7123456789"
+                    class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-slate-800" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3.5">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Atas Nama Rekening</label>
+                  <input type="text" id="adm-bank-an" value="${escapeHtml(adm.bank_atas_nama || "")}"
+                    placeholder="Nama pemilik rekening"
                     class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
                 </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Email Kontak Admin</label>
-                  <input type="email" id="adm-email" value="${escapeHtml(adm.email_admin || state.user?.username || "")}"
-                    placeholder="admin@madrasah.sch.id"
-                    class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1.5">No. WhatsApp Admin (Tampil di Login) *</label>
-                  <input type="text" id="adm-whatsapp" required value="${escapeHtml(adm.whatsapp_admin || "")}"
-                    placeholder="Contoh: 081234567890 atau 6281234567890"
-                    class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-emerald-700" />
-                  ${waPreviewLink ? `
-                    <a href="${waPreviewLink}" target="_blank" rel="noopener noreferrer"
-                      class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 mt-1 hover:underline">
-                      <i data-lucide="external-link" class="w-3 h-3"></i> Uji Tautan WhatsApp Admin
-                    </a>
-                  ` : ``}
+                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Nominal / Paket Aktivasi (Opsional)</label>
+                  <input type="text" id="adm-biaya" value="${escapeHtml(adm.biaya_aktivasi || "")}"
+                    placeholder="Contoh: Rp 50.000 / Tahun"
+                    class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
                 </div>
               </div>
 
-              <div class="pt-3 border-t border-slate-200/70">
-                <h3 class="text-sm font-extrabold text-slate-800 mb-1">Informasi Rekening Pembayaran Pelanggan</h3>
-                <p class="text-xs text-slate-400 mb-3">Ditampilkan pada halaman pendaftaran guru baru apabila terdapat biaya aktivasi / berlangganan.</p>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama Bank / E-Wallet</label>
-                    <input type="text" id="adm-bank-nama" value="${escapeHtml(adm.bank_nama || "")}"
-                      placeholder="Contoh: BSI / BRI / Mandiri / DANA"
-                      class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
-                  </div>
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Nomor Rekening</label>
-                    <input type="text" id="adm-bank-rekening" value="${escapeHtml(adm.bank_rekening || "")}"
-                      placeholder="Contoh: 7123456789"
-                      class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-slate-800" />
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3.5">
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Atas Nama Rekening</label>
-                    <input type="text" id="adm-bank-an" value="${escapeHtml(adm.bank_atas_nama || "")}"
-                      placeholder="Nama pemilik rekening"
-                      class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
-                  </div>
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Nominal / Paket Aktivasi (Opsional)</label>
-                    <input type="text" id="adm-biaya" value="${escapeHtml(adm.biaya_aktivasi || "")}"
-                      placeholder="Contoh: Rp 50.000 / Tahun"
-                      class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
-                  </div>
-                </div>
-
-                <div class="mt-3.5">
-                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Instruksi / Catatan Pembayaran</label>
-                  <textarea rows="2" id="adm-catatan"
-                    placeholder="Petunjuk konfirmasi bukti transfer ke WhatsApp Admin..."
-                    class="neu-input w-full rounded-xl px-3.5 py-2 text-xs text-slate-800">${escapeHtml(adm.catatan_pembayaran || "")}</textarea>
-                </div>
-              </div>
-
-              <div class="pt-2">
-                <button type="submit" class="w-full brand-gradient text-white py-3.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg">
-                  <i data-lucide="save" class="w-4 h-4"></i> Simpan Data Admin & Rekening
-                </button>
+              <div class="mt-3.5">
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">Keterangan / Instruksi Pembayaran</label>
+                <textarea rows="3" id="adm-catatan"
+                  placeholder="Tuliskan keterangan pembayaran, cara transfer, dan instruksi konfirmasi ke WhatsApp Admin..."
+                  class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800">${escapeHtml(adm.catatan_pembayaran || "")}</textarea>
               </div>
             </div>
+
+            <button type="submit" class="w-full brand-gradient text-white py-3.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg">
+              <i data-lucide="save" class="w-4 h-4"></i> Simpan Data Admin, Rekening & Keterangan
+            </button>
           </form>
         </div>
       `;
@@ -4136,161 +3982,6 @@
     }
 
     // =========================================================================
-    // VIEW 8: PROFIL PRIBADI ADMIN, REKENING BANK & QRIS PEMBAYARAN (KHUSUS ADMIN)
-    // =========================================================================
-    function renderAdminProfileView() {
-      if (state.user?.role !== "ADMIN") {
-        return `
-          <div class="neu-card rounded-3xl p-8 text-center">
-            <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-500 flex items-center justify-center mx-auto mb-3">
-              <i data-lucide="lock" class="w-6 h-6"></i>
-            </div>
-            <h3 class="text-sm font-extrabold text-slate-800">Akses Terbatas (Khusus Admin)</h3>
-            <p class="text-xs text-slate-500 mt-1">Halaman data pribadi Admin, rekening, dan QRIS pembayaran hanya dapat diakses oleh akun Administrator.</p>
-          </div>
-        `;
-      }
-
-      const adm = state.adminProfile || {};
-      const waPreviewLink = adm.whatsapp_admin
-        ? formatWaLink(adm.whatsapp_admin, "Halo Admin, saya ingin konfirmasi persetujuan akun KlikAjar.")
-        : "";
-
-      return `
-        <div class="max-w-5xl mx-auto space-y-6">
-          <form id="admin-profile-form" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Kolom Kiri (7/12): Data Pribadi Admin & Rekening Bank -->
-            <div class="lg:col-span-7 neu-card rounded-3xl p-5 sm:p-6 space-y-5">
-              <div class="pb-3 border-b border-slate-200/70">
-                <h2 class="text-base sm:text-lg font-extrabold text-slate-800">Data Pribadi Admin & Konfirmasi WhatsApp</h2>
-                <p class="text-xs text-slate-400">Nomor WhatsApp Admin akan ditampilkan di halaman Login & Pendaftaran untuk konfirmasi persetujuan akun.</p>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama Lengkap Admin *</label>
-                  <input type="text" id="adm-nama" required value="${escapeHtml(adm.nama_admin || "")}"
-                    placeholder="Contoh: Ahmad Fauzi, M.Pd"
-                    class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Jabatan / Peran Admin</label>
-                  <input type="text" id="adm-jabatan" value="${escapeHtml(adm.jabatan_admin || "")}"
-                    placeholder="Contoh: Administrator / Koordinator"
-                    class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Email Kontak Admin</label>
-                  <input type="email" id="adm-email" value="${escapeHtml(adm.email_admin || state.user?.username || "")}"
-                    placeholder="admin@madrasah.sch.id"
-                    class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1.5">No. WhatsApp Admin (Tampil di Login) *</label>
-                  <input type="text" id="adm-whatsapp" required value="${escapeHtml(adm.whatsapp_admin || "")}"
-                    placeholder="Contoh: 081234567890 atau 6281234567890"
-                    class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-emerald-700" />
-                  ${waPreviewLink ? `
-                    <a href="${waPreviewLink}" target="_blank" rel="noopener noreferrer"
-                      class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 mt-1 hover:underline">
-                      <i data-lucide="external-link" class="w-3 h-3"></i> Uji Tautan WhatsApp Admin
-                    </a>
-                  ` : ``}
-                </div>
-              </div>
-
-              <div class="pt-3 border-t border-slate-200/70">
-                <h3 class="text-sm font-extrabold text-slate-800 mb-1">Informasi Rekening Pembayaran Pelanggan</h3>
-                <p class="text-xs text-slate-400 mb-3">Ditampilkan pada halaman pendaftaran guru baru apabila terdapat biaya aktivasi / berlangganan.</p>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Nama Bank / E-Wallet</label>
-                    <input type="text" id="adm-bank-nama" value="${escapeHtml(adm.bank_nama || "")}"
-                      placeholder="Contoh: BSI / BRI / Mandiri / DANA"
-                      class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
-                  </div>
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Nomor Rekening</label>
-                    <input type="text" id="adm-bank-rekening" value="${escapeHtml(adm.bank_rekening || "")}"
-                      placeholder="Contoh: 7123456789"
-                      class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-slate-800" />
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3.5">
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Atas Nama Rekening</label>
-                    <input type="text" id="adm-bank-an" value="${escapeHtml(adm.bank_atas_nama || "")}"
-                      placeholder="Nama pemilik rekening"
-                      class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs text-slate-800" />
-                  </div>
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Nominal / Paket Aktivasi (Opsional)</label>
-                    <input type="text" id="adm-biaya" value="${escapeHtml(adm.biaya_aktivasi || "")}"
-                      placeholder="Contoh: Rp 50.000 / Tahun"
-                      class="neu-input w-full rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800" />
-                  </div>
-                </div>
-
-                <div class="mt-3.5">
-                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Instruksi / Catatan Pembayaran</label>
-                  <textarea rows="2" id="adm-catatan"
-                    placeholder="Petunjuk konfirmasi bukti transfer ke WhatsApp Admin..."
-                    class="neu-input w-full rounded-xl px-3.5 py-2 text-xs text-slate-800">${escapeHtml(adm.catatan_pembayaran || "")}</textarea>
-                </div>
-              </div>
-            </div>
-
-            <!-- Kolom Kanan (5/12): Upload & Pratinjau Kode QRIS Pembayaran -->
-            <div class="lg:col-span-5 space-y-6">
-              <div class="neu-card rounded-3xl p-5 sm:p-6 space-y-4 text-center">
-                <div>
-                  <h3 class="text-base font-extrabold text-slate-800">Kode QRIS Pembayaran</h3>
-                  <p class="text-xs text-slate-400 mt-0.5">Unggah gambar QRIS resmi agar pelanggan dapat langsung memindai saat pendaftaran akun.</p>
-                </div>
-
-                <div class="neu-inset rounded-2xl p-4 min-h-[240px] flex flex-col items-center justify-center">
-                  ${adm.qris_url ? `
-                    <img src="${adm.qris_url}" alt="QRIS Pembayaran" class="max-h-60 max-w-full object-contain rounded-xl shadow-sm bg-white p-2" />
-                    <span class="text-[11px] font-bold text-emerald-600 mt-2">QRIS Aktif & Siap Dipindai</span>
-                  ` : `
-                    <div class="w-12 h-12 rounded-2xl bg-slate-200/80 text-slate-400 flex items-center justify-center mb-2">
-                      <i data-lucide="qr-code" class="w-6 h-6"></i>
-                    </div>
-                    <div class="text-xs font-bold text-slate-500">Belum ada gambar QRIS</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Format PNG / JPG / WEBP</div>
-                  `}
-                </div>
-
-                <div class="flex items-center justify-center gap-2.5">
-                  <label class="neu-btn px-4 py-2.5 rounded-xl text-xs font-extrabold text-[#5B5CE6] cursor-pointer inline-flex items-center gap-1.5">
-                    <i data-lucide="upload" class="w-4 h-4"></i>
-                    <span>${adm.qris_url ? "Ganti Gambar QRIS" : "Upload Gambar QRIS"}</span>
-                    <input type="file" accept="image/*" onchange="window.__uploadAdminQris(event)" class="hidden" />
-                  </label>
-                  ${adm.qris_url ? `
-                    <button type="button" onclick="window.__clearAdminQris()"
-                      class="neu-btn px-3 py-2.5 rounded-xl text-xs font-bold text-rose-500">
-                      Hapus
-                    </button>
-                  ` : ``}
-                </div>
-              </div>
-
-              <button type="submit" class="w-full brand-gradient text-white py-3.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg">
-                <i data-lucide="save" class="w-4 h-4"></i> Simpan Data Admin, Rekening & QRIS
-              </button>
-            </div>
-          </form>
-        </div>
-      `;
-    }
-
-    // =========================================================================
     // WORKSPACE UTAMA (FIXED SIDEBAR DESKTOP + FLOATING BOTTOM NAV MOBILE)
     // =========================================================================
     function renderWorkspace() {
@@ -4461,16 +4152,17 @@
       renderApp();
     };
 
-    window.__setMenu = (menuId) => {
-      if (state.user?.role !== "ADMIN" && (menuId === "guru" || menuId === "database" || menuId === "admin_profile")) {
-        showToast("Menu ini hanya tersedia untuk akun Admin.", "error");
-        state.activeMenu = "dashboard";
-        syncSessionToHash();
+    window.__uploadRegBuktiPembayaran = (event) => {
+      const file = event.target?.files?.[0];
+      processImageUpload(file, 700, 900, (dataUrl) => {
+        state.regBuktiPembayaranUrl = dataUrl;
+        showToast("Bukti pembayaran berhasil dipilih.", "success");
         renderApp();
-        return;
-      }
-      state.activeMenu = menuId;
-      syncSessionToHash();
+      });
+    };
+
+    window.__clearRegBuktiPembayaran = () => {
+      state.regBuktiPembayaranUrl = "";
       renderApp();
     };
 
@@ -4574,6 +4266,27 @@
 
     window.__setPreviewTab = (tabName) => {
       state.previewTab = tabName;
+      renderApp();
+    };
+
+    window.__setPreviewDocModel = (modelVal) => {
+      if (state.generatedDoc) {
+        state.generatedDoc.model_penyusunan = modelVal;
+        renderApp();
+      }
+    };
+
+    window.__updateNipPenyusun = (val) => {
+      state.userNip = val;
+      state.genForm.nip_penyusun = val;
+      if (state.generatedDoc) {
+        state.generatedDoc.nip_penyusun = val;
+      }
+    };
+
+    window.__setMenu = (menuId) => {
+      state.activeMenu = menuId;
+      syncSessionToHash();
       renderApp();
     };
 
