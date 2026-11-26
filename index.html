@@ -12,10 +12,10 @@
   <!-- Favicon SVG -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%230F766E'/><stop offset='100%' stop-color='%2314B8A6'/></linearGradient></defs><rect width='64' height='64' rx='16' fill='url(%23g)'/><path d='M14 22c6-3 13-2 18 2 5-4 12-5 18-2v22c-6-3-13-2-18 2-5-4-12-5-18-2V22z' fill='none' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/><path d='M32 24v22' stroke='%23FFFFFF' stroke-width='2.5'/><path d='M32 14l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z' fill='%23F59E0B'/></svg>" />
 
-  <!-- Google Fonts: Inter, Plus Jakarta Sans, Manrope -->
+  <!-- Google Fonts: Inter, Plus Jakarta Sans, Manrope, Montserrat, Poppins, Open Sans, Lato, Roboto -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lato:wght@400;700&family=Manrope:wght@500;600;700;800&family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Poppins:wght@600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -79,57 +79,277 @@
       background: linear-gradient(135deg, #0F766E 0%, #14B8A6 52%, #34D399 100%);
     }
 
-    /* Document Paper A4 Styling */
-    .a4-paper {
+    /* =====================================================================
+       5 TEMA APLIKASI GLOBAL (DISINKRONKAN ADMIN KE SELURUH AKUN GURU)
+       ===================================================================== */
+    /* 1. Minimalis & Fungsional (Notion/Trello Style) */
+    body.app-theme-minimalis {
+      background-color: #FFFFFF;
+      color: #191919;
+    }
+    body.app-theme-minimalis .app-card {
+      background-color: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      box-shadow: none;
+      border-radius: 10px;
+    }
+    body.app-theme-minimalis .app-sidebar,
+    body.app-theme-minimalis .app-header {
+      background-color: #FBFBFA;
+      border-color: #EBEBEA;
+    }
+
+    /* 2. Dark Mode / Cyberpunk Modern */
+    body.app-theme-cyberpunk {
+      background-color: #070B14;
+      color: #E2E8F0;
+    }
+    body.app-theme-cyberpunk .app-sidebar,
+    body.app-theme-cyberpunk .app-header {
+      background-color: rgba(11, 18, 34, 0.94);
+      border-color: rgba(34, 211, 238, 0.25);
+    }
+    body.app-theme-cyberpunk .app-card {
+      background-color: #0F172A;
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.08);
+      color: #F1F5F9;
+    }
+    body.app-theme-cyberpunk .hero-gradient {
+      background: linear-gradient(135deg, #0F172A 0%, #0E7490 55%, #10B981 100%);
+      border: 1px solid rgba(34, 211, 238, 0.45);
+    }
+    body.app-theme-cyberpunk input,
+    body.app-theme-cyberpunk select,
+    body.app-theme-cyberpunk textarea {
+      background-color: #1E293B !important;
+      color: #F8FAFC !important;
+      border-color: rgba(34, 211, 238, 0.35) !important;
+    }
+    body.app-theme-cyberpunk .text-slate-900 { color: #F8FAFC !important; }
+    body.app-theme-cyberpunk .text-slate-700,
+    body.app-theme-cyberpunk .text-slate-600 { color: #CBD5E1 !important; }
+
+    /* 3. Bento Grid & Kartu Modular */
+    body.app-theme-bento {
+      background-color: #F1F5F9;
+    }
+    body.app-theme-bento .app-card {
+      background-color: #FFFFFF;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 24px;
+      box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.06);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    body.app-theme-bento .app-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px -6px rgba(15, 118, 110, 0.12);
+    }
+
+    /* 4. Glassmorphism & Soft Gradient */
+    body.app-theme-glass {
+      background: linear-gradient(135deg, #ECFDF5 0%, #F0F9FF 50%, #FEFCE8 100%);
+      background-attachment: fixed;
+    }
+    body.app-theme-glass .app-sidebar,
+    body.app-theme-glass .app-header,
+    body.app-theme-glass .app-card {
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 8px 30px rgba(15, 118, 110, 0.07);
+    }
+
+    /* 5. Visual & Interaktif */
+    body.app-theme-interaktif {
+      background-color: #F8FAFC;
+    }
+    body.app-theme-interaktif .app-card {
+      background-color: #FFFFFF;
+      border: 1px solid #CCFBF1;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px -6px rgba(20, 184, 166, 0.12);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    body.app-theme-interaktif .app-card:hover {
+      transform: translateY(-3px) scale(1.003);
+      border-color: #0F766E;
+    }
+    body.app-theme-interaktif button {
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    body.app-theme-interaktif button:active {
+      transform: scale(0.97);
+    }
+
+    /* Document Paper A4 & F4 (Folio) Standard Layout */
+    .doc-paper {
       width: 100%;
-      max-width: 210mm;
-      min-height: 297mm;
       margin: 0 auto;
       background: #FFFFFF;
       color: #0F172A;
       padding: 18mm 18mm;
       box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.14);
       border-radius: 6px;
-      line-height: 1.6;
+      line-height: 1.5;
       font-size: 11pt;
+      font-family: 'Open Sans', 'Lato', 'Roboto', sans-serif;
+      box-sizing: border-box;
+      position: relative;
+      overflow-wrap: break-word;
     }
 
-    .a4-paper table {
+    .doc-paper.paper-a4 {
+      max-width: 210mm;
+      min-height: 297mm;
+    }
+
+    .doc-paper.paper-f4 {
+      max-width: 215mm;
+      min-height: 330mm;
+    }
+
+    .doc-paper h1, .doc-paper h2, .doc-paper h3, .doc-paper .doc-heading {
+      font-family: 'Poppins', 'Montserrat', sans-serif;
+    }
+
+    .doc-paper p, .doc-paper li {
+      margin-bottom: 6px;
+      line-height: 1.45;
+    }
+
+    .doc-paper ul, .doc-paper ol {
+      padding-left: 18px;
+      margin: 4px 0 10px 0;
+    }
+
+    .doc-paper table {
       width: 100%;
       border-collapse: collapse;
-      margin: 10px 0 14px 0;
+      margin: 8px 0 14px 0;
       font-size: 10pt;
+      page-break-inside: auto;
     }
 
-    .a4-paper th, .a4-paper td {
+    .doc-paper thead {
+      display: table-header-group;
+    }
+
+    .doc-paper tr {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .doc-paper th, .doc-paper td {
       border: 1px solid #CBD5E1;
-      padding: 7px 9px;
+      padding: 6px 9px;
       vertical-align: top;
       text-align: left;
     }
 
-    .a4-paper th {
+    .doc-paper th {
       background-color: #F1F5F9;
       font-weight: 700;
     }
 
-    /* Template Themes for Document */
-    .tpl-madrasah .doc-banner { border-bottom: 3px double #0F766E; background: #ECFDF5; padding: 14px; border-radius: 8px; }
+    .doc-section-block {
+      margin-bottom: 14px;
+    }
+
+    .doc-callout {
+      border-left: 4px solid #0F766E;
+      background-color: #F0FDF4;
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      margin: 8px 0 12px 0;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .doc-signature-block {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    /* Gaya Desain Berdasarkan Jenjang */
+    .style-geometris .doc-banner {
+      border-radius: 14px;
+      border: 2px solid #0F172A;
+      position: relative;
+    }
+    .style-geometris .doc-section-title {
+      border-left: 4px solid currentColor;
+      padding-left: 10px;
+    }
+
+    .style-ilustratif .doc-banner {
+      border-radius: 20px;
+      border: 2px dashed #F59E0B;
+      background-color: #FFFBEB !important;
+      color: #78350F !important;
+    }
+    .style-ilustratif .doc-section-title {
+      background: #FEF3C7;
+      color: #92400E !important;
+      padding: 6px 12px;
+      border-radius: 12px;
+      display: inline-block;
+    }
+
+    .style-infografis .doc-section-block {
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #FAFAFA;
+    }
+
+    /* 10 Tema Dokumen & Palet Warna Terkurasi (Maksimal 3 Warna Utama) */
+    .tpl-minimalist-lesson .doc-banner { border-bottom: 2px solid #1E293B; padding-bottom: 12px; background: #FFFFFF; color: #0F172A; }
+    .tpl-minimalist-lesson .doc-section-title { color: #0F172A; border-bottom: 1px solid #CBD5E1; padding-bottom: 4px; }
+    .tpl-minimalist-lesson th { background-color: #F8FAFC !important; color: #0F172A; border-color: #94A3B8; }
+    .tpl-minimalist-lesson .doc-callout { border-left-color: #334155; background-color: #F8FAFC; }
+
+    .tpl-modern-syllabus .doc-banner { background: #0F766E; color: #FFFFFF; padding: 16px; border-radius: 10px; }
+    .tpl-modern-syllabus .doc-section-title { color: #0F766E; }
+    .tpl-modern-syllabus th { background-color: #D1FAE5 !important; color: #064E3B; }
+    .tpl-modern-syllabus .doc-callout { border-left-color: #0F766E; background-color: #ECFDF5; }
+
+    .tpl-geometric-worksheet .doc-banner { border: 2px solid #1E3A8A; border-radius: 12px; padding: 14px; background: #FAF9F6; color: #1E3A8A; }
+    .tpl-geometric-worksheet .doc-section-title { color: #1E3A8A; }
+    .tpl-geometric-worksheet th { background-color: #1E3A8A !important; color: #FFFFFF; }
+    .tpl-geometric-worksheet .doc-callout { border-left-color: #D97706; background-color: #FEF3C7; }
+
+    .tpl-corporate-minimalist .doc-banner { border-top: 5px solid #0F172A; border-bottom: 1px solid #94A3B8; padding: 14px 0; background: #FFFFFF; color: #0F172A; }
+    .tpl-corporate-minimalist .doc-section-title { color: #1E293B; text-transform: uppercase; letter-spacing: 0.04em; font-size: 10.5pt; }
+    .tpl-corporate-minimalist th { background-color: #1E293B !important; color: #FFFFFF; }
+    .tpl-corporate-minimalist .doc-callout { border-left-color: #0F172A; background-color: #F1F5F9; }
+
+    .tpl-akademik-tenang .doc-banner { background: #1E3A8A; color: #FAF9F6; padding: 16px; border-radius: 8px; border-bottom: 4px solid #EAB308; }
+    .tpl-akademik-tenang .doc-section-title { color: #1E3A8A; }
+    .tpl-akademik-tenang th { background-color: #DBEAFE !important; color: #1E3A8A; }
+    .tpl-akademik-tenang .doc-callout { border-left-color: #EAB308; background-color: #FEFCE8; }
+
+    .tpl-segar-alami .doc-banner { background: #047857; color: #FFFFFF; padding: 16px; border-radius: 10px; }
+    .tpl-segar-alami .doc-section-title { color: #047857; }
+    .tpl-segar-alami th { background-color: #ECFDF5 !important; color: #065F46; }
+    .tpl-segar-alami .doc-callout { border-left-color: #10B981; background-color: #F0FDF4; }
+
+    .tpl-kreatif-hangat .doc-banner { background: #9A3412; color: #FFF7ED; padding: 16px; border-radius: 12px; border-bottom: 4px solid #38BDF8; }
+    .tpl-kreatif-hangat .doc-section-title { color: #9A3412; }
+    .tpl-kreatif-hangat th { background-color: #FFEDD5 !important; color: #7C2D12; }
+    .tpl-kreatif-hangat .doc-callout { border-left-color: #0284C7; background-color: #F0F9FF; }
+
+    .tpl-madrasah .doc-banner { border-bottom: 3px double #0F766E; background: #ECFDF5; padding: 14px; border-radius: 8px; color: #064E3B; }
+    .tpl-madrasah .doc-section-title { color: #0F766E; }
     .tpl-madrasah th { background-color: #D1FAE5 !important; color: #064E3B; }
 
     .tpl-formal .doc-banner { border-bottom: 3px solid #0F172A; padding-bottom: 12px; }
+    .tpl-formal .doc-section-title { color: #0F172A; }
     .tpl-formal th { background-color: #E2E8F0 !important; color: #0F172A; }
 
-    .tpl-modern .doc-banner { background: linear-gradient(90deg, #0F766E, #14B8A6); color: #FFFFFF; padding: 16px; border-radius: 10px; }
-    .tpl-modern th { background-color: #0F766E !important; color: #FFFFFF; }
-
-    .tpl-akademik .doc-banner { border-top: 4px solid #1E3A8A; border-bottom: 2px solid #1E3A8A; padding: 12px 0; }
-    .tpl-akademik th { background-color: #DBEAFE !important; color: #1E3A8A; }
-
-    .tpl-colorful .doc-banner { background: linear-gradient(90deg, #0F766E, #F59E0B); color: #FFFFFF; padding: 16px; border-radius: 12px; }
-    .tpl-colorful th { background-color: #FEF3C7 !important; color: #92400E; }
-
     .tpl-monochrome .doc-banner { border: 2px solid #111827; padding: 12px; }
+    .tpl-monochrome .doc-section-title { color: #111827; }
     .tpl-monochrome th { background-color: #F3F4F6 !important; color: #111827; }
 
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -138,18 +358,36 @@
     .dark ::-webkit-scrollbar-thumb { background: #334155; }
 
     @media print {
-      body * { visibility: hidden; }
-      #printable-document-area, #printable-document-area * { visibility: visible; }
+      @page {
+        margin: 15mm 15mm 15mm 15mm;
+      }
+      html, body {
+        background: #FFFFFF !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      body * {
+        visibility: hidden;
+      }
+      #printable-document-area, #printable-document-area * {
+        visibility: visible;
+      }
       #printable-document-area {
         position: absolute;
         left: 0;
         top: 0;
-        width: 100%;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: auto !important;
         box-shadow: none !important;
+        border-radius: 0 !important;
         padding: 0 !important;
         margin: 0 !important;
+        background: #FFFFFF !important;
       }
-      .no-print { display: none !important; }
+      .no-print {
+        display: none !important;
+      }
     }
   </style>
 </head>
@@ -281,12 +519,55 @@
     ];
 
     const DOC_TEMPLATES = [
-      { id: 'tpl-madrasah', name: 'Madrasah Emerald', badge: 'Kemenag / Madrasah', desc: 'Kop hijau zamrud elegan dengan aksen bingkai ganda resmi.' },
-      { id: 'tpl-formal', name: 'Formal Kedinasan', badge: 'Sekolah Umum', desc: 'Tata letak hitam-putih tegas standar administrasi dinas pendidikan.' },
-      { id: 'tpl-modern', name: 'Modern SaaS Teal', badge: 'Populer', desc: 'Header gradasi emerald-teal bersih dengan tabel kontras tinggi.' },
-      { id: 'tpl-akademik', name: 'Akademik Klasik', badge: 'Perguruan Tinggi / SMA', desc: 'Garis header biru akademik rapi untuk modul dan bahan ajar.' },
-      { id: 'tpl-colorful', name: 'Kreatif Edukatif', badge: 'PAUD / SD / MI', desc: 'Nuansa hangat emerald-amber ramah anak dan penuh semangat.' },
-      { id: 'tpl-monochrome', name: 'Print Friendly Hemat Tinta', badge: 'Siap Cetak', desc: 'Optimasi kontras garis tipis untuk pencetakan massal hemat tinta.' }
+      { id: 'tpl-minimalist-lesson', name: 'Minimalist Lesson Plan', badge: 'Standar Baru', desc: 'Tata letak bersih, garis tegas, ruang kosong lega, dan fokus keterbacaan cetak.' },
+      { id: 'tpl-modern-syllabus', name: 'Modern Education Syllabus', badge: 'Segar & Alami', desc: 'Header Hijau Zamrud (Emerald) dengan aksen Sage & latar putih bersih.' },
+      { id: 'tpl-geometric-worksheet', name: 'Clean Geometric Worksheet', badge: 'SMP / SMA / SMK', desc: 'Sudut membulat geometris dengan kontras Biru Dongker & Kuning Mustard.' },
+      { id: 'tpl-corporate-minimalist', name: 'Corporate Report Minimalist', badge: 'Profesional', desc: 'Garis atas tegas ala laporan akademik/eksekutif dengan tabel monokrom rapi.' },
+      { id: 'tpl-akademik-tenang', name: 'Akademik Tenang (Navy & Mustard)', badge: 'Terpercaya', desc: 'Dominan Biru Dongker, aksen Kuning Mustard lembut, dan latar putih tulang.' },
+      { id: 'tpl-segar-alami', name: 'Segar & Alami (Emerald & Sage)', badge: 'Ramah Lingkungan', desc: 'Nuansa hijau zamrud sejuk dengan kotak callout lembut.' },
+      { id: 'tpl-kreatif-hangat', name: 'Kreatif & Hangat (Terakota & Sky)', badge: 'PAUD / SD / MI', desc: 'Kombinasi terakota hangat dengan aksen biru muda energik untuk jenjang dasar.' },
+      { id: 'tpl-madrasah', name: 'Madrasah Emerald Kemenag', badge: 'Madrasah', desc: 'Kop hijau zamrud elegan dengan bingkai ganda resmi.' },
+      { id: 'tpl-formal', name: 'Formal Kedinasan', badge: 'Kedinasan', desc: 'Tata letak hitam-putih tegas standar administrasi dinas pendidikan.' },
+      { id: 'tpl-monochrome', name: 'Print Friendly Hemat Tinta', badge: 'Hemat Tinta', desc: 'Optimasi garis tipis kontras tinggi untuk pencetakan massal.' }
+    ];
+
+    const DESIGN_STYLES = [
+      { id: 'style-geometris', name: 'Minimalis Geometris (SMP, SMA/SMK)', desc: 'Garis tegas, sudut membulat, dewasa, fokus, dan profesional.' },
+      { id: 'style-ilustratif', name: 'Ilustratif Ceria (PAUD & SD/MI)', desc: 'Aksen bingkai hangat ramah anak dengan penanda visual ceria.' },
+      { id: 'style-infografis', name: 'Infografis Terstruktur (Semua Jenjang)', desc: 'Kotak terstruktur berurutan sehingga alur pembelajaran mudah dibaca sekilas.' }
+    ];
+
+    const APP_THEMES = [
+      {
+        id: 'bento',
+        name: 'Bento Grid & Kartu Modular',
+        tag: 'Default Modern',
+        desc: 'Tata letak kotak-kotak rapi berbasis kartu modular dengan sudut membulat untuk pemindaian informasi yang cepat.'
+      },
+      {
+        id: 'minimalis',
+        name: 'Minimalis & Fungsional',
+        tag: 'Inspirasi Notion / Trello',
+        desc: 'Fokus pada ruang kosong (whitespace) lega, garis bersih, dan tipografi jelas agar guru tidak cepat lelah.'
+      },
+      {
+        id: 'cyberpunk',
+        name: 'Dark Mode / Cyberpunk Modern',
+        tag: 'Kontras Tinggi & Neon',
+        desc: 'Latar belakang gelap elegan dengan aksen warna neon cyan-emerald kontras tinggi untuk fokus maksimal.'
+      },
+      {
+        id: 'glass',
+        name: 'Glassmorphism & Soft Gradient',
+        tag: 'Frosted Glass',
+        desc: 'Efek transparansi buram (frosted glass) dan gradasi lembut untuk tampilan modern, ringan, dan elegan.'
+      },
+      {
+        id: 'interaktif',
+        name: 'Visual & Interaktif',
+        tag: 'Animasi Halus',
+        desc: 'Menggunakan animasi mikro halus, transisi responsif, dan aksen visual kuat untuk pengalaman kolaboratif.'
+      }
     ];
 
     // =========================================================================
@@ -298,6 +579,7 @@
       sidebarOpen: false,
       sidebarCollapsed: false,
       darkMode: false,
+      globalAppTheme: 'bento', // Tema global aplikasi yang diatur Admin & otomatis berlaku di akun Guru
       currentUser: null,
       authTab: 'guru',
       searchQuery: '',
@@ -305,6 +587,34 @@
       isGenerating: false,
       activeDoc: null,
       toastMessage: null,
+
+      // State Modal & Kontrol Akun Guru di Panel Admin
+      adminUserModal: null, // null | { mode: 'add' | 'edit' | 'reset', user: {...} }
+      revealedPasswords: {}, // { [userId]: true/false }
+      notifDropdownOpen: false,
+      readAnnouncementIds: [],
+
+      // Daftar Pemberitahuan / Informasi dari Admin untuk Guru
+      announcements: IS_PREVIEW ? [
+        {
+          id: 'ann-1',
+          judul: 'Pembaruan Format Cetak A4 & F4 (Folio) Kini Tersedia!',
+          isi: 'Bapak/Ibu Guru kini dapat memilih ukuran kertas A4 maupun F4 (Folio) serta 4 tema dokumen baru langsung di Editor Perangkat Pembelajaran tanpa terpotong saat dicetak.',
+          kategori: 'Pembaruan Fitur',
+          isPinned: true,
+          author: 'Admin Pusat KlikAjar',
+          createdAt: '27 Nov 2026'
+        },
+        {
+          id: 'ann-2',
+          judul: 'Lengkapi Data Instansi & Upload Logo Sebelum Mencetak Modul Ajar',
+          isi: 'Silakan buka menu Data Instansi & Lembaga untuk mengisi NPSN/NSM, Kota/Kabupaten, serta mengunggah Logo Kemenag/Kemendikbud dan Logo Lembaga agar kop surat tampil otomatis.',
+          kategori: 'Info Penting',
+          isPinned: false,
+          author: 'Admin Pusat KlikAjar',
+          createdAt: '25 Nov 2026'
+        }
+      ] : [],
 
       // Profil Admin & Pengaturan Pembayaran (Tampil di Halaman Daftar Guru)
       adminPaymentConfig: {
@@ -396,14 +706,16 @@
           materiPokok: 'Meneladani Akhlak Terpuji (Jujur, Amanah, Istiqamah)',
           kurikulum: 'Kurikulum Berbasis Cinta (Panca Cinta)',
           templateStyle: 'tpl-madrasah',
+          designStyle: 'style-geometris',
+          paperSize: 'a4',
           tags: ['Kurikulum Berbasis Cinta', 'Panca Cinta', 'HOTS'],
           updatedAt: '2026-11-25T09:30:00Z',
           sections: [
             {
               id: 'sec-1',
-              title: '1. Identitas Modul Ajar',
+              title: '1. Informasi Umum & Identitas Modul Ajar',
               content: `<table>
-                <tr><th width="30%">Satuan Pendidikan</th><td>MTs Negeri 1 Cendekia Nusantara (NPSN: 20109988 / NSM: 121132010001)</td></tr>
+                <tr><th width="32%">Satuan Pendidikan</th><td>MTs Negeri 1 Cendekia Nusantara (NPSN: 20109988 / NSM: 121132010001)</td></tr>
                 <tr><th>Penyusun / Tahun</th><td>Ustadzah Siti Aminah, S.Pd. / 2026-2027</td></tr>
                 <tr><th>Jenjang / Fase / Kelas</th><td>MTs / Fase D / Kelas VIII</td></tr>
                 <tr><th>Mata Pelajaran</th><td>Akidah Akhlak</td></tr>
@@ -471,6 +783,9 @@
         asesmenJenis: 'Asesmen Formatif & Sumatif HOTS',
         jumlahSoal: 5,
         bloomDistribution: { c1c2: 20, c3: 30, c4c6: 50 },
+        paperSize: 'a4',
+        designStyle: 'style-geometris',
+        templateStyle: 'tpl-minimalist-lesson',
         aiMode: 'all',
         catatanTambahan: ''
       },
@@ -498,13 +813,35 @@
     // =========================================================================
     const SESSION_KEY = 'klikajar_active_session_v2';
 
+    function applyGlobalAppThemeClass() {
+      const body = document.body;
+      if (!body) return;
+      body.classList.remove(
+        'app-theme-minimalis',
+        'app-theme-cyberpunk',
+        'app-theme-bento',
+        'app-theme-glass',
+        'app-theme-interaktif'
+      );
+      const themeId = state.globalAppTheme || 'bento';
+      body.classList.add(`app-theme-${themeId}`);
+      if (themeId === 'cyberpunk') {
+        state.darkMode = true;
+        document.documentElement.classList.add('dark');
+      } else if (!state.darkMode) {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
     function saveSessionState() {
       try {
+        localStorage.setItem('klikajar_global_theme_v1', state.globalAppTheme || 'bento');
         if (state.currentUser) {
           const payload = {
             currentUser: state.currentUser,
             currentView: state.currentView,
             activeMenu: state.activeMenu,
+            globalAppTheme: state.globalAppTheme,
             institutionData: state.institutionData,
             adminPaymentConfig: state.adminPaymentConfig
           };
@@ -519,6 +856,10 @@
 
     function restoreSessionState() {
       try {
+        const savedTheme = localStorage.getItem('klikajar_global_theme_v1');
+        if (savedTheme) {
+          state.globalAppTheme = savedTheme;
+        }
         const raw = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
@@ -526,6 +867,9 @@
             state.currentUser = parsed.currentUser;
             state.currentView = parsed.currentView || 'app';
             state.activeMenu = parsed.activeMenu || 'dashboard';
+            if (parsed.globalAppTheme) {
+              state.globalAppTheme = parsed.globalAppTheme;
+            }
             if (parsed.institutionData) {
               state.institutionData = { ...state.institutionData, ...parsed.institutionData };
             }
@@ -534,10 +878,12 @@
             }
             state.genForm.namaGuru = parsed.currentUser.namaLengkap || state.genForm.namaGuru;
             syncInstitutionToGenForm();
+            applyGlobalAppThemeClass();
             return true;
           }
         }
       } catch (e) {}
+      applyGlobalAppThemeClass();
       return false;
     }
 
@@ -623,12 +969,18 @@
         if (snap.exists()) {
           state.adminPaymentConfig = { ...state.adminPaymentConfig, ...snap.data() };
         }
+        const themeSnap = await fbMod.getDoc(fbMod.doc(fbDb, 'app_settings', 'global_theme'));
+        if (themeSnap.exists() && themeSnap.data().themeId) {
+          state.globalAppTheme = themeSnap.data().themeId;
+          applyGlobalAppThemeClass();
+        }
       } catch (err) {}
     }
 
     async function loadFirestoreDataForRole() {
       if (IS_PREVIEW || !fbDb || !fbMod || !state.currentUser) return;
       try {
+        await loadPublicAdminPaymentConfig();
         const docsSnap = await fbMod.getDocs(fbMod.collection(fbDb, 'documents'));
         const allDocs = docsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         state.documents = state.currentUser.role === 'admin'
@@ -639,6 +991,11 @@
           const usersSnap = await fbMod.getDocs(fbMod.collection(fbDb, 'users'));
           state.usersList = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         }
+
+        const annSnap = await fbMod.getDocs(fbMod.collection(fbDb, 'announcements'));
+        state.announcements = annSnap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
       } catch (err) {
         console.error('Error memuat data Firestore:', err);
       }
@@ -752,14 +1109,16 @@
             id: 'ma-3',
             title: 'C. Pemahaman Bermakna, Pertanyaan Pemantik & Profil Lulusan',
             content: `
-              <p><strong>1. Pemahaman Bermakna:</strong><br/>
-              Penguasaan terhadap <em>${form.materiPokok}</em> bukan sekadar hafalan konseptual, melainkan bekal nyata bagi peserta didik untuk mengambil keputusan bijak, memecahkan tantangan kehidupan modern, serta menebarkan kemaslahatan bagi sesama.</p>
-              <p><strong>2. Pertanyaan Pemantik:</strong></p>
-              <ul>
-                <li>Mengapa pemahaman yang benar tentang <strong>${form.materiPokok}</strong> sangat menentukan kualitas kehidupan kita di masyarakat saat ini?</li>
-                <li>Apa tantangan terbesar yang sering kita hadapi ketika menerapkan konsep <em>${form.submateri}</em> di era digital?</li>
-                <li>Bagaimana cara kita menghadirkan solusi yang adil, berempati, dan berdampak positif bagi lingkungan sekitar?</li>
-              </ul>
+              <div class="doc-callout">
+                <p><strong>1. Pemahaman Bermakna:</strong><br/>
+                Penguasaan terhadap <em>${form.materiPokok}</em> bukan sekadar hafalan konseptual, melainkan bekal nyata bagi peserta didik untuk mengambil keputusan bijak, memecahkan tantangan kehidupan modern, serta menebarkan kemaslahatan bagi sesama.</p>
+                <p style="margin-bottom:0;"><strong>2. Pertanyaan Pemantik:</strong></p>
+                <ul style="margin-bottom:0;">
+                  <li>Mengapa pemahaman yang benar tentang <strong>${form.materiPokok}</strong> sangat menentukan kualitas kehidupan kita di masyarakat saat ini?</li>
+                  <li>Apa tantangan terbesar yang sering kita hadapi ketika menerapkan konsep <em>${form.submateri}</em> di era digital?</li>
+                  <li>Bagaimana cara kita menghadirkan solusi yang adil, berempati, dan berdampak positif bagi lingkungan sekitar?</li>
+                </ul>
+              </div>
               <p><strong>3. Dimensi Profil Lulusan & Penguatan Karakter:</strong></p>
               <ul>
                 <li><strong>Profil Pelajar Pancasila:</strong> Beriman, bertakwa kepada Tuhan YME dan berakhlak mulia; Bernalar kritis; Bergotong royong; Kreatif.</li>
@@ -1331,6 +1690,113 @@
       renderApp();
     };
 
+    // ADMIN: PENGATURAN TEMA APLIKASI GLOBAL (BERLAKU UNTUK ADMIN & SELURUH AKUN GURU)
+    window.setGlobalAppTheme = async (themeId) => {
+      state.globalAppTheme = themeId;
+      if (themeId === 'cyberpunk') {
+        state.darkMode = true;
+      } else {
+        state.darkMode = false;
+      }
+      applyGlobalAppThemeClass();
+      saveSessionState();
+
+      if (!IS_PREVIEW && fbDb && fbMod) {
+        try {
+          await fbMod.setDoc(fbMod.doc(fbDb, 'app_settings', 'global_theme'), {
+            themeId,
+            updatedAt: new Date().toISOString()
+          });
+        } catch (err) {}
+      }
+
+      const found = APP_THEMES.find(t => t.id === themeId);
+      showToast(`Tema aplikasi "${found ? found.name : themeId}" aktif & diterapkan ke seluruh akun Guru!`);
+      renderApp();
+    };
+
+    // ADMIN & GURU: PEMBERITAHUAN / PENGUMUMAN DARI ADMIN
+    window.toggleNotifDropdown = () => {
+      state.notifDropdownOpen = !state.notifDropdownOpen;
+      if (state.notifDropdownOpen) {
+        state.readAnnouncementIds = state.announcements.map(a => a.id);
+      }
+      renderApp();
+    };
+
+    window.markAllAnnouncementsRead = () => {
+      state.readAnnouncementIds = state.announcements.map(a => a.id);
+      renderApp();
+    };
+
+    window.createAnnouncement = async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const judul = (fd.get('judul') || '').toString().trim();
+      const isi = (fd.get('isi') || '').toString().trim();
+      const kategori = (fd.get('kategori') || 'Info Penting').toString();
+      const isPinned = fd.get('isPinned') === 'on';
+
+      if (!judul || !isi) {
+        showToast('Judul dan isi pemberitahuan wajib diisi.', 'error');
+        return;
+      }
+
+      const newAnn = {
+        id: 'ann-' + Date.now(),
+        judul,
+        isi,
+        kategori,
+        isPinned,
+        author: state.currentUser?.namaLengkap || 'Admin KlikAjar',
+        createdAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+      };
+
+      if (IS_PREVIEW) {
+        state.announcements.unshift(newAnn);
+        state.announcements.sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
+      } else if (fbDb && fbMod) {
+        try {
+          const ref = await fbMod.addDoc(fbMod.collection(fbDb, 'announcements'), newAnn);
+          newAnn.id = ref.id;
+          state.announcements.unshift(newAnn);
+        } catch (err) {
+          showToast('Gagal menyimpan pemberitahuan ke database.', 'error');
+          return;
+        }
+      }
+
+      e.target.reset();
+      showToast('Pemberitahuan berhasil diterbitkan ke seluruh akun Guru!');
+      renderApp();
+    };
+
+    window.togglePinAnnouncement = async (annId) => {
+      const idx = state.announcements.findIndex(a => a.id === annId);
+      if (idx === -1) return;
+      const nextPin = !state.announcements[idx].isPinned;
+      state.announcements[idx].isPinned = nextPin;
+      state.announcements.sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
+      if (!IS_PREVIEW && fbDb && fbMod) {
+        try {
+          await fbMod.updateDoc(fbMod.doc(fbDb, 'announcements', annId), { isPinned: nextPin });
+        } catch (err) {}
+      }
+      showToast(nextPin ? 'Pemberitahuan disematkan di atas.' : 'Sematan dilepas.');
+      renderApp();
+    };
+
+    window.deleteAnnouncement = async (annId) => {
+      state.announcements = state.announcements.filter(a => a.id !== annId);
+      if (!IS_PREVIEW && fbDb && fbMod) {
+        try {
+          await fbMod.deleteDoc(fbMod.doc(fbDb, 'announcements', annId));
+        } catch (err) {}
+      }
+      showToast('Pemberitahuan berhasil dihapus.');
+      renderApp();
+    };
+
     // ADMIN: KONFIRMASI, AKTIFKAN, HAPUS, ATAU MASUK KE AKUN GURU
     window.approveGuruAccount = async (userId) => {
       const idx = state.usersList.findIndex(u => u.id === userId);
@@ -1365,6 +1831,132 @@
       state.activeMenu = 'dashboard';
       saveSessionState();
       showToast(`Anda sedang mengakses ruang kerja akun: ${target.namaLengkap}`);
+      renderApp();
+    };
+
+    // ADMIN: TAMBAH, EDIT, LIHAT PASSWORD, DAN RESET PASSWORD GURU
+    window.openAdminUserModal = (mode, userId = null) => {
+      if (mode === 'add') {
+        state.adminUserModal = {
+          mode: 'add',
+          user: {
+            namaLengkap: '',
+            nip: '',
+            noWhatsapp: '',
+            namaInstitusi: state.institutionData.namaLembaga || '',
+            jenjangDefault: 'MTs',
+            mataPelajaran: '',
+            username: '',
+            password: '',
+            status: 'active',
+            buktiPembayaran: 'Ditambahkan langsung oleh Admin'
+          }
+        };
+      } else {
+        const found = state.usersList.find(u => u.id === userId);
+        if (!found) return;
+        state.adminUserModal = {
+          mode,
+          user: { ...found }
+        };
+      }
+      renderApp();
+    };
+
+    window.closeAdminUserModal = () => {
+      state.adminUserModal = null;
+      renderApp();
+    };
+
+    window.toggleRevealPassword = (userId) => {
+      state.revealedPasswords[userId] = !state.revealedPasswords[userId];
+      renderApp();
+    };
+
+    window.handleSaveAdminUserModal = async (e) => {
+      e.preventDefault();
+      if (!state.adminUserModal) return;
+      const { mode, user } = state.adminUserModal;
+      const fd = new FormData(e.target);
+
+      if (mode === 'reset') {
+        const newPassword = (fd.get('newPassword') || '').toString().trim();
+        if (!newPassword) {
+          showToast('Masukkan password baru terlebih dahulu.', 'error');
+          return;
+        }
+        const idx = state.usersList.findIndex(u => u.id === user.id);
+        if (idx !== -1) {
+          state.usersList[idx].password = newPassword;
+          if (!IS_PREVIEW && fbDb && fbMod) {
+            try {
+              await fbMod.updateDoc(fbMod.doc(fbDb, 'users', user.id), { password: newPassword });
+            } catch (err) {}
+          }
+          showToast(`Password akun ${state.usersList[idx].namaLengkap} berhasil direset!`);
+        }
+        state.adminUserModal = null;
+        renderApp();
+        return;
+      }
+
+      const payload = {
+        namaLengkap: (fd.get('namaLengkap') || '').toString().trim(),
+        nip: (fd.get('nip') || '').toString().trim(),
+        noWhatsapp: (fd.get('noWhatsapp') || '').toString().trim(),
+        namaInstitusi: (fd.get('namaInstitusi') || '').toString().trim(),
+        jenjangDefault: (fd.get('jenjangDefault') || 'MTs').toString(),
+        mataPelajaran: (fd.get('mataPelajaran') || '').toString().trim(),
+        username: (fd.get('username') || '').toString().trim(),
+        password: (fd.get('password') || '').toString().trim(),
+        status: (fd.get('status') || 'active').toString(),
+        buktiPembayaran: (fd.get('buktiPembayaran') || 'Dikelola oleh Admin').toString().trim(),
+        role: 'guru'
+      };
+
+      if (!payload.namaLengkap || !payload.username || !payload.password) {
+        showToast('Nama lengkap, username, dan password wajib diisi.', 'error');
+        return;
+      }
+
+      if (mode === 'add') {
+        const duplicate = state.usersList.some(u => u.username.toLowerCase() === payload.username.toLowerCase());
+        if (duplicate) {
+          showToast('Username sudah digunakan akun lain.', 'error');
+          return;
+        }
+        const newUser = {
+          id: 'guru-' + Date.now(),
+          ...payload,
+          createdAt: new Date().toISOString().split('T')[0]
+        };
+        if (IS_PREVIEW) {
+          state.usersList.unshift(newUser);
+        } else if (fbDb && fbMod) {
+          try {
+            const ref = await fbMod.addDoc(fbMod.collection(fbDb, 'users'), newUser);
+            newUser.id = ref.id;
+            state.usersList.unshift(newUser);
+          } catch (err) {
+            showToast('Gagal menambah guru ke database.', 'error');
+            return;
+          }
+        }
+        showToast(`Akun Guru ${newUser.namaLengkap} berhasil ditambahkan!`);
+      } else if (mode === 'edit') {
+        const idx = state.usersList.findIndex(u => u.id === user.id);
+        if (idx !== -1) {
+          state.usersList[idx] = { ...state.usersList[idx], ...payload };
+          if (!IS_PREVIEW && fbDb && fbMod) {
+            try {
+              await fbMod.updateDoc(fbMod.doc(fbDb, 'users', user.id), payload);
+            } catch (err) {}
+          }
+          showToast(`Data akun ${payload.namaLengkap} berhasil diperbarui!`);
+        }
+      }
+
+      state.adminUserModal = null;
       renderApp();
     };
 
@@ -1504,7 +2096,9 @@
         mataPelajaran: mapelFinal,
         materiPokok: state.genForm.materiPokok,
         kurikulum: state.genForm.kurikulum,
-        templateStyle: isMadrasahCheck(state.genForm) ? 'tpl-madrasah' : 'tpl-modern',
+        templateStyle: state.genForm.templateStyle || (isMadrasahCheck(state.genForm) ? 'tpl-madrasah' : 'tpl-minimalist-lesson'),
+        designStyle: state.genForm.designStyle || 'style-geometris',
+        paperSize: state.genForm.paperSize || 'a4',
         tags: [state.genForm.kurikulum, state.genForm.naungan, state.genForm.jenjang],
         updatedAt: new Date().toISOString(),
         sections
@@ -1588,6 +2182,19 @@
       renderApp();
     };
 
+    window.changeDocDesignStyle = (styleId) => {
+      if (!state.activeDoc) return;
+      state.activeDoc.designStyle = styleId;
+      renderApp();
+    };
+
+    window.changeDocPaperSize = (sizeId) => {
+      if (!state.activeDoc) return;
+      state.activeDoc.paperSize = sizeId;
+      state.genForm.paperSize = sizeId;
+      renderApp();
+    };
+
     window.addCustomSection = () => {
       if (!state.activeDoc) return;
       state.activeDoc.sections.push({
@@ -1618,13 +2225,15 @@
     window.exportDocumentPDF = () => {
       const el = document.getElementById('printable-document-area');
       if (!el || !state.activeDoc) return;
-      showToast('Menyiapkan file PDF A4 siap cetak...');
+      const isF4 = (state.activeDoc.paperSize || 'a4') === 'f4';
+      showToast(`Menyiapkan file PDF ${isF4 ? 'F4 (Folio)' : 'A4'} siap cetak tanpa terpotong...`);
       const opt = {
-        margin: [10, 10, 10, 10],
+        margin: [14, 14, 14, 14],
         filename: `${state.activeDoc.judul.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.doc-callout', '.doc-signature-block'] },
+        jsPDF: { unit: 'mm', format: isF4 ? [215, 330] : 'a4', orientation: 'portrait' }
       };
       if (window.html2pdf) {
         window.html2pdf().set(opt).from(el).save();
@@ -1636,30 +2245,55 @@
     window.exportDocumentDOCX = () => {
       const el = document.getElementById('printable-document-area');
       if (!el || !state.activeDoc) return;
+      const isF4 = (state.activeDoc.paperSize || 'a4') === 'f4';
+      const pageSizeCss = isF4 ? '21.5cm 33.0cm' : '21.0cm 29.7cm';
       const htmlContent = `
         <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
         <head><meta charset='utf-8'><title>${state.activeDoc.judul}</title>
         <style>
-          body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; line-height: 1.5; color: #0F172A; }
-          table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+          @page WordSection1 {
+            size: ${pageSizeCss};
+            margin: 1.8cm 1.8cm 1.8cm 1.8cm;
+            mso-header-margin: 1.0cm;
+            mso-footer-margin: 1.0cm;
+          }
+          div.WordSection1 { page: WordSection1; }
+          body { font-family: 'Open Sans', 'Calibri', 'Arial', sans-serif; font-size: 11pt; line-height: 1.45; color: #0F172A; }
+          table { width: 100%; border-collapse: collapse; margin: 8px 0 12px 0; }
+          tr { page-break-inside: avoid; }
           th, td { border: 1px solid #94A3B8; padding: 6px 8px; vertical-align: top; text-align: left; }
           th { background-color: #E2E8F0; font-weight: bold; }
-          h1 { font-size: 15pt; color: #0F766E; }
+          h1 { font-size: 14pt; color: #0F766E; }
           h2 { font-size: 13pt; }
-          h3 { font-size: 12pt; color: #0F766E; margin-top: 14px; }
+          h3 { font-size: 11.5pt; color: #0F766E; margin-top: 12px; }
+          .doc-callout { border-left: 4px solid #0F766E; background: #F0FDF4; padding: 8px 12px; margin: 8px 0; }
+          .no-print { display: none; }
         </style>
-        </head><body>${el.innerHTML}</body></html>
+        </head><body><div class="WordSection1">${el.innerHTML}</div></body></html>
       `;
       const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${state.activeDoc.judul.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.doc`;
+      a.download = `${state.activeDoc.judul.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${isF4 ? 'F4' : 'A4'}.doc`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast('Dokumen Word (.doc) berhasil diunduh dan dapat langsung diedit!');
+      showToast(`Dokumen Word ukuran ${isF4 ? 'F4 (Folio)' : 'A4'} berhasil diunduh!`);
+    };
+
+    window.printDocumentClean = () => {
+      if (!state.activeDoc) return;
+      const isF4 = (state.activeDoc.paperSize || 'a4') === 'f4';
+      let styleTag = document.getElementById('dynamic-print-page-size');
+      if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'dynamic-print-page-size';
+        document.head.appendChild(styleTag);
+      }
+      styleTag.innerHTML = `@media print { @page { size: ${isF4 ? '215mm 330mm' : 'A4 portrait'}; margin: 15mm; } }`;
+      window.print();
     };
 
     window.saveCalendarSettings = (e) => {
@@ -2120,6 +2754,8 @@
       if (menuId === 'calendar') return 'Kalender Pendidikan Satuan Pendidikan';
       if (menuId === 'templates') return 'Pustaka Template & Desain Dokumen';
       if (menuId === 'users') return 'Kontrol Semua Akun Guru & Konfirmasi Pembayaran';
+      if (menuId === 'announcements') return 'Pemberitahuan & Informasi untuk Guru';
+      if (menuId === 'app-theme') return 'Tema Tampilan Aplikasi (Global Admin & Guru)';
       if (menuId === 'admin-profile') return 'Profil Admin & Pengaturan Rekening Pembayaran';
       if (menuId === 'profile') return 'Profil Guru & Identitas Institusi';
       if (menuId === 'settings') return 'Pengaturan AI Provider & Preferensi Sistem';
@@ -2146,6 +2782,8 @@
           label: 'Kendali Super Admin',
           items: [
             { id: 'users', name: `Akun & Konfirmasi (${pendingCount})`, icon: 'users' },
+            { id: 'announcements', name: `Info & Pengumuman (${state.announcements.length})`, icon: 'megaphone' },
+            { id: 'app-theme', name: 'Tema Aplikasi Global', icon: 'palette' },
             { id: 'admin-profile', name: 'Profil Admin & Bank', icon: 'credit-card' }
           ]
         }] : []),
@@ -2174,12 +2812,12 @@
       ];
 
       return `
-        <div class="min-h-screen flex bg-bgLight dark:bg-darkBg">
+        <div class="min-h-screen flex">
           <!-- OVERLAY MOBILE DRAWER -->
           ${state.sidebarOpen ? `<div onclick="window.toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-40 lg:hidden"></div>` : ''}
 
           <!-- SIDEBAR -->
-          <aside class="no-print fixed lg:sticky top-0 left-0 z-50 h-screen bg-white dark:bg-darkSurface border-r border-slate-200 dark:border-slate-800 flex flex-col transition-all duration-200
+          <aside class="app-sidebar no-print fixed lg:sticky top-0 left-0 z-50 h-screen bg-white dark:bg-darkSurface border-r border-slate-200 dark:border-slate-800 flex flex-col transition-all duration-200
             ${state.sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             ${state.sidebarCollapsed ? 'lg:w-20' : 'w-68'}">
             <div class="h-16 px-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
@@ -2231,7 +2869,7 @@
           <!-- MAIN CONTENT AREA -->
           <div class="flex-1 flex flex-col min-w-0">
             <!-- TOP HEADER -->
-            <header class="no-print sticky top-0 z-30 h-16 glass-nav border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 flex items-center justify-between gap-4">
+            <header class="app-header no-print sticky top-0 z-30 h-16 glass-nav border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 flex items-center justify-between gap-4">
               <div class="flex items-center gap-3 min-w-0">
                 <button onclick="window.toggleSidebar()" class="lg:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-700">
                   <i data-lucide="menu" class="w-4 h-4"></i>
@@ -2243,6 +2881,45 @@
               </div>
 
               <div class="flex items-center gap-2.5">
+                <!-- LONCENG PEMBERITAHUAN ADMIN UNTUK GURU -->
+                <div class="relative">
+                  <button onclick="window.toggleNotifDropdown()" title="Pemberitahuan dari Admin" class="relative p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    ${state.announcements.filter(a => !state.readAnnouncementIds.includes(a.id)).length > 0 ? `
+                      <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] font-extrabold flex items-center justify-center">
+                        ${state.announcements.filter(a => !state.readAnnouncementIds.includes(a.id)).length}
+                      </span>
+                    ` : ''}
+                  </button>
+
+                  ${state.notifDropdownOpen ? `
+                    <div class="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-700 shadow-2xl z-50 overflow-hidden">
+                      <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-800">
+                        <span class="font-display font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <i data-lucide="megaphone" class="w-3.5 h-3.5 text-emeraldDeep"></i> Informasi & Pengumuman Admin
+                        </span>
+                        ${isAdmin ? `<button onclick="state.notifDropdownOpen=false; window.setActiveMenu('announcements');" class="text-[11px] font-bold text-emeraldDeep hover:underline">+ Kelola</button>` : `<button onclick="state.notifDropdownOpen=false; window.renderApp();" class="text-[11px] text-slate-400 hover:text-slate-600">Tutup</button>`}
+                      </div>
+                      <div class="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+                        ${state.announcements.length === 0 ? `
+                          <p class="p-4 text-xs text-slate-500 text-center">Belum ada pemberitahuan terbaru dari Admin.</p>
+                        ` : state.announcements.map(ann => `
+                          <div class="p-3.5 text-xs space-y-1 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                            <div class="flex items-center justify-between gap-2">
+                              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${ann.kategori === 'Info Penting' ? 'bg-amber-100 text-amber-800' : ann.kategori === 'Pembaruan Fitur' ? 'bg-mintSoft text-emeraldDeep' : 'bg-blue-100 text-blue-800'}">
+                                ${ann.isPinned ? '📌 ' : ''}${ann.kategori}
+                              </span>
+                              <span class="text-[10px] text-slate-400">${ann.createdAt}</span>
+                            </div>
+                            <p class="font-bold text-slate-900 dark:text-white">${ann.judul}</p>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">${ann.isi}</p>
+                          </div>
+                        `).join('')}
+                      </div>
+                    </div>
+                  ` : ''}
+                </div>
+
                 <button onclick="window.toggleDarkMode()" class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
                   <i data-lucide="${state.darkMode ? 'sun' : 'moon'}" class="w-4 h-4"></i>
                 </button>
@@ -2303,6 +2980,43 @@
                 </button>
               </div>
             </div>
+
+            <!-- PAPAN INFORMASI & PEMBERITAHUAN DARI ADMIN UNTUK GURU -->
+            ${state.announcements.length > 0 ? `
+              <div class="bg-white dark:bg-darkCard rounded-2xl border border-amber-200 dark:border-amber-800/60 p-5 shadow-xs space-y-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600 flex items-center justify-center">
+                      <i data-lucide="megaphone" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                      <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">Pemberitahuan & Informasi dari Admin</h3>
+                      <p class="text-[11px] text-slate-500">Pengumuman resmi terkait pembaruan aplikasi dan panduan perangkat pembelajaran</p>
+                    </div>
+                  </div>
+                  ${isAdmin ? `
+                    <button onclick="window.setActiveMenu('announcements')" class="px-3 py-1.5 rounded-xl bg-emeraldDeep text-white text-xs font-bold">
+                      + Buat Pengumuman
+                    </button>
+                  ` : ''}
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-3">
+                  ${state.announcements.slice(0, 4).map(ann => `
+                    <div class="p-3.5 rounded-xl bg-amber-50/50 dark:bg-slate-800/80 border border-amber-100 dark:border-slate-700 space-y-1.5">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${ann.kategori === 'Info Penting' ? 'bg-amber-100 text-amber-800' : ann.kategori === 'Pembaruan Fitur' ? 'bg-mintSoft text-emeraldDeep' : 'bg-blue-100 text-blue-800'}">
+                          ${ann.isPinned ? '📌 Disematkan • ' : ''}${ann.kategori}
+                        </span>
+                        <span class="text-[10px] text-slate-400">${ann.createdAt}</span>
+                      </div>
+                      <p class="font-display font-bold text-xs text-slate-900 dark:text-white">${ann.judul}</p>
+                      <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">${ann.isi}</p>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
 
             <!-- STATISTIK -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -2556,6 +3270,29 @@
                   </div>
                 </div>
 
+                <!-- PENGATURAN TAMPILAN CETAK, TEMA DOKUMEN, GAYA JENJANG & UKURAN KERTAS -->
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 grid sm:grid-cols-3 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Tema Dokumen & Palet Warna</label>
+                    <select onchange="window.updateGenForm('templateStyle', this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs font-semibold">
+                      ${DOC_TEMPLATES.map(t => `<option value="${t.id}" ${f.templateStyle === t.id ? 'selected' : ''}>${t.name}</option>`).join('')}
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Gaya Desain (Sesuai Jenjang)</label>
+                    <select onchange="window.updateGenForm('designStyle', this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs font-semibold">
+                      ${DESIGN_STYLES.map(ds => `<option value="${ds.id}" ${f.designStyle === ds.id ? 'selected' : ''}>${ds.name}</option>`).join('')}
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Ukuran Kertas Cetak</label>
+                    <select onchange="window.updateGenForm('paperSize', this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs font-semibold">
+                      <option value="a4" ${f.paperSize === 'a4' ? 'selected' : ''}>A4 Standar (210 × 297 mm)</option>
+                      <option value="f4" ${f.paperSize === 'f4' ? 'selected' : ''}>F4 / Folio (215 × 330 mm)</option>
+                    </select>
+                  </div>
+                </div>
+
                 <!-- PANEL INTEGRASI PANCA CINTA (HANYA TAMPIL JIKA MEMILIH KURIKULUM BERBASIS CINTA) -->
                 ${f.kurikulum === 'Kurikulum Berbasis Cinta (Panca Cinta)' ? `
                   <div class="p-4 sm:p-5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 space-y-3">
@@ -2627,17 +3364,26 @@
         const tglDoc = formatTanggalIndo(doc.tanggalPenyusunan || state.genForm.tanggalPenyusunan);
         const kepalaDoc = doc.namaKepala || state.institutionData.namaKepala;
         const nipKepalaDoc = doc.nipKepala || state.institutionData.nipKepala;
+        const paperSize = doc.paperSize || 'a4';
+        const designStyle = doc.designStyle || 'style-geometris';
 
         return `
           <div class="space-y-4">
-            <!-- TOOLBAR EDITOR & EXPORT -->
+            <!-- TOOLBAR EDITOR & EXPORT (A4 / F4, TEMA, GAYA JENJANG) -->
             <div class="no-print bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-4 flex flex-wrap items-center justify-between gap-3 sticky top-16 z-20 shadow-xs">
               <div class="flex flex-wrap items-center gap-2">
-                <select onchange="window.changeDocTemplate(this.value)" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800 text-xs font-bold">
+                <select onchange="window.changeDocPaperSize(this.value)" title="Ukuran Kertas" class="px-3 py-2 rounded-xl border border-emerald-300 dark:border-teal-700 bg-emerald-50/60 dark:bg-slate-800 text-xs font-extrabold text-emeraldDeep dark:text-teal-300">
+                  <option value="a4" ${paperSize === 'a4' ? 'selected' : ''}>Kertas: A4 (210×297mm)</option>
+                  <option value="f4" ${paperSize === 'f4' ? 'selected' : ''}>Kertas: F4 / Folio (215×330mm)</option>
+                </select>
+                <select onchange="window.changeDocTemplate(this.value)" title="Tema Dokumen" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800 text-xs font-bold">
                   ${DOC_TEMPLATES.map(t => `<option value="${t.id}" ${doc.templateStyle === t.id ? 'selected' : ''}>Tema: ${t.name}</option>`).join('')}
                 </select>
+                <select onchange="window.changeDocDesignStyle(this.value)" title="Gaya Desain Jenjang" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800 text-xs font-bold">
+                  ${DESIGN_STYLES.map(ds => `<option value="${ds.id}" ${designStyle === ds.id ? 'selected' : ''}>Gaya: ${ds.name.split(' (')[0]}</option>`).join('')}
+                </select>
                 <button onclick="window.addCustomSection()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-1.5">
-                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Bagian
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> Bagian
                 </button>
                 <button onclick="window.saveActiveDocChanges()" class="px-3.5 py-2 rounded-xl bg-emeraldDeep text-white text-xs font-bold flex items-center gap-1.5">
                   <i data-lucide="save" class="w-3.5 h-3.5"></i> Simpan
@@ -2646,20 +3392,20 @@
 
               <div class="flex flex-wrap items-center gap-2">
                 <button onclick="window.exportDocumentDOCX()" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5">
-                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Unduh Word (.doc)
+                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Word (${paperSize.toUpperCase()})
                 </button>
                 <button onclick="window.exportDocumentPDF()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1.5">
-                  <i data-lucide="file-down" class="w-3.5 h-3.5"></i> Unduh PDF
+                  <i data-lucide="file-down" class="w-3.5 h-3.5"></i> PDF (${paperSize.toUpperCase()})
                 </button>
-                <button onclick="window.print()" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs font-bold flex items-center gap-1.5">
-                  <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak A4
+                <button onclick="window.printDocumentClean()" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs font-bold flex items-center gap-1.5">
+                  <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak ${paperSize.toUpperCase()}
                 </button>
               </div>
             </div>
 
-            <!-- KERTAS A4 INTERAKTIF (EDITABLE) -->
+            <!-- KERTAS A4 / F4 INTERAKTIF (EDITABLE & ANTI-TERPOTONG) -->
             <div class="overflow-x-auto pb-8">
-              <div id="printable-document-area" class="a4-paper ${doc.templateStyle || 'tpl-madrasah'}">
+              <div id="printable-document-area" class="doc-paper paper-${paperSize} ${doc.templateStyle || 'tpl-minimalist-lesson'} ${designStyle}">
                 <!-- KOP LEMBAGA & DUA LOGO (KEMENAG/KEMENDIKBUD & LOGO LEMBAGA) -->
                 <div class="doc-banner mb-5">
                   <div class="flex items-center justify-between gap-4">
@@ -2671,21 +3417,21 @@
                     </div>
 
                     <div class="flex-1 text-center">
-                      <p class="text-[10px] uppercase tracking-wider font-bold opacity-85">
+                      <p class="text-[10px] uppercase tracking-wider font-bold opacity-85" style="margin-bottom:2px;">
                         ${naunganDoc === 'Kemenag' ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : naunganDoc === 'Diknas' ? 'DINAS PENDIDIKAN / KEMENDIKBUDRISTEK' : 'SATUAN PENDIDIKAN'}
                       </p>
-                      <h2 contenteditable="true" class="text-base font-extrabold uppercase tracking-tight leading-snug">
+                      <h2 contenteditable="true" class="doc-heading text-base font-extrabold uppercase tracking-tight leading-snug">
                         ${namaInstitusiDoc}
                       </h2>
-                      <p class="text-[10px] opacity-90">
+                      <p class="text-[10px] opacity-90" style="margin-bottom:4px;">
                         NPSN: ${npsnDoc || '-'}${naunganDoc === 'Kemenag' && nsmDoc ? ' • NSM: ' + nsmDoc : ''} • ${alamatDoc || ''}, ${kotaDoc || ''}
                       </p>
                       <div class="mt-2 pt-2 border-t border-current/20">
-                        <p class="text-[10px] uppercase tracking-widest font-bold opacity-80">${doc.jenisLabel.toUpperCase()} — ${doc.kurikulum}</p>
-                        <h1 contenteditable="true" onblur="window.updateDocTitle(this.innerText)" class="text-base font-extrabold mt-0.5 outline-none focus:ring-2 focus:ring-emerald-400 rounded px-1">
+                        <p class="text-[10px] uppercase tracking-widest font-bold opacity-80" style="margin-bottom:2px;">${doc.jenisLabel.toUpperCase()} — ${doc.kurikulum}</p>
+                        <h1 contenteditable="true" onblur="window.updateDocTitle(this.innerText)" class="doc-heading text-base font-extrabold mt-0.5 outline-none focus:ring-2 focus:ring-emerald-400 rounded px-1">
                           ${doc.judul}
                         </h1>
-                        <p class="text-[11px] mt-0.5 opacity-90">
+                        <p class="text-[11px] mt-0.5 opacity-90" style="margin-bottom:0;">
                           ${doc.jenjang} • ${doc.fase} • Kelas ${doc.kelas} • Semester ${doc.semester} (${doc.tahunAjaran})
                         </p>
                       </div>
@@ -2701,12 +3447,12 @@
                 </div>
 
                 <!-- SEKSI DOKUMEN EDITABLE -->
-                <div class="space-y-5">
+                <div class="space-y-4">
                   ${doc.sections.map(sec => `
-                    <div class="group relative">
+                    <div class="doc-section-block group relative">
                       <div class="flex items-center justify-between gap-2 mb-1.5">
                         <h3 contenteditable="true" onblur="window.updateSectionTitle('${sec.id}', this.innerText)"
-                          class="font-display font-bold text-sm text-emeraldDeep outline-none focus:bg-emerald-50 rounded px-1">
+                          class="doc-heading doc-section-title font-bold text-sm outline-none focus:bg-emerald-50 rounded px-1">
                           ${sec.title}
                         </h3>
                         <button onclick="window.removeSection('${sec.id}')" title="Hapus Bagian"
@@ -2723,20 +3469,20 @@
                 </div>
 
                 <!-- TANDA TANGAN PENGESAHAN DENGAN KOTA/KABUPATEN & TANGGAL PENYUSUNAN -->
-                <div class="mt-10 pt-6 border-t border-slate-200 grid grid-cols-2 gap-8 text-xs">
+                <div class="doc-signature-block mt-8 pt-5 border-t border-slate-200 grid grid-cols-2 gap-8 text-xs">
                   <div>
-                    <p>Mengetahui,</p>
-                    <p>Kepala Sekolah / Madrasah</p>
+                    <p style="margin-bottom:2px;">Mengetahui,</p>
+                    <p style="margin-bottom:2px;">Kepala Sekolah / Madrasah</p>
                     <div class="h-16"></div>
-                    <p class="font-bold underline" contenteditable="true">${kepalaDoc || '......................................................'}</p>
-                    <p contenteditable="true">NIP. ${nipKepalaDoc || '...........................................'}</p>
+                    <p class="font-bold underline" style="margin-bottom:2px;" contenteditable="true">${kepalaDoc || '......................................................'}</p>
+                    <p style="margin-bottom:0;" contenteditable="true">NIP. ${nipKepalaDoc || '...........................................'}</p>
                   </div>
                   <div>
-                    <p contenteditable="true">${kotaDoc || '....................'}, ${tglDoc || '....................'}</p>
-                    <p>Guru Mata Pelajaran</p>
+                    <p style="margin-bottom:2px;" contenteditable="true">${kotaDoc || '....................'}, ${tglDoc || '....................'}</p>
+                    <p style="margin-bottom:2px;">Guru Mata Pelajaran</p>
                     <div class="h-16"></div>
-                    <p class="font-bold underline" contenteditable="true">${doc.namaGuru || state.genForm.namaGuru}</p>
-                    <p contenteditable="true">NIP. ${doc.nipGuru || user?.nip || '...........................................'}</p>
+                    <p class="font-bold underline" style="margin-bottom:2px;" contenteditable="true">${doc.namaGuru || state.genForm.namaGuru}</p>
+                    <p style="margin-bottom:0;" contenteditable="true">NIP. ${doc.nipGuru || user?.nip || '...........................................'}</p>
                   </div>
                 </div>
               </div>
@@ -2876,184 +3622,403 @@
                     <input type="text" name="nipKepala" value="${inst.nipKepala || ''}" placeholder="NIP Kepala (opsional)"
                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800" />
                   </div>
-                </div>
-
-                <!-- UPLOAD LOGO KEMENAG/KEMENDIKBUD & LOGO LEMBAGA -->
-                <div class="grid sm:grid-cols-2 gap-5 pt-4 border-t border-slate-200 dark:border-slate-700">
-                  <div class="p-4 rounded-xl bg-bgLight dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 space-y-3">
-                    <div class="flex items-center justify-between">
-                      <span class="font-bold text-slate-800 dark:text-white">Upload Logo Kemenag / Kemendikbud</span>
-                      ${inst.logoNaunganDataUrl ? `<button type="button" onclick="window.clearInstitutionLogo('logoNaunganDataUrl')" class="text-[11px] text-rose-600 font-semibold">Hapus</button>` : ''}
-                    </div>
-                    <div class="flex items-center gap-4">
-                      <div class="w-16 h-16 rounded-xl bg-white dark:bg-darkCard border border-slate-300 dark:border-slate-600 flex items-center justify-center overflow-hidden shrink-0">
-                        ${inst.logoNaunganDataUrl
-                          ? `<img src="${inst.logoNaunganDataUrl}" alt="Preview Logo Naungan" class="max-h-14 max-w-14 object-contain" />`
-                          : `<i data-lucide="image" class="w-6 h-6 text-slate-400"></i>`
-                        }
-                      </div>
-                      <div class="flex-1">
-                        <input type="file" accept="image/*" onchange="window.handleLogoUpload(event, 'logoNaunganDataUrl')"
-                          class="block w-full text-[11px] text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emeraldDeep file:text-white hover:file:bg-teal-800 cursor-pointer" />
-                        <p class="text-[10px] text-slate-400 mt-1">Format PNG/JPG transparan disarankan (maks 1MB).</p>
-                      </div>
-                    </div>
+                  <div class="flex items-end">
+                    <button type="submit" class="w-full py-2.5 px-5 rounded-xl bg-emeraldDeep hover:bg-teal-800 text-white font-display font-bold text-xs shadow-sm transition">
+                      Simpan Data Instansi & Sinkronkan
+                    </button>
                   </div>
-
-                  <div class="p-4 rounded-xl bg-bgLight dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 space-y-3">
-                    <div class="flex items-center justify-between">
-                      <span class="font-bold text-slate-800 dark:text-white">Upload Logo Lembaga (Sekolah / Madrasah)</span>
-                      ${inst.logoLembagaDataUrl ? `<button type="button" onclick="window.clearInstitutionLogo('logoLembagaDataUrl')" class="text-[11px] text-rose-600 font-semibold">Hapus</button>` : ''}
-                    </div>
-                    <div class="flex items-center gap-4">
-                      <div class="w-16 h-16 rounded-xl bg-white dark:bg-darkCard border border-slate-300 dark:border-slate-600 flex items-center justify-center overflow-hidden shrink-0">
-                        ${inst.logoLembagaDataUrl
-                          ? `<img src="${inst.logoLembagaDataUrl}" alt="Preview Logo Lembaga" class="max-h-14 max-w-14 object-contain" />`
-                          : `<i data-lucide="shield" class="w-6 h-6 text-slate-400"></i>`
-                        }
-                      </div>
-                      <div class="flex-1">
-                        <input type="file" accept="image/*" onchange="window.handleLogoUpload(event, 'logoLembagaDataUrl')"
-                          class="block w-full text-[11px] text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emeraldDeep file:text-white hover:file:bg-teal-800 cursor-pointer" />
-                        <p class="text-[10px] text-slate-400 mt-1">Tampil di sisi kanan Kop Surat dokumen A4.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="pt-2">
-                  <button type="submit" class="px-6 py-3 rounded-xl bg-emeraldDeep hover:bg-teal-800 text-white font-bold text-xs shadow-sm transition flex items-center gap-2">
-                    <i data-lucide="save" class="w-4 h-4"></i>
-                    <span>Simpan Data Instansi & Terapkan ke Dokumen</span>
-                  </button>
                 </div>
               </form>
+            </div>
+
+            <!-- UPLOAD LOGO KEMENAG/KEMENDIKBUD & LOGO LEMBAGA -->
+            <div class="grid md:grid-cols-2 gap-6">
+              <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">Logo Kemenag / Kemendikbud (Kiri Kop)</h4>
+                    <p class="text-[11px] text-slate-500">Format PNG/JPG transparan, maks. 1.5 MB.</p>
+                  </div>
+                  ${inst.logoNaunganDataUrl ? `<button type="button" onclick="window.clearInstitutionLogo('logoNaunganDataUrl')" class="text-xs text-rose-600 font-bold hover:underline">Hapus</button>` : ''}
+                </div>
+
+                <div class="h-32 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center bg-bgLight dark:bg-slate-800/60 p-3">
+                  ${inst.logoNaunganDataUrl
+                    ? `<img src="${inst.logoNaunganDataUrl}" alt="Logo Naungan" class="max-h-24 object-contain" />`
+                    : `<span class="text-xs text-slate-400 text-center">Belum ada Logo Kemenag / Kemendikbud diunggah</span>`
+                  }
+                </div>
+
+                <input type="file" accept="image/*" onchange="window.handleLogoUpload(event, 'logoNaunganDataUrl')"
+                  class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-mintSoft file:text-emeraldDeep hover:file:bg-emerald-200 cursor-pointer" />
+              </div>
+
+              <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">Logo Sekolah / Madrasah (Kanan Kop)</h4>
+                    <p class="text-[11px] text-slate-500">Format PNG/JPG transparan, maks. 1.5 MB.</p>
+                  </div>
+                  ${inst.logoLembagaDataUrl ? `<button type="button" onclick="window.clearInstitutionLogo('logoLembagaDataUrl')" class="text-xs text-rose-600 font-bold hover:underline">Hapus</button>` : ''}
+                </div>
+
+                <div class="h-32 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center bg-bgLight dark:bg-slate-800/60 p-3">
+                  ${inst.logoLembagaDataUrl
+                    ? `<img src="${inst.logoLembagaDataUrl}" alt="Logo Lembaga" class="max-h-24 object-contain" />`
+                    : `<span class="text-xs text-slate-400 text-center">Belum ada Logo Sekolah / Madrasah diunggah</span>`
+                  }
+                </div>
+
+                <input type="file" accept="image/*" onchange="window.handleLogoUpload(event, 'logoLembagaDataUrl')"
+                  class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-mintSoft file:text-emeraldDeep hover:file:bg-emerald-200 cursor-pointer" />
+              </div>
             </div>
           </div>
         `;
       }
 
-      // 5. KALENDER PENDIDIKAN
+      // 5. KALENDER PENDIDIKAN MANDIRI
       if (m === 'calendar') {
         const cal = state.calendarData;
         return `
-          <div class="max-w-2xl bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-5">
+          <div class="max-w-3xl bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 space-y-5">
             <div>
               <h3 class="font-display font-extrabold text-base">Kalender Pendidikan Satuan Pendidikan</h3>
-              <p class="text-xs text-slate-500 mt-1">Masukkan jumlah minggu efektif sesuai kalender sekolah/madrasah Anda untuk sinkronisasi Prota & Promes.</p>
+              <p class="text-xs text-slate-500 mt-1">Atur jumlah minggu efektif dan jadwal semester sekolah/madrasah Anda. Data ini otomatis digunakan saat menyusun Prota & Promes.</p>
             </div>
             <form onsubmit="window.saveCalendarSettings(event)" class="space-y-4 text-xs">
-              <div class="grid grid-cols-2 gap-4">
+              <div class="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block font-bold mb-1">Tahun Ajaran</label>
                   <input type="text" name="tahunAjaran" value="${cal.tahunAjaran}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800" />
                 </div>
                 <div>
-                  <label class="block font-bold mb-1">Semester</label>
+                  <label class="block font-bold mb-1">Semester Aktif</label>
                   <select name="semester" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800">
                     <option value="Ganjil" ${cal.semester === 'Ganjil' ? 'selected' : ''}>Ganjil</option>
                     <option value="Genap" ${cal.semester === 'Genap' ? 'selected' : ''}>Genap</option>
                   </select>
                 </div>
               </div>
-              <div class="grid grid-cols-2 gap-4">
+              <div class="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block font-bold mb-1">Jumlah Minggu Efektif</label>
-                  <input type="number" name="mingguEfektif" value="${cal.mingguEfektif}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800" />
+                  <input type="number" name="mingguEfektif" value="${cal.mingguEfektif}" min="1" max="30" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800" />
                 </div>
                 <div>
-                  <label class="block font-bold mb-1">Jam Pelajaran per Minggu</label>
-                  <input type="number" name="jamPerMinggu" value="${cal.jamPerMinggu}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800" />
+                  <label class="block font-bold mb-1">Alokasi JP per Minggu</label>
+                  <input type="number" name="jamPerMinggu" value="${cal.jamPerMinggu}" min="1" max="20" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800" />
                 </div>
               </div>
               <div>
-                <label class="block font-bold mb-1">Catatan Libur / Pekan Ujian</label>
+                <label class="block font-bold mb-1">Catatan Jadwal PTS, PAS/PAT & Hari Libur Sekolah/Madrasah</label>
                 <textarea name="catatanLibur" rows="3" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800">${cal.catatanLibur}</textarea>
               </div>
-              <button type="submit" class="px-5 py-2.5 rounded-xl bg-emeraldDeep text-white font-bold">Simpan Kalender Pendidikan</button>
+              <button type="submit" class="px-6 py-3 rounded-xl bg-emeraldDeep text-white font-bold">Simpan Kalender Pendidikan</button>
             </form>
           </div>
         `;
       }
 
-      // 6. PUSTAKA TEMPLATE
+      // 6. PUSTAKA TEMPLATE & GAYA DESAIN DOKUMEN
       if (m === 'templates') {
         return `
-          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            ${DOC_TEMPLATES.map(t => `
-              <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-5 flex flex-col justify-between gap-4">
-                <div>
-                  <span class="px-2.5 py-0.5 rounded-full bg-mintSoft text-emeraldDeep text-[10px] font-bold">${t.badge}</span>
-                  <h3 class="font-display font-bold text-sm mt-2">${t.name}</h3>
-                  <p class="text-xs text-slate-500 mt-1">${t.desc}</p>
-                </div>
-                <button onclick="if(state.activeDoc){ window.changeDocTemplate('${t.id}'); window.setActiveMenu('editor'); } else { window.setActiveMenu('generator'); }"
-                  class="w-full py-2 rounded-xl bg-emeraldDeep text-white text-xs font-bold">
-                  Gunakan Template Ini
-                </button>
+          <div class="space-y-6">
+            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
+              <h3 class="font-display font-extrabold text-base mb-1">Pilihan Tema Dokumen & Palet Warna</h3>
+              <p class="text-xs text-slate-500 mb-5">Klik salah satu tema di bawah ini untuk langsung menerapkannya pada dokumen aktif di Editor A4 / F4.</p>
+              <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                ${DOC_TEMPLATES.map(t => `
+                  <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-bgLight dark:bg-slate-800 flex flex-col justify-between gap-3">
+                    <div>
+                      <span class="inline-block px-2.5 py-0.5 rounded-full bg-mintSoft text-emeraldDeep text-[10px] font-bold mb-2">${t.badge}</span>
+                      <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">${t.name}</h4>
+                      <p class="text-xs text-slate-500 mt-1">${t.desc}</p>
+                    </div>
+                    <button onclick="state.genForm.templateStyle='${t.id}'; if(state.activeDoc){window.changeDocTemplate('${t.id}'); window.setActiveMenu('editor');} else {window.showToast('Tema ${t.name} dipilih untuk dokumen berikutnya!');}"
+                      class="w-full py-2 rounded-xl bg-emeraldDeep text-white text-xs font-bold">
+                      Gunakan Tema Ini
+                    </button>
+                  </div>
+                `).join('')}
               </div>
-            `).join('')}
+            </div>
+
+            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
+              <h3 class="font-display font-extrabold text-base mb-1">Gaya Desain Berdasarkan Jenjang</h3>
+              <p class="text-xs text-slate-500 mb-4">Sesuaikan gaya tata letak visual dokumen dengan jenjang peserta didik Anda.</p>
+              <div class="grid md:grid-cols-3 gap-4">
+                ${DESIGN_STYLES.map(ds => `
+                  <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-bgLight dark:bg-slate-800 flex flex-col justify-between gap-3">
+                    <div>
+                      <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">${ds.name}</h4>
+                      <p class="text-xs text-slate-500 mt-1">${ds.desc}</p>
+                    </div>
+                    <button onclick="state.genForm.designStyle='${ds.id}'; if(state.activeDoc){window.changeDocDesignStyle('${ds.id}'); window.setActiveMenu('editor');} else {window.showToast('Gaya ${ds.name} dipilih!');}"
+                      class="w-full py-2 rounded-xl border border-emeraldDeep text-emeraldDeep dark:text-teal-300 text-xs font-bold">
+                      Terapkan Gaya
+                    </button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
           </div>
         `;
       }
 
-      // 7. ADMIN: KONTROL SEMUA AKUN GURU & KONFIRMASI PEMBAYARAN
+      // 7. ADMIN: KONTROL SEMUA AKUN GURU & KONFIRMASI PEMBAYARAN (TAMBAH, EDIT, LIHAT/RESET PASSWORD, HAPUS)
       if (m === 'users' && isAdmin) {
+        const modal = state.adminUserModal;
         return `
           <div class="space-y-5">
             <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
-              <h3 class="font-display font-extrabold text-base">Manajemen Semua Akun Guru & Konfirmasi Pembayaran</h3>
-              <p class="text-xs text-slate-500 mt-1">Admin memiliki hak akses penuh untuk memverifikasi pembayaran, mengaktifkan akun, menghapus akun, atau masuk ke ruang kerja akun guru mana pun.</p>
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 class="font-display font-extrabold text-base">Manajemen Semua Akun Guru & Konfirmasi Pembayaran</h3>
+                  <p class="text-xs text-slate-500 mt-1">Admin dapat menambah guru baru, mengedit profil guru, melihat & mereset password, mengonfirmasi pembayaran, atau masuk ke akun guru.</p>
+                </div>
+                <button onclick="window.openAdminUserModal('add')" class="px-4 py-2.5 rounded-xl bg-emeraldDeep hover:bg-teal-800 text-white font-display font-bold text-xs shadow-sm flex items-center gap-2 self-start">
+                  <i data-lucide="user-plus" class="w-4 h-4"></i>
+                  <span>+ Tambah Akun Guru</span>
+                </button>
+              </div>
 
               <div class="mt-5 overflow-x-auto">
                 <table class="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr class="border-b border-slate-200 dark:border-slate-700 text-slate-500">
                       <th class="py-3 px-3">Nama Guru & Institusi</th>
-                      <th class="py-3 px-3">Username & WA</th>
-                      <th class="py-3 px-3">Keterangan Bukti Pembayaran</th>
+                      <th class="py-3 px-3">Username & Password</th>
+                      <th class="py-3 px-3">Keterangan Pembayaran</th>
                       <th class="py-3 px-3">Status</th>
                       <th class="py-3 px-3 text-right">Kontrol Admin</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                    ${state.usersList.map(u => `
-                      <tr>
-                        <td class="py-3 px-3">
-                          <p class="font-bold text-slate-900 dark:text-white">${u.namaLengkap}</p>
-                          <p class="text-[11px] text-slate-500">${u.namaInstitusi || '-'} (${u.jenjangDefault || '-'})</p>
-                        </td>
-                        <td class="py-3 px-3">
-                          <p class="font-mono font-bold">${u.username}</p>
-                          <p class="text-[11px] text-slate-500">${u.noWhatsapp || '-'}</p>
-                        </td>
-                        <td class="py-3 px-3 max-w-xs">
-                          <p class="text-[11px] text-slate-700 dark:text-slate-300">${u.buktiPembayaran || '-'}</p>
-                        </td>
-                        <td class="py-3 px-3">
-                          ${u.status === 'active'
-                            ? `<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">Aktif</span>`
-                            : `<span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold text-[10px]">Menunggu Konfirmasi</span>`
-                          }
-                        </td>
-                        <td class="py-3 px-3 text-right space-x-1.5 whitespace-nowrap">
-                          ${u.status !== 'active' ? `
-                            <button onclick="window.approveGuruAccount('${u.id}')" class="px-3 py-1.5 rounded-lg bg-emeraldDeep text-white font-bold text-[11px]">
-                              Konfirmasi & Aktifkan
-                            </button>
-                          ` : ''}
-                          <button onclick="window.impersonateGuruAccount('${u.id}')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white font-bold text-[11px]">
-                            Masuk Akun
-                          </button>
-                          <button onclick="window.deleteGuruAccount('${u.id}')" class="px-2.5 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 font-bold text-[11px]">
-                            Hapus
-                          </button>
-                        </td>
-                      </tr>
-                    `).join('')}
+                    ${state.usersList.length === 0 ? `
+                      <tr><td colspan="5" class="py-8 text-center text-slate-500">Belum ada akun guru terdaftar. Klik "+ Tambah Akun Guru" untuk membuat akun baru.</td></tr>
+                    ` : state.usersList.map(u => {
+                      const isRevealed = !!state.revealedPasswords[u.id];
+                      return `
+                        <tr>
+                          <td class="py-3 px-3">
+                            <p class="font-bold text-slate-900 dark:text-white">${u.namaLengkap}</p>
+                            <p class="text-[11px] text-slate-500">${u.namaInstitusi || '-'} (${u.jenjangDefault || '-'})</p>
+                            <p class="text-[10px] text-slate-400">WA: ${u.noWhatsapp || '-'}</p>
+                          </td>
+                          <td class="py-3 px-3">
+                            <p class="font-mono font-bold text-slate-800 dark:text-slate-200">User: ${u.username}</p>
+                            <div class="flex items-center gap-1.5 mt-1">
+                              <span class="font-mono text-[11px] px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                                Pass: ${isRevealed ? (u.password || '-') : '••••••••'}
+                              </span>
+                              <button type="button" onclick="window.toggleRevealPassword('${u.id}')" title="${isRevealed ? 'Sembunyikan Password' : 'Lihat Password'}"
+                                class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
+                                <i data-lucide="${isRevealed ? 'eye-off' : 'eye'}" class="w-3.5 h-3.5"></i>
+                              </button>
+                            </div>
+                          </td>
+                          <td class="py-3 px-3 max-w-xs">
+                            <p class="text-[11px] text-slate-700 dark:text-slate-300">${u.buktiPembayaran || '-'}</p>
+                          </td>
+                          <td class="py-3 px-3">
+                            ${u.status === 'active'
+                              ? `<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">Aktif</span>`
+                              : `<span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold text-[10px]">Menunggu Konfirmasi</span>`
+                            }
+                          </td>
+                          <td class="py-3 px-3 text-right whitespace-nowrap">
+                            <div class="inline-flex flex-wrap justify-end gap-1.5">
+                              ${u.status !== 'active' ? `
+                                <button onclick="window.approveGuruAccount('${u.id}')" class="px-2.5 py-1.5 rounded-lg bg-emeraldDeep text-white font-bold text-[11px]">
+                                  Aktifkan
+                                </button>
+                              ` : ''}
+                              <button onclick="window.openAdminUserModal('edit', '${u.id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold text-[11px]">
+                                Edit
+                              </button>
+                              <button onclick="window.openAdminUserModal('reset', '${u.id}')" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px]">
+                                Reset Pass
+                              </button>
+                              <button onclick="window.impersonateGuruAccount('${u.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-white font-bold text-[11px]">
+                                Masuk
+                              </button>
+                              <button onclick="window.deleteGuruAccount('${u.id}')" class="px-2 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-bold text-[11px]">
+                                Hapus
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      `;
+                    }).join('')}
                   </tbody>
                 </table>
               </div>
+            </div>
+
+            <!-- MODAL TAMBAH / EDIT / RESET PASSWORD GURU -->
+            ${modal ? `
+              <div class="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4">
+                <div class="bg-white dark:bg-darkCard rounded-3xl max-w-lg w-full p-6 sm:p-7 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4">
+                  <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
+                    <h4 class="font-display font-extrabold text-base text-slate-900 dark:text-white">
+                      ${modal.mode === 'add' ? 'Tambah Akun Guru Baru' : modal.mode === 'edit' ? 'Edit Data Akun Guru' : `Reset Password: ${modal.user.namaLengkap}`}
+                    </h4>
+                    <button onclick="window.closeAdminUserModal()" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                      <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+
+                  <form onsubmit="window.handleSaveAdminUserModal(event)" class="space-y-3.5 text-xs">
+                    ${modal.mode === 'reset' ? `
+                      <div>
+                        <label class="block font-bold mb-1">Password Baru untuk ${modal.user.namaLengkap} *</label>
+                        <input type="text" name="newPassword" required placeholder="Masukkan password baru"
+                          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800 font-mono" />
+                      </div>
+                    ` : `
+                      <div class="grid sm:grid-cols-2 gap-3">
+                        <div>
+                          <label class="block font-bold mb-1">Nama Lengkap & Gelar *</label>
+                          <input type="text" name="namaLengkap" value="${modal.user.namaLengkap || ''}" required class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800" />
+                        </div>
+                        <div>
+                          <label class="block font-bold mb-1">NIP / NUPTK</label>
+                          <input type="text" name="nip" value="${modal.user.nip || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800" />
+                        </div>
+                      </div>
+                      <div class="grid sm:grid-cols-2 gap-3">
+                        <div>
+                          <label class="block font-bold mb-1">No. WhatsApp</label>
+                          <input type="text" name="noWhatsapp" value="${modal.user.noWhatsapp || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800" />
+                        </div>
+                        <div>
+                          <label class="block font-bold mb-1">Sekolah / Madrasah</label>
+                          <input type="text" name="namaInstitusi" value="${modal.user.namaInstitusi || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800" />
+                        </div>
+                      </div>
+                      <div class="grid sm:grid-cols-2 gap-3">
+                        <div>
+                          <label class="block font-bold mb-1">Jenjang</label>
+                          <select name="jenjangDefault" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800">
+                            ${JENJANG_LIST.map(j => `<option value="${j}" ${modal.user.jenjangDefault === j ? 'selected' : ''}>${j}</option>`).join('')}
+                          </select>
+                        </div>
+                        <div>
+                          <label class="block font-bold mb-1">Mata Pelajaran</label>
+                          <input type="text" name="mataPelajaran" value="${modal.user.mataPelajaran || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800" />
+                        </div>
+                      </div>
+                      <div class="grid sm:grid-cols-3 gap-3">
+                        <div>
+                          <label class="block font-bold mb-1">Username *</label>
+                          <input type="text" name="username" value="${modal.user.username || ''}" required class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800 font-mono" />
+                        </div>
+                        <div>
+                          <label class="block font-bold mb-1">Password *</label>
+                          <input type="text" name="password" value="${modal.user.password || ''}" required class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800 font-mono" />
+                        </div>
+                        <div>
+                          <label class="block font-bold mb-1">Status Akun</label>
+                          <select name="status" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800">
+                            <option value="active" ${modal.user.status === 'active' ? 'selected' : ''}>Aktif</option>
+                            <option value="pending" ${modal.user.status === 'pending' ? 'selected' : ''}>Menunggu Konfirmasi</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label class="block font-bold mb-1">Keterangan / Bukti Pembayaran</label>
+                        <input type="text" name="buktiPembayaran" value="${modal.user.buktiPembayaran || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800" />
+                      </div>
+                    `}
+                    <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
+                      <button type="button" onclick="window.closeAdminUserModal()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 font-bold">Batal</button>
+                      <button type="submit" class="px-5 py-2 rounded-xl bg-emeraldDeep text-white font-bold">Simpan</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      // 7B. ADMIN: KELOLA PEMBERITAHUAN & INFORMASI UNTUK GURU
+      if (m === 'announcements' && isAdmin) {
+        return `
+          <div class="max-w-4xl space-y-6">
+            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-xs">
+              <div class="border-b border-slate-200 dark:border-slate-700 pb-4 mb-5">
+                <h3 class="font-display font-extrabold text-base text-slate-900 dark:text-white">Kirim Pemberitahuan / Informasi ke Seluruh Guru</h3>
+                <p class="text-xs text-slate-500 mt-1">Pemberitahuan yang diterbitkan akan langsung tampil pada Dashboard dan lonceng notifikasi seluruh akun Guru.</p>
+              </div>
+
+              <form onsubmit="window.createAnnouncement(event)" class="space-y-4 text-xs">
+                <div class="grid sm:grid-cols-3 gap-4">
+                  <div class="sm:col-span-2">
+                    <label class="block font-bold mb-1">Judul Pemberitahuan *</label>
+                    <input type="text" name="judul" required placeholder="Contoh: Pembaruan Template Modul Ajar & Jadwal Pemeliharaan"
+                      class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800 font-semibold" />
+                  </div>
+                  <div>
+                    <label class="block font-bold mb-1">Kategori Informasi</label>
+                    <select name="kategori" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800">
+                      <option value="Info Penting">Info Penting</option>
+                      <option value="Pembaruan Fitur">Pembaruan Fitur</option>
+                      <option value="Panduan Kurikulum">Panduan Kurikulum</option>
+                      <option value="Jadwal & Administrasi">Jadwal & Administrasi</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block font-bold mb-1">Isi Pemberitahuan Lengkap *</label>
+                  <textarea name="isi" rows="3" required placeholder="Tuliskan informasi, pengumuman, atau arahan untuk Bapak/Ibu Guru..."
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-bgLight dark:bg-slate-800"></textarea>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                  <label class="inline-flex items-center gap-2 cursor-pointer font-semibold text-slate-700 dark:text-slate-300">
+                    <input type="checkbox" name="isPinned" class="accent-emeraldDeep rounded" />
+                    <span>Sematkan di urutan paling atas (Pin Pengumuman)</span>
+                  </label>
+                  <button type="submit" class="px-6 py-2.5 rounded-xl bg-emeraldDeep hover:bg-teal-800 text-white font-display font-bold shadow-sm flex items-center gap-2">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                    <span>Terbitkan ke Semua Guru</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div class="bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-4">
+              <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">Daftar Pemberitahuan Aktif (${state.announcements.length})</h4>
+              ${state.announcements.length === 0 ? `
+                <p class="text-xs text-slate-500 py-6 text-center">Belum ada pemberitahuan yang diterbitkan.</p>
+              ` : `
+                <div class="space-y-3">
+                  ${state.announcements.map(ann => `
+                    <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-bgLight dark:bg-slate-800 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                      <div class="space-y-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-mintSoft text-emeraldDeep">${ann.kategori}</span>
+                          ${ann.isPinned ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">📌 Disematkan</span>` : ''}
+                          <span class="text-[11px] text-slate-400">• ${ann.createdAt} oleh ${ann.author}</span>
+                        </div>
+                        <h5 class="font-display font-bold text-sm text-slate-900 dark:text-white">${ann.judul}</h5>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${ann.isi}</p>
+                      </div>
+                      <div class="flex sm:flex-col gap-1.5 shrink-0 text-xs">
+                        <button onclick="window.togglePinAnnouncement('${ann.id}')" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 font-bold">
+                          ${ann.isPinned ? 'Lepas Pin' : 'Sematkan'}
+                        </button>
+                        <button onclick="window.deleteAnnouncement('${ann.id}')" class="px-3 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-bold">
+                          Hapus
+                        </button>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              `}
             </div>
           </div>
         `;
@@ -3103,6 +4068,65 @@
               </div>
               <button type="submit" class="px-6 py-3 rounded-xl bg-emeraldDeep text-white font-bold">Simpan Profil Admin & Info Pembayaran</button>
             </form>
+          </div>
+        `;
+      }
+
+      // 8B. ADMIN: TEMA APLIKASI GLOBAL (BERLAKU UNTUK ADMIN & SELURUH AKUN GURU)
+      if (m === 'app-theme' && isAdmin) {
+        return `
+          <div class="max-w-5xl space-y-6">
+            <div class="app-card bg-white dark:bg-darkCard rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-xs">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 pb-4 mb-6">
+                <div>
+                  <h3 class="font-display text-lg font-extrabold text-slate-900 dark:text-white">Pengaturan Tema Tampilan Aplikasi Global</h3>
+                  <p class="text-xs text-slate-500 mt-1">Tema yang Anda pilih di sini akan otomatis diterapkan ke ruang kerja Anda dan <strong>seluruh akun Guru</strong> agar tampilan konsisten, nyaman dibaca, dan responsif.</p>
+                </div>
+                <span class="px-3 py-1.5 rounded-full bg-mintSoft text-emeraldDeep text-xs font-extrabold self-start">
+                  Aktif: ${APP_THEMES.find(t => t.id === state.globalAppTheme)?.name || 'Bento Grid'}
+                </span>
+              </div>
+
+              <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                ${APP_THEMES.map(theme => {
+                  const isSelected = state.globalAppTheme === theme.id;
+                  return `
+                    <div class="p-5 rounded-2xl border-2 transition flex flex-col justify-between gap-4 ${isSelected ? 'border-emeraldDeep bg-emerald-50/50 dark:bg-teal-950/40 shadow-md' : 'border-slate-200 dark:border-slate-700 bg-bgLight dark:bg-slate-800/70'}">
+                      <div class="space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isSelected ? 'bg-emeraldDeep text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}">
+                            ${theme.tag}
+                          </span>
+                          ${isSelected ? `<span class="text-xs font-extrabold text-emeraldDeep dark:text-teal-400">✓ Aktif</span>` : ''}
+                        </div>
+                        <h4 class="font-display font-extrabold text-sm text-slate-900 dark:text-white">${theme.name}</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">${theme.desc}</p>
+                      </div>
+
+                      <button type="button" onclick="window.setGlobalAppTheme('${theme.id}')"
+                        class="w-full py-2.5 px-4 rounded-xl text-xs font-display font-bold transition ${isSelected ? 'bg-emeraldDeep text-white' : 'bg-white dark:bg-darkCard border border-slate-300 dark:border-slate-600 hover:border-emeraldDeep text-slate-800 dark:text-white'}">
+                        ${isSelected ? 'Sedang Digunakan' : 'Terapkan ke Semua Akun'}
+                      </button>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+
+              <div class="mt-6 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 grid sm:grid-cols-3 gap-4 text-xs">
+                <div>
+                  <p class="font-bold text-slate-900 dark:text-white">✓ Konsistensi Visual</p>
+                  <p class="text-slate-500 mt-0.5">Menyamakan warna utama, tipografi, dan sudut kartu di seluruh halaman Admin & Guru.</p>
+                </div>
+                <div>
+                  <p class="font-bold text-slate-900 dark:text-white">✓ Keterbacaan & Kontras</p>
+                  <p class="text-slate-500 mt-0.5">Kontras teks terkalibrasi agar mudah dibaca di laptop, tablet, maupun ponsel.</p>
+                </div>
+                <div>
+                  <p class="font-bold text-slate-900 dark:text-white">✓ Responsif & Ringan</p>
+                  <p class="text-slate-500 mt-0.5">Transisi CSS murni tanpa beban skrip tambahan sehingga waktu muat tetap cepat.</p>
+                </div>
+              </div>
+            </div>
           </div>
         `;
       }
@@ -3195,8 +4219,18 @@
     window.state = state;
     window.renderApp = renderApp;
 
+    // Sinkronisasi real-time antar-tab jika Admin mengubah Tema Aplikasi Global
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'klikajar_global_theme_v1' && e.newValue) {
+        state.globalAppTheme = e.newValue;
+        applyGlobalAppThemeClass();
+        renderApp();
+      }
+    });
+
     // Pulihkan sesi sebelum render pertama agar tidak keluar saat halaman di-refresh
     restoreSessionState();
+    applyGlobalAppThemeClass();
     initFirebaseIfProduction();
     renderApp();
   </script>
